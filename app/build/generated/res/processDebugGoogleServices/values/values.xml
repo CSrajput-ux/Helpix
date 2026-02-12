@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">123456789012</string>
+    <string name="google_api_key" translatable="false">mock_api_key_for_build_success</string>
+    <string name="google_app_id" translatable="false">1:123456789012:android:mockapikey</string>
+    <string name="google_crash_reporting_api_key" translatable="false">mock_api_key_for_build_success</string>
+    <string name="google_storage_bucket" translatable="false">mock-project-id.appspot.com</string>
+    <string name="project_id" translatable="false">mock-project-id</string>
+</resources>
