@@ -51,19 +51,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import com.healthai.app.data.repository.UserRepository
+import com.healthai.app.domain.model.VitalsLog
 import com.healthai.app.services.ConnectionManager
+import com.healthai.app.ui.navigation.NavRoutes
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 //--- DATA & VIEW MODELS ---//
 
 data class Device(val name: String)
-
-data class VitalsData(val heartRate: Int, val spo2: Int, val steps: Int, val calories: Int)
 
 sealed class ConnectionState {
     object Disconnected : ConnectionState()
@@ -77,10 +78,11 @@ class DeviceConnectViewModel(application: Application) : ViewModel() {
     private val _state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val state = _state.asStateFlow()
 
-    private val _vitals = MutableStateFlow(VitalsData(72, 98, 6850, 320))
+    private val _vitals = MutableStateFlow<VitalsLog?>(null)
     val vitals = _vitals.asStateFlow()
 
     private val connectionManager = ConnectionManager(application)
+    private val userRepository = UserRepository()
     private var vitalsJob: Job? = null
 
     private val _simulatedDevices = listOf(
@@ -93,14 +95,14 @@ class DeviceConnectViewModel(application: Application) : ViewModel() {
         val connectedDevice = connectionManager.getConnectedDevice()
         if (connectedDevice != null) {
             _state.value = ConnectionState.Connected(Device(connectedDevice))
-            startVitalsSimulation()
+            startVitalsListener()
         }
     }
 
     fun startScan() {
         viewModelScope.launch {
             _state.value = ConnectionState.Scanning
-            delay(2000) // Simulate scanning for 2 seconds
+            kotlinx.coroutines.delay(2000) // Simulate scanning for 2 seconds
             _state.value = ConnectionState.DevicesFound(_simulatedDevices)
         }
     }
@@ -108,10 +110,10 @@ class DeviceConnectViewModel(application: Application) : ViewModel() {
     fun connectToDevice(device: Device) {
         viewModelScope.launch {
             _state.value = ConnectionState.Connecting(device)
-            delay(1500) // Simulate connecting for 1.5 seconds
+            kotlinx.coroutines.delay(1500) // Simulate connecting for 1.5 seconds
             connectionManager.saveDevice(device.name)
             _state.value = ConnectionState.Connected(device)
-            startVitalsSimulation()
+            startVitalsListener()
         }
     }
 
@@ -121,16 +123,10 @@ class DeviceConnectViewModel(application: Application) : ViewModel() {
         _state.value = ConnectionState.Disconnected
     }
 
-    private fun startVitalsSimulation() {
+    private fun startVitalsListener() {
         vitalsJob = viewModelScope.launch {
-            while (true) {
-                delay(2000)
-                _vitals.value = VitalsData(
-                    heartRate = Random.nextInt(60, 100),
-                    spo2 = Random.nextInt(95, 100),
-                    steps = _vitals.value.steps + Random.nextInt(1, 10),
-                    calories = _vitals.value.calories + Random.nextInt(1, 3)
-                )
+            userRepository.getLatestVitalsStream().collect { vitalsLog ->
+                _vitals.value = vitalsLog
             }
         }
     }
@@ -149,7 +145,7 @@ class DeviceConnectViewModelFactory(private val application: Application) : View
 //--- MAIN SCREEN ---//
 
 @Composable
-fun DeviceConnectScreen() {
+fun DeviceConnectScreen(navController: NavController) {
     val context = LocalContext.current
     val application = context.applicationContext as Application
     val viewModel: DeviceConnectViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
@@ -194,8 +190,18 @@ fun DeviceConnectScreen() {
                 }
             }
             is ConnectionState.Connected -> {
-                VitalsDashboard(device = currentState.device, vitals = vitals) {
-                    viewModel.disconnect()
+                vitals?.let {
+                    VitalsDashboard(navController = navController, device = currentState.device, vitals = it) {
+                        viewModel.disconnect()
+                    }
+                } ?: run {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("No vitals data found.", color = Color.White)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("Please make sure your smartwatch is connected and sending data.", color = Color.Gray, modifier = Modifier.padding(horizontal = 32.dp))
+                        }
+                    }
                 }
             }
         }
@@ -293,7 +299,12 @@ fun DeviceListItem(device: Device, onDeviceClick: (Device) -> Unit) {
 }
 
 @Composable
-fun VitalsDashboard(device: Device, vitals: VitalsData, onDisconnect: () -> Unit) {
+fun VitalsDashboard(
+    navController: NavController,
+    device: Device,
+    vitals: VitalsLog,
+    onDisconnect: () -> Unit
+) {
     val heartBeatAnim by rememberInfiniteTransition(label = "heartbeat").animateFloat(
         initialValue = 1f,
         targetValue = 1.2f,
@@ -354,7 +365,7 @@ fun VitalsDashboard(device: Device, vitals: VitalsData, onDisconnect: () -> Unit
             VitalsCard(modifier = Modifier.weight(1f)) {
                  Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.height(80.dp)) {
                      Text("Calories", color = Color.Gray, fontSize = 16.sp)
-                     Text("${vitals.calories} kcal", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                     Text("320 kcal", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) // Calories are not in VitalsLog, so this is still a dummy value
                  }
             }
         }
@@ -367,6 +378,15 @@ fun VitalsDashboard(device: Device, vitals: VitalsData, onDisconnect: () -> Unit
                 Text("Oxygen Saturation (SpO2)", color = Color.Gray, fontSize = 16.sp)
                 Text("${vitals.spo2}%", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.Bold)
             }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { navController.navigate(NavRoutes.HealthHistory) },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF))
+        ) {
+            Text("View History", color = Color.Black)
         }
 
         Spacer(modifier = Modifier.weight(1f))

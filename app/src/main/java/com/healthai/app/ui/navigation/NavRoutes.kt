@@ -17,6 +17,12 @@ object NavRoutes {
     const val SeniorMode = "senior_mode_screen"
     const val RuralMode = "rural_mode_screen"
     const val Emergency = "emergency_screen"
+    const val HealthHistory = "health_history_screen"
+    const val DoctorLogin = "doctor_login_screen"
+    const val DoctorRegister = "doctor_register_screen"
+    const val DoctorDashboard = "doctor_dashboard_screen"
+    const val MyAppointments = "my_appointments_screen"
+    const val AppSettings = "app_settings_screen"
     
     // Multi-Disease Scan Flow
     const val MultiDiseaseScanStart = "multi_disease_scan_start_screen"

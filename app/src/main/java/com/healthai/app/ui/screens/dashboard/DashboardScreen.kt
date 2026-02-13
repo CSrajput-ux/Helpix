@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -108,7 +109,13 @@ fun DashboardScreen(navController: NavController) {
                             title = "Full Body Scan",
                             subtitle = "Multi-disease\nanalysis",
                             icon = Icons.Default.CenterFocusWeak,
-                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.Results) }
+                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.MultiDiseaseScanStart) }
+                        )
+                        QuickActionCard(
+                            title = stringResource(id = R.string.book_appointment),
+                            subtitle = "Find and book a\nqualified doctor",
+                            icon = Icons.Default.MedicalServices,
+                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.Doctors) }
                         )
                         QuickActionCard(
                             title = "Disease\nHeatmap",
@@ -147,7 +154,7 @@ fun HelpixBottomNav(navController: NavController) {
         )
 
         NavItem(
-            name = "Health",
+            name = stringResource(id = R.string.health),
             icon = Icons.Filled.MonitorHeart,
             isSelected = currentRoute == NavRoutes.Health,
             onClick = {
@@ -250,7 +257,7 @@ fun ModesRow(navController: NavController) {
             }
         }
         item {
-            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.KidsMode) }) { // <-- Add Clickable
+            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.KidsMode) }) { 
                 ModeChip("Kids Mode", Color(0xFF00C853), Icons.Default.Face)
             }
         }

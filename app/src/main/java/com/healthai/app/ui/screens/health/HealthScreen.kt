@@ -3,6 +3,7 @@ package com.healthai.app.ui.screens.health
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav // Import from Dashboard
 import com.healthai.app.ui.viewmodel.HealthViewModel
 
@@ -42,11 +45,8 @@ fun HealthScreen(
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     
-    // Purana "selectedTab" state hata diya gaya hai
-
     Scaffold(
         bottomBar = {
-            // FIXED: Ab ye sirf navController leta hai
             HelpixBottomNav(navController = navController)
         }
     ) { padding ->
@@ -79,7 +79,7 @@ fun HealthScreen(
                 ) {
                     Column {
                         Text(
-                            text = "Daily Health Feed",
+                            text = stringResource(id = R.string.daily_health_feed),
                             color = colorResource(id = R.color.logo_cyan),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
@@ -91,9 +91,18 @@ fun HealthScreen(
                         )
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("Your Score", color = Color.Gray, fontSize = 10.sp)
+                        Text(stringResource(id = R.string.your_score), color = Color.Gray, fontSize = 10.sp)
                         Text("${state.healthScore}", color = Color(0xFF00E676), fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // --- NAVIGATION CARDS ---
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    NavCard(stringResource(id = R.string.smartwatch_vitals), Icons.Default.Watch, Modifier.weight(1f)) { navController.navigate("device_connect_screen") }
+                    NavCard(stringResource(id = R.string.vitals_history), Icons.Default.History, Modifier.weight(1f)) { navController.navigate(NavRoutes.HealthHistory) }
+                    NavCard(stringResource(id = R.string.my_appointments), Icons.Default.CalendarToday, Modifier.weight(1f)) { navController.navigate(NavRoutes.MyAppointments) }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -108,7 +117,7 @@ fun HealthScreen(
                         .border(1.dp, colorResource(id = R.color.card_border_glow).copy(alpha = 0.3f), RoundedCornerShape(24.dp))
                         .padding(16.dp)
                 ) {
-                    Text("Today's Health Score", color = colorResource(id = R.color.logo_cyan), fontSize = 14.sp)
+                    Text(stringResource(id = R.string.todays_health_score), color = colorResource(id = R.color.logo_cyan), fontSize = 14.sp)
                     Icon(Icons.Default.Watch, contentDescription = "Watch", tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.align(Alignment.TopEnd))
 
                     Box(modifier = Modifier.align(Alignment.Center)) {
@@ -116,7 +125,7 @@ fun HealthScreen(
                     }
                     
                     Text(
-                        text = if (state.isWatchConnected) "• Watch Connected" else "• Syncing Watch...",
+                        text = if (state.isWatchConnected) stringResource(id = R.string.watch_connected) else stringResource(id = R.string.syncing_watch),
                         color = if (state.isWatchConnected) Color(0xFF00E676) else Color.Yellow,
                         fontSize = 10.sp,
                         modifier = Modifier.align(Alignment.BottomCenter)
@@ -127,26 +136,26 @@ fun HealthScreen(
 
                 // --- METRICS GRID ---
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MetricCard("Lung Health", "Excellent", "${state.lungHealth}%", Color(0xFF00E5FF), 0.92f, Modifier.weight(1f))
-                    MetricCard("Skin Health", "Good", "${state.skinHealth}%", Color(0xFF00E676), 0.85f, Modifier.weight(1f))
+                    MetricCard(stringResource(id = R.string.lung_health), "Excellent", "${state.lungHealth}%", Color(0xFF00E5FF), 0.92f, Modifier.weight(1f))
+                    MetricCard(stringResource(id = R.string.skin_health), "Good", "${state.skinHealth}%", Color(0xFF00E676), 0.85f, Modifier.weight(1f))
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MetricCard("Sleep Quality", state.sleepQuality, "${(state.sleepScore * 100).toInt()}%", Color(0xFFD500F9), state.sleepScore, Modifier.weight(1f))
-                    MetricCard("Heart Rate", "Normal", "${state.heartRate} bpm", Color(0xFFFF4081), 0.72f, Modifier.weight(1f))
+                    MetricCard(stringResource(id = R.string.sleep_quality), state.sleepQuality, "${(state.sleepScore * 100).toInt()}%", Color(0xFFD500F9), state.sleepScore, Modifier.weight(1f))
+                    MetricCard(stringResource(id = R.string.heart_rate), "Normal", "${state.heartRate} bpm", Color(0xFFFF4081), 0.72f, Modifier.weight(1f))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // --- AI ALERTS ---
-                SectionHeader("AI Health Alerts", Icons.Default.Psychology)
+                SectionHeader(stringResource(id = R.string.ai_health_alerts), Icons.Default.Psychology)
                 AlertCard("Vitamin D Low", "Consider spending 15 mins in sunlight", "2h ago", Color(0xFFFFAB00))
                 AlertCard("Hydration Reminder", "Drink 2 more glasses of water today", "4h ago", Color(0xFF2979FF))
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // --- MEDICINES ---
-                SectionHeader("Daily Medicines", Icons.Default.Medication)
+                SectionHeader(stringResource(id = R.string.daily_medicines), Icons.Default.Medication)
                 MedicineCard("Vitamin C", "9:00 AM", true)
                 MedicineCard("Calcium", "2:00 PM", false)
                 MedicineCard("Multivitamin", "8:00 PM", false)
@@ -154,7 +163,7 @@ fun HealthScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // --- RISK PREDICTIONS ---
-                SectionHeader("Risk Predictions", Icons.Default.TrendingUp)
+                SectionHeader(stringResource(id = R.string.risk_predictions), Icons.Default.TrendingUp)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -174,14 +183,34 @@ fun HealthScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // --- RECOMMENDATIONS ---
-                SectionHeader("Recommended Today", Icons.Default.Recommend)
+                SectionHeader(stringResource(id = R.string.recommended_today), Icons.Default.Recommend)
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    RecommendationCard("Diet Plan", "2000 cal target", Icons.Default.Restaurant, Color(0xFF00E676), Modifier.weight(1f))
+                    Box(modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.DietPlanner) }) {
+                        RecommendationCard(stringResource(id = R.string.diet_planner), "2000 cal target", Icons.Default.Restaurant, Color(0xFF00E676), Modifier.fillMaxWidth())
+                    }
                     RecommendationCard("Exercise", "30 min cardio", Icons.Default.FitnessCenter, Color(0xFFFF9100), Modifier.weight(1f))
                 }
                 
                 Spacer(modifier = Modifier.height(100.dp))
             }
+        }
+    }
+}
+
+@Composable
+fun NavCard(title: String, icon: ImageVector, modifier: Modifier, onClick: () -> Unit) {
+    Box(
+        modifier = modifier
+            .height(80.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(colorResource(id = R.color.helpix_bg_top))
+            .clickable { onClick() }
+            .padding(12.dp)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
+            Icon(icon, contentDescription = null, tint = colorResource(id = R.color.logo_cyan))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(title, color = Color.White, fontSize = 12.sp)
         }
     }
 }

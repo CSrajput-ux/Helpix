@@ -45,7 +45,11 @@
 
     <color name="text_grey">#64748B</color>
 
-    <color name="neon_cyan">#00E5FF</color>       <color name="neon_pink">#EC4899</color>       <color name="dark_background">#0A0E17</color> <color name="card_background">#1A2138</color> <color name="glass_surface">#0DFFFFFF</color>
+    <color name="neon_cyan">#00E5FF</color>
+    <color name="neon_pink">#EC4899</color>
+    <color name="dark_background">#0A0E17</color>
+    <color name="card_background">#1A2138</color>
+    <color name="glass_surface">#0DFFFFFF</color>
     <color name="glass_border">#40FFFFFF</color>
 
     <color name="helpix_bg_start">#1A2138</color>

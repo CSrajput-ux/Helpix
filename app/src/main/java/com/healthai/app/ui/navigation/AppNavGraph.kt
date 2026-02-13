@@ -2,9 +2,13 @@ package com.healthai.app.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.healthai.app.ui.DeviceConnectScreen
+import com.healthai.app.ui.screens.auth.DoctorLoginScreen
+import com.healthai.app.ui.screens.auth.DoctorRegisterScreen
 import com.healthai.app.ui.screens.auth.LoginScreen
 import com.healthai.app.ui.screens.auth.PhoneLoginScreen
 import com.healthai.app.ui.screens.auth.RegisterScreen
@@ -14,14 +18,17 @@ import com.healthai.app.ui.screens.cough.CoughAnalyzerStartScreen
 import com.healthai.app.ui.screens.cough.CoughRecordingScreen
 import com.healthai.app.ui.screens.dashboard.DashboardScreen
 import com.healthai.app.ui.screens.diet.DietPlannerScreen
-import com.healthai.app.ui.screens.DoctorDetailsScreen
-import com.healthai.app.ui.screens.doctor.DoctorsScreen
+import com.healthai.app.ui.screens.doctor.DoctorDashboardScreen
+import com.healthai.app.ui.screens.doctor.DoctorListScreen
+import com.healthai.app.ui.screens.doctor.DoctorProfileScreen
 import com.healthai.app.ui.screens.emergency.EmergencyScreen
 import com.healthai.app.ui.screens.fitness.FitnessTrackerScreen
+import com.healthai.app.ui.screens.health.HealthHistoryScreen
 import com.healthai.app.ui.screens.health.HealthScreen
 import com.healthai.app.ui.screens.hospitals.NearbyHospitalsScreen
 import com.healthai.app.ui.screens.kids.KidsModeScreen
 import com.healthai.app.ui.screens.onboarding.OnboardingScreen
+import com.healthai.app.ui.screens.patient.MyAppointmentsScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionAnalysisScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionReaderScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionResultScreen
@@ -36,6 +43,7 @@ import com.healthai.app.ui.screens.results.skin.SkinResultScreen
 import com.healthai.app.ui.screens.rural.RuralModeScreen
 import com.healthai.app.ui.screens.scan.ScanScreen
 import com.healthai.app.ui.screens.scan.multidisease.*
+import com.healthai.app.ui.screens.settings.AppSettingsScreen
 import com.healthai.app.ui.screens.skin.SkinAnalysisScreen
 import com.healthai.app.ui.screens.skin.SkinDetectorStartScreen
 import com.healthai.app.ui.screens.skin.SkinScanningScreen
@@ -48,7 +56,6 @@ import com.healthai.app.ui.screens.senior.SeniorModeScreen
 import com.healthai.app.ui.screens.tools.ToolsScreen
 import com.healthai.app.ui.screens.vault.AddRecordScreen
 import com.healthai.app.ui.screens.vault.HealthVaultScreen
-import com.healthai.app.ui.DeviceConnectScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -69,6 +76,15 @@ fun AppNavGraph(navController: NavHostController) {
         composable(NavRoutes.Register) {
             RegisterScreen(navController = navController)
         }
+        composable(NavRoutes.DoctorLogin) {
+            DoctorLoginScreen(navController = navController)
+        }
+        composable(NavRoutes.DoctorRegister) {
+            DoctorRegisterScreen(navController = navController)
+        }
+        composable(NavRoutes.DoctorDashboard) {
+            DoctorDashboardScreen(navController = navController)
+        }
 
         composable(NavRoutes.Dashboard) {
             DashboardScreen(navController = navController)
@@ -83,13 +99,32 @@ fun AppNavGraph(navController: NavHostController) {
             ProfileScreen(navController = navController)
         }
         composable(NavRoutes.Doctors) {
-            DoctorsScreen(navController = navController)
+            DoctorListScreen(navController = navController)
         }
-        composable(NavRoutes.DoctorDetails) {
-            DoctorDetailsScreen(navController = navController)
+        composable(
+            route = "${NavRoutes.DoctorDetails}/{doctorId}",
+            arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
+            DoctorProfileScreen(navController = navController, doctorId = doctorId)
         }
         composable(NavRoutes.Health) {
-            DeviceConnectScreen()
+            HealthScreen(navController = navController)
+        }
+        composable(NavRoutes.HealthHistory) {
+            HealthHistoryScreen()
+        }
+        composable(NavRoutes.MyAppointments) {
+            MyAppointmentsScreen(navController = navController)
+        }
+        composable(NavRoutes.DietPlanner) {
+            DietPlannerScreen(navController = navController)
+        }
+        composable(NavRoutes.AppSettings) {
+            AppSettingsScreen(navController = navController)
+        }
+        composable("device_connect_screen") {
+            DeviceConnectScreen(navController = navController)
         }
         composable(NavRoutes.Tools) {
             ToolsScreen(navController = navController)
@@ -199,11 +234,6 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(NavRoutes.AddRecord) {
             AddRecordScreen(navController = navController)
-        }
-
-        // Diet Planner
-        composable(NavRoutes.DietPlanner) {
-            DietPlannerScreen(navController = navController)
         }
 
         // Fitness Tracker

@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("com.google.guava:guava:31.1-android")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -111,7 +112,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
-    // Yahan humne naam change kiya hai jo TOML file se match karega
+    // Changed the name to match the TOML file
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
