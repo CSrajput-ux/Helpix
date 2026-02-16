@@ -43,7 +43,7 @@ fun AnimatedButton(
             .fillMaxWidth()
             .height(56.dp)
             .background(
-                color = colorResource(id = R.color.neon_cyan),
+                color = colorResource(id = R.color.purple_500),
                 shape = RoundedCornerShape(12.dp)
             )
             .clickable { onClick() },

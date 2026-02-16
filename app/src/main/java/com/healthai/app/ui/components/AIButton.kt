@@ -20,7 +20,7 @@ fun AIButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = colorResource(id = R.color.neon_cyan),
+    backgroundColor: Color = colorResource(id = R.color.purple_500),
     textColor: Color = Color.Black
 ) {
     Button(

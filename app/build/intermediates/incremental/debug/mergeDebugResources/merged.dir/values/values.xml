@@ -26,26 +26,15 @@
     <color name="abc_search_url_text_normal">#7fa87f</color>
     <color name="abc_search_url_text_pressed">@android:color/black</color>
     <color name="abc_search_url_text_selected">@android:color/black</color>
-    <color name="accent_blue">#3482F6</color>
-    <color name="accent_blue_bright">#3482F6</color>
-    <color name="accent_blue_card">#3B82F6</color>
-    <color name="accent_cyan">#06B6D4</color>
-    <color name="accent_cyan_card">#06B6D4</color>
     <color name="accent_material_dark">@color/material_deep_teal_200</color>
     <color name="accent_material_light">@color/material_deep_teal_500</color>
-    <color name="accent_orange_card">#F97316</color>
-    <color name="accent_pink_card">#EC4899</color>
-    <color name="accent_purple">#7C3AED</color>
-    <color name="accent_purple_card">#7C3AED</color>
-    <color name="accent_red">#EF4444</color>
-    <color name="accent_red_card">#EF4444</color>
     <color name="androidx_core_ripple_material_light">#1f000000</color>
     <color name="androidx_core_secondary_text_default_material_light">#8a000000</color>
     <color name="background_floating_material_dark">@color/material_grey_800</color>
     <color name="background_floating_material_light">@android:color/white</color>
     <color name="background_material_dark">@color/material_grey_850</color>
     <color name="background_material_light">@color/material_grey_50</color>
-    <color name="black">#000000</color>
+    <color name="black">#FF000000</color>
     <color name="bright_foreground_disabled_material_dark">#80ffffff</color>
     <color name="bright_foreground_disabled_material_light">#80000000</color>
     <color name="bright_foreground_inverse_material_dark">@color/bright_foreground_material_light</color>
@@ -56,18 +45,10 @@
     <color name="browser_actions_divider_color">#1E000000</color>
     <color name="browser_actions_text_color">#DE000000</color>
     <color name="browser_actions_title_color">#646464</color>
-    <color name="btn_email_end">#0044FF</color>
-    <color name="btn_email_start">#00AEEF</color>
-    <color name="btn_phone_end">#00D2A0</color>
-    <color name="btn_phone_start">#0055FF</color>
     <color name="button_material_dark">#ff5a595b</color>
     <color name="button_material_light">#ffd6d7d7</color>
     <color name="call_notification_answer_color">#1d873b</color>
     <color name="call_notification_decline_color">#d93025</color>
-    <color name="card_background">#1A2138</color>
-    <color name="card_bg_gradient_end">#0D131F</color>
-    <color name="card_bg_gradient_start">#111927</color>
-    <color name="card_border_glow">#00E5FF</color>
     <color name="cardview_dark_background">#FF424242</color>
     <color name="cardview_light_background">#FFFFFFFF</color>
     <color name="cardview_shadow_end_color">#03000000</color>
@@ -80,7 +61,6 @@
     <color name="common_google_signin_btn_text_light_disabled">#1F000000</color>
     <color name="common_google_signin_btn_text_light_focused">#90000000</color>
     <color name="common_google_signin_btn_text_light_pressed">#DE000000</color>
-    <color name="dark_background">#0A0E17</color>
     <color name="dim_foreground_disabled_material_dark">#80bebebe</color>
     <color name="dim_foreground_disabled_material_light">#80323232</color>
     <color name="dim_foreground_material_dark">#ffbebebe</color>
@@ -89,21 +69,8 @@
     <color name="error_color_material_light">#ff5722</color>
     <color name="foreground_material_dark">@android:color/white</color>
     <color name="foreground_material_light">@android:color/black</color>
-    <color name="glass_border">#40FFFFFF</color>
-    <color name="glass_border_dull">#10FFFFFF</color>
-    <color name="glass_border_shiny">#40FFFFFF</color>
-    <color name="glass_surface">#0DFFFFFF</color>
-    <color name="glass_surface_thin">#0DFFFFFF</color>
-    <color name="helpix_bg_bottom">#0A0E17</color>
-    <color name="helpix_bg_end">#0A0E17</color>
-    <color name="helpix_bg_start">#1A2138</color>
-    <color name="helpix_bg_top">#1A2138</color>
     <color name="highlighted_text_material_dark">#6680cbc4</color>
     <color name="highlighted_text_material_light">#66009688</color>
-    <color name="login_bg_bottom">#02040A</color>
-    <color name="login_bg_top">#050B14</color>
-    <color name="logo_blue">#007AFF</color>
-    <color name="logo_cyan">#00E5FF</color>
     <color name="material_blue_grey_800">#ff37474f</color>
     <color name="material_blue_grey_900">#ff263238</color>
     <color name="material_blue_grey_950">#ff21272b</color>
@@ -116,9 +83,6 @@
     <color name="material_grey_800">#ff424242</color>
     <color name="material_grey_850">#ff303030</color>
     <color name="material_grey_900">#ff212121</color>
-    <color name="nav_bar_bg">#CC0F1522</color>
-    <color name="neon_cyan">#00E5FF</color>
-    <color name="neon_pink">#EC4899</color>
     <color name="notification_action_color_filter">#ffffffff</color>
     <color name="notification_icon_bg_color">#ff9e9e9e</color>
     <color name="places_autocomplete_error_button">
@@ -157,8 +121,8 @@
     <color name="primary_text_disabled_material_dark">#4Dffffff</color>
     <color name="primary_text_disabled_material_light">#39000000</color>
     <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#6200EE</color>
-    <color name="purple_700">#3700B3</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
     <color name="quantum_amber100">#ffecb3</color>
     <color name="quantum_amber200">#ffe082</color>
     <color name="quantum_amber300">#ffd54f</color>
@@ -512,14 +476,12 @@
     <color name="switch_thumb_disabled_material_light">#ffbdbdbd</color>
     <color name="switch_thumb_normal_material_dark">#ffbdbdbd</color>
     <color name="switch_thumb_normal_material_light">#fff1f1f1</color>
-    <color name="teal_200">#03DAC5</color>
-    <color name="teal_700">#018786</color>
-    <color name="text_grey">#64748B</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#9CA3AF</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
     <color name="tooltip_background_dark">#e6616161</color>
     <color name="tooltip_background_light">#e6FFFFFF</color>
-    <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFFFF</color>
     <dimen name="abc_action_bar_content_inset_material">16dp</dimen>
     <dimen name="abc_action_bar_content_inset_with_nav">72dp</dimen>
     <dimen name="abc_action_bar_default_height_material">56dp</dimen>
@@ -778,13 +740,10 @@
     <string name="abc_shareactionprovider_share_with">Share with</string>
     <string name="abc_shareactionprovider_share_with_application">Share with <ns1:g example="Mail" id="application_name">%s</ns1:g></string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
-    <string name="ai_health_alerts">AI Health Alerts</string>
     <string name="android.credentials.TYPE_PASSWORD_CREDENTIAL">Password</string>
     <string name="androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL">Passkey</string>
     <string name="androidx_startup" translatable="false">androidx.startup</string>
     <string name="app_name">Helpix</string>
-    <string name="are_you_a_doctor">Are you a Doctor? Login here.</string>
-    <string name="book_appointment">Book Appointment</string>
     <string name="call_notification_answer_action">Answer</string>
     <string name="call_notification_answer_video_action">Video</string>
     <string name="call_notification_decline_action">Decline</string>
@@ -813,33 +772,20 @@
     <string name="common_signin_button_text">Sign in</string>
     <string name="common_signin_button_text_long">Sign in with Google</string>
     <string name="copy_toast_msg">Link copied to clipboard</string>
-    <string name="create_account">CREATE ACCOUNT</string>
-    <string name="daily_health_feed">Daily Health Feed</string>
-    <string name="daily_medicines">Daily Medicines</string>
-    <string name="dashboard">Dashboard</string>
     <string name="default_error_message">"Invalid input"</string>
     <string name="default_popup_window_title" ns2:ignore="ExtraTranslation">"Pop-Up Window"</string>
-    <string name="diet_planner">Diet Planner</string>
-    <string name="doctor_login">Doctor Login</string>
-    <string name="doctor_registration">Doctor Registration</string>
     <string name="dropdown_menu">"Dropdown menu"</string>
-    <string name="email">Email</string>
-    <string name="email_login">Email Login</string>
     <string name="fallback_menu_item_copy_link">Copy link</string>
     <string name="fallback_menu_item_open_in_browser">Open in browser</string>
     <string name="fallback_menu_item_share_link">Share link</string>
-    <string name="full_name">Full Name</string>
     <string name="gcm_defaultSenderId" translatable="false">123456789012</string>
     <string name="google_api_key" translatable="false">mock_api_key_for_build_success</string>
     <string name="google_app_id" translatable="false">1:123456789012:android:mockapikey</string>
     <string name="google_crash_reporting_api_key" translatable="false">mock_api_key_for_build_success</string>
     <string name="google_storage_bucket" translatable="false">mock-project-id.appspot.com</string>
-    <string name="health">Health</string>
-    <string name="heart_rate">Heart Rate</string>
+    <string name="hello_world">Hello World!</string>
     <string name="in_progress">In progress</string>
     <string name="indeterminate">Partially checked</string>
-    <string name="login">Login</string>
-    <string name="lung_health">Lung Health</string>
     <string name="m3c_bottom_sheet_collapse_description">Collapse bottom sheet</string>
     <string name="m3c_bottom_sheet_dismiss_description">Dismiss bottom sheet</string>
     <string name="m3c_bottom_sheet_drag_handle_description">Drag handle</string>
@@ -900,12 +846,10 @@
     <string name="m3c_time_picker_pm">PM</string>
     <string name="m3c_tooltip_long_press_label">Show tooltip</string>
     <string name="m3c_tooltip_pane_description">Tooltip</string>
-    <string name="my_appointments">My Appointments</string>
     <string name="navigation_menu">"Navigation menu"</string>
     <string name="not_selected">Not selected</string>
     <string name="off">Off</string>
     <string name="on">On</string>
-    <string name="password">Password</string>
     <string name="places_autocomplete_clear_button">Clear search</string>
     <string name="places_autocomplete_label">Pick a place</string>
     <string name="places_autocomplete_no_results_for_query">No results for <ns1:g example="pizza" id="query">%1$s</ns1:g></string>
@@ -917,25 +861,14 @@
     <string name="project_id" translatable="false">mock-project-id</string>
     <string name="range_end">"Range end"</string>
     <string name="range_start">"Range start"</string>
-    <string name="recommended_today">Recommended Today</string>
-    <string name="register">Register</string>
-    <string name="risk_predictions">Risk Predictions</string>
     <string name="search_menu_title">Search</string>
     <string name="selected">Selected</string>
-    <string name="skin_health">Skin Health</string>
-    <string name="sleep_quality">Sleep Quality</string>
-    <string name="smartwatch_vitals">Smartwatch Vitals</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="switch_role">Switch</string>
-    <string name="syncing_watch">• Syncing Watch...</string>
     <string name="tab">Tab</string>
     <string name="template_percent"><ns1:g id="percentage">%1$d</ns1:g> percent.</string>
-    <string name="todays_health_score">Today's Health Score</string>
     <string name="tooltip_description">tooltip</string>
     <string name="tooltip_label">show tooltip</string>
-    <string name="vitals_history">Vitals History</string>
-    <string name="watch_connected">• Watch Connected</string>
-    <string name="your_score">Your Score</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>
     <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog"/>
@@ -2402,11 +2335,8 @@
         <item name="windowNoTitle">true</item>
     </style>
     <style name="Theme.FuturisticAIHealthcareApp" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/login_bg_top</item>
-        
-        <item name="android:windowBackground">@color/login_bg_bottom</item>
-        
-        <item name="android:textColor">@color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
     <style name="Theme.Hidden" parent="@android:style/Theme.DeviceDefault">
         <item name="android:windowTranslucentStatus">true</item>

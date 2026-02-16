@@ -29,8 +29,8 @@ fun GlassCard(
     // Gradient border brush (top-left shiny, bottom-right dull)
     val borderBrush = Brush.linearGradient(
         colors = listOf(
-            colorResource(id = R.color.glass_border_shiny),
-            colorResource(id = R.color.glass_border_dull)
+            colorResource(id = R.color.purple_200),
+            colorResource(id = R.color.purple_700)
         )
     )
 
@@ -39,7 +39,7 @@ fun GlassCard(
             .fillMaxWidth()
             .height(150.dp) // Slightly taller to match screenshot
             .clip(RoundedCornerShape(28.dp)) // More rounded corners
-            .background(colorResource(id = R.color.glass_surface_thin))
+            .background(colorResource(id = R.color.white))
             .border(
                 width = 1.dp,
                 brush = borderBrush,
@@ -79,7 +79,7 @@ fun GlassCard(
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = subtitle,
-                    color = colorResource(id = R.color.text_secondary),
+                    color = colorResource(id = R.color.white),
                     fontSize = 13.sp
                 )
             }

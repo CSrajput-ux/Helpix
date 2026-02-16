@@ -19,7 +19,7 @@ import com.healthai.app.R
 @Composable
 fun NeonCard(
     modifier: Modifier = Modifier,
-    borderColor: Color = colorResource(id = R.color.neon_cyan),
+    borderColor: Color = colorResource(id = R.color.purple_500),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Card(
@@ -28,7 +28,7 @@ fun NeonCard(
             .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.card_background)
+            containerColor = colorResource(id = R.color.purple_200)
         ),
         border = BorderStroke(1.dp, borderColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)

@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Theme.FuturisticAIHealthcareApp" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/login_bg_top</item>
-        
-        <item name="android:windowBackground">@color/login_bg_bottom</item>
-        
-        <item name="android:textColor">@color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 </resources>

@@ -18,8 +18,8 @@ import com.healthai.app.R
 
 @Composable
 fun HealthChart(modifier: Modifier = Modifier) {
-    val neonPink = colorResource(id = R.color.neon_pink).toArgb()
-    val neonCyan = colorResource(id = R.color.neon_cyan).toArgb()
+    val pinkColor = colorResource(id = R.color.purple_200).toArgb()
+    val cyanColor = colorResource(id = R.color.teal_200).toArgb()
 
     AndroidView(
         modifier = modifier.height(200.dp).fillMaxSize(),
@@ -44,13 +44,13 @@ fun HealthChart(modifier: Modifier = Modifier) {
                 Entry(4f, 80f), Entry(5f, 76f), Entry(6f, 74f)
             )
             val dataSet = LineDataSet(entries, "Heart Rate").apply {
-                color = neonPink
-                valueTextColor = neonCyan
+                color = pinkColor
+                valueTextColor = cyanColor
                 lineWidth = 2f
-                setCircleColor(neonCyan)
+                setCircleColor(cyanColor)
                 mode = LineDataSet.Mode.CUBIC_BEZIER
                 setDrawFilled(true)
-                fillColor = neonPink
+                fillColor = pinkColor
                 fillAlpha = 50
             }
             chart.data = LineData(dataSet)

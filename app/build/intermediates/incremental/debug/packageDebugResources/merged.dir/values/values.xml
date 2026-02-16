@@ -1,93 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="accent_blue">#3482F6</color>
-    <color name="accent_blue_bright">#3482F6</color>
-    <color name="accent_blue_card">#3B82F6</color>
-    <color name="accent_cyan">#06B6D4</color>
-    <color name="accent_cyan_card">#06B6D4</color>
-    <color name="accent_orange_card">#F97316</color>
-    <color name="accent_pink_card">#EC4899</color>
-    <color name="accent_purple">#7C3AED</color>
-    <color name="accent_purple_card">#7C3AED</color>
-    <color name="accent_red">#EF4444</color>
-    <color name="accent_red_card">#EF4444</color>
-    <color name="black">#000000</color>
-    <color name="btn_email_end">#0044FF</color>
-    <color name="btn_email_start">#00AEEF</color>
-    <color name="btn_phone_end">#00D2A0</color>
-    <color name="btn_phone_start">#0055FF</color>
-    <color name="card_background">#1A2138</color>
-    <color name="card_bg_gradient_end">#0D131F</color>
-    <color name="card_bg_gradient_start">#111927</color>
-    <color name="card_border_glow">#00E5FF</color>
-    <color name="dark_background">#0A0E17</color>
-    <color name="glass_border">#40FFFFFF</color>
-    <color name="glass_border_dull">#10FFFFFF</color>
-    <color name="glass_border_shiny">#40FFFFFF</color>
-    <color name="glass_surface">#0DFFFFFF</color>
-    <color name="glass_surface_thin">#0DFFFFFF</color>
-    <color name="helpix_bg_bottom">#0A0E17</color>
-    <color name="helpix_bg_end">#0A0E17</color>
-    <color name="helpix_bg_start">#1A2138</color>
-    <color name="helpix_bg_top">#1A2138</color>
-    <color name="login_bg_bottom">#02040A</color>
-    <color name="login_bg_top">#050B14</color>
-    <color name="logo_blue">#007AFF</color>
-    <color name="logo_cyan">#00E5FF</color>
-    <color name="nav_bar_bg">#CC0F1522</color>
-    <color name="neon_cyan">#00E5FF</color>
-    <color name="neon_pink">#EC4899</color>
+    <color name="black">#FF000000</color>
     <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#6200EE</color>
-    <color name="purple_700">#3700B3</color>
-    <color name="teal_200">#03DAC5</color>
-    <color name="teal_700">#018786</color>
-    <color name="text_grey">#64748B</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#9CA3AF</color>
-    <color name="white">#FFFFFF</color>
-    <string name="ai_health_alerts">AI Health Alerts</string>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFFFF</color>
     <string name="app_name">Helpix</string>
-    <string name="are_you_a_doctor">Are you a Doctor? Login here.</string>
-    <string name="book_appointment">Book Appointment</string>
-    <string name="create_account">CREATE ACCOUNT</string>
-    <string name="daily_health_feed">Daily Health Feed</string>
-    <string name="daily_medicines">Daily Medicines</string>
-    <string name="dashboard">Dashboard</string>
-    <string name="diet_planner">Diet Planner</string>
-    <string name="doctor_login">Doctor Login</string>
-    <string name="doctor_registration">Doctor Registration</string>
-    <string name="email">Email</string>
-    <string name="email_login">Email Login</string>
-    <string name="full_name">Full Name</string>
     <string name="gcm_defaultSenderId" translatable="false">123456789012</string>
     <string name="google_api_key" translatable="false">mock_api_key_for_build_success</string>
     <string name="google_app_id" translatable="false">1:123456789012:android:mockapikey</string>
     <string name="google_crash_reporting_api_key" translatable="false">mock_api_key_for_build_success</string>
     <string name="google_storage_bucket" translatable="false">mock-project-id.appspot.com</string>
-    <string name="health">Health</string>
-    <string name="heart_rate">Heart Rate</string>
-    <string name="login">Login</string>
-    <string name="lung_health">Lung Health</string>
-    <string name="my_appointments">My Appointments</string>
-    <string name="password">Password</string>
+    <string name="hello_world">Hello World!</string>
     <string name="project_id" translatable="false">mock-project-id</string>
-    <string name="recommended_today">Recommended Today</string>
-    <string name="register">Register</string>
-    <string name="risk_predictions">Risk Predictions</string>
-    <string name="skin_health">Skin Health</string>
-    <string name="sleep_quality">Sleep Quality</string>
-    <string name="smartwatch_vitals">Smartwatch Vitals</string>
-    <string name="syncing_watch">• Syncing Watch...</string>
-    <string name="todays_health_score">Today's Health Score</string>
-    <string name="vitals_history">Vitals History</string>
-    <string name="watch_connected">• Watch Connected</string>
-    <string name="your_score">Your Score</string>
     <style name="Theme.FuturisticAIHealthcareApp" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/login_bg_top</item>
-        
-        <item name="android:windowBackground">@color/login_bg_bottom</item>
-        
-        <item name="android:textColor">@color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 </resources>
