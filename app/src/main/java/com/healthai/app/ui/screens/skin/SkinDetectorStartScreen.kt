@@ -65,7 +65,7 @@ fun SkinDetectorStartScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Apni twacha ki samasya ko behtar samjhein. Photo lene se pehle neeche diye nirdesh padhein.",
+                text = "Understand your skin concerns better. Read instructions below before taking a photo.",
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -74,11 +74,11 @@ fun SkinDetectorStartScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                Text("Nirdesh:", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Instructions:", color = Color.White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                InstructionRow(number = "1.", text = "Prabhavit kshetra (affected area) par acchi roshni honi chahiye.")
-                InstructionRow(number = "2.", text = "Camera ko skin ke bilkul paas (4-6 inch) rakhein.")
-                InstructionRow(number = "3.", text = "Photo saaf honi chahiye, dhundhli nahi.")
+                InstructionRow(number = "1.", text = "The affected area should have good lighting.")
+                InstructionRow(number = "2.", text = "Keep the camera very close to the skin (4-6 inches).")
+                InstructionRow(number = "3.", text = "The photo must be clear, not blurry.")
             }
             
             Spacer(modifier = Modifier.weight(1f))
@@ -94,7 +94,7 @@ fun SkinDetectorStartScreen(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676)),
                 enabled = hasCamPermission
             ) {
-                Text("Scan Shuru Karein", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("Start Scanning", color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.Black)
             }

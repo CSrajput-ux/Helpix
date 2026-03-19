@@ -51,7 +51,7 @@ fun SymptomAnalysisScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "AI aapke lakshano ka vishleshan kar raha hai.",
+                text = "Helpix AI is processing your health data for accurate results.",
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center

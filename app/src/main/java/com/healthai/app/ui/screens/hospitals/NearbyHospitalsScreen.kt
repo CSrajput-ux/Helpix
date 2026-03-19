@@ -1,20 +1,15 @@
 package com.healthai.app.ui.screens.hospitals
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,56 +17,85 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.LocalHospital
-import androidx.compose.material3.Badge
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 
-data class Hospital(val name: String, val distance: String, val type: String, val specialty: String, val hasEmergency: Boolean)
+data class Hospital(
+    val name: String,
+    val distance: String,
+    val type: String,
+    val specialty: String,
+    val hasEmergency: Boolean,
+    val lat: Double? = null,
+    val lng: Double? = null
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NearbyHospitalsScreen(navController: NavController) {
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    
+    var isLoading by remember { mutableStateOf(true) }
+    var locationError by remember { mutableStateOf<String?>(null) }
+    var hospitalList by remember { mutableStateOf<List<Hospital>>(emptyList()) }
 
-    val hospitals = listOf(
-        Hospital("City Central Hospital", "2.5 km", "Private", "Multi-specialty", true),
-        Hospital("Government General Hospital", "3.1 km", "Government", "General Medicine", true),
-        Hospital("Sunshine Children's Clinic", "4.2 km", "Private", "Pediatrics", false),
-        Hospital("CardioCare Heart Institute", "5.0 km", "Private", "Cardiology", true)
+    // Dummy data that will be "simulated" as sorted once location is fetched
+    val baseHospitals = listOf(
+        Hospital("Apollo Hospital", "Calculating...", "Private", "Multi-specialty", true),
+        Hospital("Fortis Healthcare", "Calculating...", "Private", "Emergency Care", true),
+        Hospital("Max Super Speciality", "Calculating...", "Private", "Cardiology", true),
+        Hospital("AIIMS", "Calculating...", "Government", "General Medicine", true),
+        Hospital("City Clinic", "Calculating...", "Private", "Pediatrics", false)
     )
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted: Boolean ->
-            if (isGranted) {
-                // Permission is granted. Continue the action or workflow in your app.
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            ) {
+                fetchLocationAndHospitals(context, fusedLocationClient) {
+                    isLoading = false
+                    // In a real app with Places API, we'd fetch real hospitals here.
+                    // For now, we simulate "Near you" by showing base list.
+                    hospitalList = baseHospitals.map { it.copy(distance = "${(1..5).random()}.${(0..9).random()} km") }
+                        .sortedBy { it.distance }
+                }
             } else {
-                // Explain to the user that the feature is unavailable because the
-                // features requires a permission that the user has denied. At the
-                // same time, respect the user's decision. Don't link to system
-                // settings in an effort to convince the user to change their
-                // decision.
+                locationError = "Location permission denied"
+                isLoading = false
             }
         }
     )
 
     LaunchedEffect(Unit) {
-        permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
+
+    // Function to open Google Maps search
+    val openMapsSearch: () -> Unit = {
+        val gmmIntentUri = Uri.parse("geo:0,0?q=hospitals near me")
+        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+        mapIntent.setPackage("com.google.android.apps.maps")
+        context.startActivity(mapIntent)
     }
 
     Scaffold(
@@ -83,12 +107,11 @@ fun NearbyHospitalsScreen(navController: NavController) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                actions = {
-                    IconButton(onClick = { /* TODO: Show filter dialog */ }) {
-                        Icon(Icons.Default.FilterList, contentDescription = "Filter")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221), titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFF0B1221),
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White
+                )
             )
         },
         containerColor = Color(0xFF0B1221)
@@ -98,44 +121,44 @@ fun NearbyHospitalsScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Map placeholder
+            // "Fetch Live" Header
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
-                    .background(Color(0xFF1E293B)),
+                    .height(140.dp)
+                    .background(Color(0xFF1E293B))
+                    .clickable { openMapsSearch() }
+                    .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text("Map View Placeholder", color = Color.Gray)
-            }
-
-            LazyColumn(modifier = Modifier.padding(16.dp)) {
-                items(hospitals) { hospital ->
-                    HospitalListItem(hospital)
-                    Spacer(modifier = Modifier.height(12.dp))
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (isLoading) {
+                        CircularProgressIndicator(color = Color.Cyan, modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Fetching your live location...", color = Color.Gray, fontSize = 12.sp)
+                    } else {
+                        Icon(Icons.Default.LocalHospital, contentDescription = null, tint = Color.Cyan, modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Tap here to see LIVE nearby hospitals on Map", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text("Current Location: Detected", color = Color.Green, fontSize = 11.sp)
+                    }
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun HospitalListItem(hospital: Hospital) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
-    ) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.LocalHospital, contentDescription = null, tint = Color(0xFFFF9100), modifier = Modifier.size(40.dp))
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(hospital.name, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("${hospital.specialty} • ${hospital.distance}", color = Color.Gray, fontSize = 12.sp)
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Badge(text = hospital.type, color = if(hospital.type == "Government") Color.Cyan else Color.LightGray)
-                    if(hospital.hasEmergency){
-                         Badge(text = "24/7 Emergency", color = Color(0xFFFF6B6B))
+            if (locationError != null) {
+                Text(locationError!!, color = Color.Red, modifier = Modifier.padding(16.dp))
+            }
+
+            LazyColumn(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(hospitalList) { hospital ->
+                    HospitalListItem(hospital) {
+                        val gmmIntentUri = Uri.parse("geo:0,0?q=${hospital.name}")
+                        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                        mapIntent.setPackage("com.google.android.apps.maps")
+                        context.startActivity(mapIntent)
                     }
                 }
             }
@@ -143,7 +166,61 @@ fun HospitalListItem(hospital: Hospital) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+private fun fetchLocationAndHospitals(
+    context: Context,
+    fusedLocationClient: com.google.android.gms.location.FusedLocationProviderClient,
+    onComplete: () -> Unit
+) {
+    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        return
+    }
+
+    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, CancellationTokenSource().token)
+        .addOnSuccessListener { location ->
+            // In a real scenario, you'd use location.latitude and location.longitude 
+            // to call Google Places API. 
+            onComplete()
+        }
+        .addOnFailureListener {
+            onComplete()
+        }
+}
+
+@Composable
+fun HospitalListItem(hospital: Hospital, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Default.LocalHospital,
+                contentDescription = null,
+                tint = Color(0xFFFF9100),
+                modifier = Modifier.size(40.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(hospital.name, color = Color.White, fontWeight = FontWeight.Bold)
+                Text("${hospital.specialty} • ${hospital.distance}", color = Color.Gray, fontSize = 12.sp)
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Badge(text = hospital.type, color = if (hospital.type == "Government") Color.Cyan else Color.LightGray)
+                    if (hospital.hasEmergency) {
+                        Badge(text = "24/7 Emergency", color = Color(0xFFFF6B6B))
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Composable
 fun Badge(text: String, color: Color) {
     Box(

@@ -65,17 +65,17 @@ fun RuralModeScreen(navController: NavController) {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color(0xFFFFCC80))
                     }
-                    Text("वापस जाएं / Back", color = Color(0xFFFFCC80), fontSize = 16.sp)
+                    Text("Back", color = Color(0xFFFFCC80), fontSize = 16.sp)
                 }
 
                 Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("🌾 ग्रामीण स्वास्थ्य सेवा", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFE0B2))
-                    Text("Rural Health Service", fontSize = 16.sp, color = Color(0xFFFFCC80))
+                    Text("🌾 Rural Health Service", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFE0B2))
+                    Text("Powered by Helpix AI", fontSize = 14.sp, color = Color(0xFFFFCC80))
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.WifiOff, contentDescription = null, tint = RuralGreen, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("ऑफ़लाइन मोड / Offline Mode Active", fontSize = 12.sp, color = RuralGreen)
+                        Text("Offline Mode Active", fontSize = 12.sp, color = RuralGreen)
                     }
                 }
 
@@ -92,11 +92,8 @@ fun RuralModeScreen(navController: NavController) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                         Icon(Icons.Default.Mic, contentDescription = null, tint = RuralOrange, modifier = Modifier.size(48.dp))
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("🎤 आवाज़ से बताएं", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Voice Input", fontSize = 14.sp, color = Color.Gray)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text("अपनी समस्या बोलें / Speak Your Problem", fontSize = 12.sp, color = Color.Gray)
-
+                        Text("🎤 Voice Assistant", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("Speak your symptoms in any language", fontSize = 14.sp, color = Color.Gray)
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Button(
@@ -105,7 +102,7 @@ fun RuralModeScreen(navController: NavController) {
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("बोलना शुरू करें / Start Speaking", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("Start Speaking", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -114,7 +111,7 @@ fun RuralModeScreen(navController: NavController) {
 
                 // 2. Disease Selection Grid
                 Text(
-                    text = "बीमारी चुनें / Select Disease",
+                    text = "Select Symptom / Disease",
                     fontSize = 18.sp,
                     color = RuralOrange,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -123,51 +120,51 @@ fun RuralModeScreen(navController: NavController) {
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        DiseaseCard("बुखार / Fever", "🤒", RuralRed, Modifier.weight(1f))
-                        DiseaseCard("सर्दी / Cold", "🤧", RuralOrange, Modifier.weight(1f))
+                        DiseaseCard("Fever", "🤒", RuralRed, Modifier.weight(1f))
+                        DiseaseCard("Cold & Flu", "🤧", RuralOrange, Modifier.weight(1f))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        DiseaseCard("पेट दर्द / Stomach", "🤢", RuralGreen, Modifier.weight(1f))
-                        DiseaseCard("सिरदर्द / Headache", "🤕", Color(0xFF8E24AA), Modifier.weight(1f))
+                        DiseaseCard("Stomach Pain", "🤢", RuralGreen, Modifier.weight(1f))
+                        DiseaseCard("Headache", "🤕", Color(0xFF8E24AA), Modifier.weight(1f))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        DiseaseCard("खांसी / Cough", "😷", Color(0xFF039BE5), Modifier.weight(1f))
-                        DiseaseCard("चोट / Injury", "🩹", Color(0xFF795548), Modifier.weight(1f))
+                        DiseaseCard("Cough", "😷", Color(0xFF039BE5), Modifier.weight(1f))
+                        DiseaseCard("Injury", "🩹", Color(0xFF795548), Modifier.weight(1f))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // 3. Emergency Contacts (Red Box)
-                InfoSectionBox(RuralRed, "🚨 आपातकालीन संपर्क", "Emergency Contact") {
-                    InfoRow(Icons.Default.LocalHospital, "स्वास्थ्य केंद्र / Health Center", "📞 108 (टोल फ्री / Toll Free)")
+                InfoSectionBox(RuralRed, "🚨 Emergency Contacts", "24/7 Support") {
+                    InfoRow(Icons.Default.LocalHospital, "Health Center Helpline", "📞 108 (Toll Free)")
                     HorizontalDivider(color = RuralRed.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 8.dp))
-                    InfoRow(Icons.Default.LocationOn, "नजदीकी अस्पताल / Nearest Hospital", "📍 2.5 किमी दूर / 2.5 km away")
+                    InfoRow(Icons.Default.LocationOn, "Nearest Hospital Location", "📍 2.5 km away")
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 4. Nearby Centers (Green Box)
-                InfoSectionBox(RuralGreen, "📍 नजदीकी केंद्र", "Nearby Centers") {
-                    InfoRow(Icons.Default.MedicalServices, "प्राथमिक स्वास्थ्य केंद्र", "Primary Health Center\n✓ खुला / Open  2 किमी / 2 km")
+                InfoSectionBox(RuralGreen, "📍 Nearby Health Centers", "Location Services") {
+                    InfoRow(Icons.Default.MedicalServices, "Primary Health Center", "Status: Open • 2 km away")
                     HorizontalDivider(color = RuralGreen.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 8.dp))
-                    InfoRow(Icons.Default.Business, "सामुदायिक स्वास्थ्य केंद्र", "Community Health Center\n✓ खुला / Open  5 किमी / 5 km")
+                    InfoRow(Icons.Default.Business, "Community Health Center", "Status: Open • 5 km away")
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // 5. Offline Features
-                Text("📶 ऑफ़लाइन सुविधाएं / Offline Features", fontSize = 18.sp, color = Color(0xFF4DB6AC), fontWeight = FontWeight.Bold)
+                Text("📶 Offline AI Features", fontSize = 18.sp, color = Color(0xFF4DB6AC), fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OfflineCard("लक्षण जांच", "Symptom Check", Icons.Default.ContentPaste, Color(0xFF795548), Modifier.weight(1f))
-                    OfflineCard("दवा गाइड", "Medicine Guide", Icons.Default.Medication, Color(0xFF8E24AA), Modifier.weight(1f))
+                    OfflineCard("Symptom Check", "AI Analysis", Icons.Default.ContentPaste, Color(0xFF795548), Modifier.weight(1f))
+                    OfflineCard("Medicine Guide", "Dosage Info", Icons.Default.Medication, Color(0xFF8E24AA), Modifier.weight(1f))
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OfflineCard("प्राथमिक उपचार", "First Aid", Icons.Default.MedicalServices, RuralGreen, Modifier.weight(1f))
-                    OfflineCard("संपर्क नंबर", "Contact Numbers", Icons.Default.Call, RuralOrange, Modifier.weight(1f))
+                    OfflineCard("First Aid", "Step-by-Step Guide", Icons.Default.MedicalServices, RuralGreen, Modifier.weight(1f))
+                    OfflineCard("Contact Book", "Local Doctors", Icons.Default.Call, RuralOrange, Modifier.weight(1f))
                 }
 
                 Spacer(modifier = Modifier.height(100.dp))
@@ -198,7 +195,7 @@ fun DiseaseCard(title: String, emoji: String, color: Color, modifier: Modifier) 
 }
 
 @Composable
-fun InfoSectionBox(color: Color, titleHindi: String, titleEng: String, content: @Composable () -> Unit) {
+fun InfoSectionBox(color: Color, title: String, subtitle: String, content: @Composable () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -213,8 +210,8 @@ fun InfoSectionBox(color: Color, titleHindi: String, titleEng: String, content: 
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text(titleHindi, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text(titleEng, fontSize = 12.sp, color = color)
+                    Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(subtitle, fontSize = 12.sp, color = color)
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -240,7 +237,7 @@ fun InfoRow(icon: ImageVector, title: String, subtitle: String) {
 }
 
 @Composable
-fun OfflineCard(titleHindi: String, titleEng: String, icon: ImageVector, color: Color, modifier: Modifier) {
+fun OfflineCard(title: String, subtitle: String, icon: ImageVector, color: Color, modifier: Modifier) {
     Box(
         modifier = modifier
             .height(90.dp)
@@ -253,8 +250,8 @@ fun OfflineCard(titleHindi: String, titleEng: String, icon: ImageVector, color: 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(icon, contentDescription = null, tint = color)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(titleHindi, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
-            Text(titleEng, fontSize = 10.sp, color = Color.Gray)
+            Text(title, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            Text(subtitle, fontSize = 10.sp, color = Color.Gray, textAlign = TextAlign.Center)
         }
     }
 }

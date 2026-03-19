@@ -14,41 +14,39 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.healthai.app.R // Assume a placeholder image is in drawables
+import com.healthai.app.R
 
 data class SimilarityResult(val name: String, val similarity: Float)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SkinResultScreen(navController: NavController) {
+fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne", confidence: Float = 0.85f) {
 
-    // Dummy data for preview
-    val mainResult = "Eczema"
     val flagText: String
     val flagColor: Color
 
-    when(mainResult) {
-        "Eczema" -> {
-            flagText = "Doctor se Salah Lena Behtar Hoga"
+    when {
+        confidence < 0.5f -> {
+            flagText = "Low Confidence: Please Consult a Doctor"
             flagColor = Color.Yellow
         }
-        "Melanoma" -> {
-             flagText = "Turant Doctor ko Dikhayein"
+        diseaseName == "Fungal Infection" || diseaseName == "Psoriasis" -> {
+             flagText = "Medical Attention Recommended"
              flagColor = Color.Red
         }
         else -> {
-            flagText = "Gharelu Dekhbhaal Sambhav Hai"
+            flagText = "Preliminary Analysis Complete"
             flagColor = Color.Green
         }
     }
 
     val similarityResults = listOf(
-        SimilarityResult("Eczema", 0.90f),
-        SimilarityResult("Psoriasis", 0.45f),
-        SimilarityResult("Normal Rash", 0.30f)
+        SimilarityResult(diseaseName, confidence),
+        SimilarityResult("Other Conditions", 1f - confidence)
     )
 
     Scaffold(
@@ -73,37 +71,69 @@ fun SkinResultScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // User's photo placeholder
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background), 
-                contentDescription = "Scanned Image",
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
                     .clip(RoundedCornerShape(16.dp))
-            )
+                    .background(Color(0xFF1E293B)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Analyzed Image", color = Color.Gray)
+            }
             Spacer(modifier = Modifier.height(16.dp))
             
             // Triage Flag
-            Card(colors = CardDefaults.cardColors(containerColor = flagColor), modifier = Modifier.fillMaxWidth()) {
-                Text(flagText, color = Color.Black, fontWeight = FontWeight.Bold, modifier = Modifier.padding(16.dp))
+            Card(
+                colors = CardDefaults.cardColors(containerColor = flagColor), 
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = flagText, 
+                    color = Color.Black, 
+                    fontWeight = FontWeight.Bold, 
+                    modifier = Modifier.padding(16.dp),
+                    textAlign = TextAlign.Center
+                )
             }
             
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("AI Analysis", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
-            Text("AI ko is jagah par laalpan (redness), halki soojan (mild inflammation), aur dry patches mile hain.", color = Color.Gray, fontSize = 12.sp, modifier = Modifier.fillMaxWidth())
+            Text("AI Analysis Results", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "The AI detected patterns consistent with $diseaseName. This analysis is based on color, texture, and visual markers.", 
+                color = Color.Gray, 
+                fontSize = 14.sp, 
+                modifier = Modifier.fillMaxWidth()
+            )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Similarity Sliders
             similarityResults.forEach {
                 SimilarityItem(it)
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             Spacer(modifier = Modifier.weight(1f))
-            Button(onClick = { /* Navigate to doctors */ }) {
-                Text("Find a Skin Specialist")
+            
+            Text(
+                text = "DISCLAIMER: This AI analysis is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.",
+                color = Color.Red.copy(alpha = 0.7f),
+                fontSize = 10.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Button(
+                onClick = { /* Navigate to doctors */ },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676))
+            ) {
+                Text("Consult a Skin Specialist", color = Color.Black, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -113,12 +143,13 @@ fun SkinResultScreen(navController: NavController) {
 fun SimilarityItem(result: SimilarityResult) {
     Column {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("${result.name}", color = Color.White)
-            Text("${(result.similarity * 100).toInt()}% Match", color = Color(0xFF00E676))
+            Text(result.name, color = Color.White, fontSize = 14.sp)
+            Text("${(result.similarity * 100).toInt()}% Match", color = Color(0xFF00E676), fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
+        Spacer(modifier = Modifier.height(4.dp))
         LinearProgressIndicator(
             progress = result.similarity,
-            modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+            modifier = Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)),
             color = Color(0xFF00E676),
             trackColor = Color(0xFF1E293B)
         )

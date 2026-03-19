@@ -27,6 +27,7 @@
     <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"इससे शेयर करें:"</string>
     <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> से शेयर करें"</string>
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"छोटा करें"</string>
+    <string name="ai_cough_tb_analyzer">एआई कफ टीबी एनालाइजर</string>
     <string msgid="8397015543330865059" name="android.credentials.TYPE_PASSWORD_CREDENTIAL">"पासवर्ड"</string>
     <string msgid="3929015085059320822" name="androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL">"पासकी"</string>
     <string name="app_name">हेल्पिक्स</string>
@@ -58,6 +59,7 @@
     <string name="common_signin_button_text">साइन इन करें</string>
     <string name="common_signin_button_text_long">Google के ज़रिए साइन इन करें</string>
     <string msgid="3260749812566568062" name="copy_toast_msg">"लिंक क्लिपबोर्ड पर कॉपी किया गया"</string>
+    <string name="cough_analyzer_subtitle">अपनी खांसी की आवाज से टीबी के जोखिम का आकलन करें। यह केवल एक प्रारंभिक जांच है।</string>
     <string msgid="8038256446254964252" name="default_error_message">"अमान्य इनपुट"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"पॉप-अप विंडो"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"ड्रॉपडाउन मेन्यू"</string>
@@ -67,6 +69,10 @@
     <string name="hello_world">नमस्ते दुनिया!</string>
     <string msgid="6827826412747255547" name="in_progress">"जारी है"</string>
     <string msgid="7933458017204019916" name="indeterminate">"कुछ विकल्पों को चुना गया"</string>
+    <string name="instruction_1">1. शांत कमरे में जाएं।</string>
+    <string name="instruction_2">2. फोन को मुंह से लगभग 6 इंच दूर रखें।</string>
+    <string name="instruction_3">3. जब कहा जाए, तो 2-3 बार जोर से खांसें।</string>
+    <string name="instructions">निर्देश:</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"बॉटम शीट को छोटा करें"</string>
     <string msgid="1555567894577437024" name="m3c_bottom_sheet_dismiss_description">"बॉटम शीट को खारिज करें"</string>
     <string msgid="8403354765404029791" name="m3c_bottom_sheet_drag_handle_description">"खींचकर छोड़ने वाला हैंडल"</string>
@@ -139,6 +145,7 @@
     <string msgid="7097486360902471446" name="range_start">"रेंज की शुरुआत"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"खोजें"</string>
     <string msgid="6043586758067023" name="selected">"चुना गया"</string>
+    <string name="start_recording">रिकॉर्डिंग शुरू करें</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"स्विच करें"</string>
     <string msgid="1672349317127674378" name="tab">"टैब"</string>

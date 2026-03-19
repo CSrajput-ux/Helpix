@@ -3,11 +3,12 @@ package com.healthai.app.ui.screens.skin
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.border
@@ -30,18 +31,28 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.healthai.app.ui.navigation.NavRoutes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.File
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 @Composable
 fun SkinScanningScreen(navController: NavController) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
+    val cameraExecutor: ExecutorService = remember { Executors.newSingleThreadExecutor() }
+    val imageCapture = remember { ImageCapture.Builder().build() }
+    
     var hasCamPermission by remember {
         mutableStateOf(ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED)
     }
+    
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
-        onResult = { granted ->
-            hasCamPermission = granted
-        }
+        onResult = { granted -> hasCamPermission = granted }
     )
 
     LaunchedEffect(key1 = true) {
@@ -59,13 +70,13 @@ fun SkinScanningScreen(navController: NavController) {
         ) {
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = "Scan Skin",
+                text = "Skin Analysis",
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Prabhavit hisse ko ghere ke andar laayein aur photo lein.",
+                text = "Align the affected area within the circle and capture.",
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
@@ -77,7 +88,9 @@ fun SkinScanningScreen(navController: NavController) {
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(vertical = 24.dp)) {
-                    SkinCameraPreview()
+                    
+                    CameraPreview(imageCapture)
+                    
                     Box(modifier = Modifier
                         .align(Alignment.Center)
                         .size(250.dp)
@@ -92,10 +105,15 @@ fun SkinScanningScreen(navController: NavController) {
 
             IconButton(
                 onClick = { 
-                    // TODO: Implement actual image capture logic
-                    navController.navigate(NavRoutes.SkinAnalysis)
+                    takePhoto(context, imageCapture, cameraExecutor) { 
+                        // ✅ FIX: Navigating on Main Thread
+                        coroutineScope.launch(Dispatchers.Main) {
+                            navController.navigate(NavRoutes.SkinAnalysis)
+                        }
+                    }
                 },
-                modifier = Modifier.size(72.dp)
+                modifier = Modifier.size(72.dp),
+                enabled = hasCamPermission
             ) {
                 Icon(Icons.Default.Camera, contentDescription = "Capture", tint = Color.White, modifier = Modifier.fillMaxSize())
             }
@@ -105,31 +123,58 @@ fun SkinScanningScreen(navController: NavController) {
 }
 
 @Composable
-fun SkinCameraPreview() {
-    val lifecycleOwner = LocalLifecycleOwner.current
+fun CameraPreview(imageCapture: ImageCapture) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
-    val imageCapture = remember { ImageCapture.Builder().build() }
 
     AndroidView(
-        factory = {
-            val previewView = PreviewView(it)
+        factory = { ctx ->
+            val previewView = PreviewView(ctx)
             val preview = Preview.Builder().build()
             val selector = CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_BACK) // Use back camera
+                .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build()
+            
             preview.setSurfaceProvider(previewView.surfaceProvider)
+            
             cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
                 try {
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(lifecycleOwner, selector, preview, imageCapture)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("CameraPreview", "Camera binding failed", e)
                 }
-            }, ContextCompat.getMainExecutor(it))
+            }, ContextCompat.getMainExecutor(ctx))
+            
             previewView
         },
         modifier = Modifier.fillMaxSize()
+    )
+}
+
+private fun takePhoto(
+    context: Context,
+    imageCapture: ImageCapture,
+    executor: ExecutorService,
+    onImageCaptured: () -> Unit
+) {
+    val photoFile = File(context.cacheDir, "skin_scan_${System.currentTimeMillis()}.jpg")
+    val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+    imageCapture.takePicture(
+        outputOptions,
+        executor,
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                Log.d("CameraPreview", "Photo saved: ${photoFile.absolutePath}")
+                onImageCaptured()
+            }
+
+            override fun onError(exc: ImageCaptureException) {
+                Log.e("CameraPreview", "Photo capture failed: ${exc.message}", exc)
+            }
+        }
     )
 }

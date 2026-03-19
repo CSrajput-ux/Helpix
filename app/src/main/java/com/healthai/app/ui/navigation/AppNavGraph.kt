@@ -61,7 +61,7 @@ import com.healthai.app.ui.screens.vault.HealthVaultScreen
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Onboarding
+        startDestination = NavRoutes.Dashboard // DIRECT LOGIN BYPASS
     ) {
         composable(NavRoutes.Onboarding) {
             OnboardingScreen(navController = navController)
@@ -189,8 +189,17 @@ fun AppNavGraph(navController: NavHostController) {
         composable(NavRoutes.SkinAnalysis) {
             SkinAnalysisScreen(navController = navController)
         }
-        composable(NavRoutes.SkinResult) {
-            SkinResultScreen(navController = navController)
+        // ✅ FIXED: Updated to accept disease and confidence parameters
+        composable(
+            route = "${NavRoutes.SkinResult}/{label}/{confidence}",
+            arguments = listOf(
+                navArgument("label") { type = NavType.StringType },
+                navArgument("confidence") { type = NavType.FloatType }
+            )
+        ) { backStackEntry ->
+            val label = backStackEntry.arguments?.getString("label") ?: "Unknown"
+            val confidence = backStackEntry.arguments?.getFloat("confidence") ?: 0f
+            SkinResultScreen(navController, diseaseName = label, confidence = confidence)
         }
 
         // Symptom Doctor Flow

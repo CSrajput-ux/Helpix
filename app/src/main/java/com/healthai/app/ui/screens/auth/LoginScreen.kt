@@ -1,5 +1,6 @@
 package com.healthai.app.ui.screens.auth
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,12 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -72,6 +69,7 @@ fun LoginScreen(navController: NavController) {
     var password by remember { mutableStateOf("") }
     var isRememberMeChecked by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
+    var userRole by remember { mutableStateOf("PATIENT") } // Default to Patient
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -120,7 +118,7 @@ fun LoginScreen(navController: NavController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Lock, 
+                        imageVector = if (userRole == "PATIENT") Icons.Default.Person else Icons.Default.Lock, 
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier.size(30.dp)
@@ -143,12 +141,46 @@ fun LoginScreen(navController: NavController) {
             )
             
             Text(
-                text = "✨ AI-Powered Healthcare Platform",
+                text = if (userRole == "PATIENT") "✨ Patient Portal Login" else "⚕️ Doctor Portal Login",
                 color = colorResource(id = R.color.text_grey),
-                fontSize = 12.sp
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Role Switcher
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color(0xFF1E293B).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+                    .padding(4.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (userRole == "PATIENT") colorResource(id = R.color.logo_cyan) else Color.Transparent)
+                        .clickable { userRole = "PATIENT" }
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Patient", color = if (userRole == "PATIENT") Color.Black else Color.White, fontWeight = FontWeight.Bold)
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (userRole == "DOCTOR") colorResource(id = R.color.logo_cyan) else Color.Transparent)
+                        .clickable { userRole = "DOCTOR" }
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Doctor", color = if (userRole == "DOCTOR") Color.Black else Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Box(
                 modifier = Modifier
@@ -167,16 +199,6 @@ fun LoginScreen(navController: NavController) {
                     .padding(24.dp)
             ) {
                 Column {
-                    Text(
-                        text = "← Back to options",
-                        color = colorResource(id = R.color.logo_cyan),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.clickable { navController.popBackStack() }
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -189,7 +211,7 @@ fun LoginScreen(navController: NavController) {
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = stringResource(id = R.string.email_login),
+                            text = if (userRole == "PATIENT") "Patient Login" else "Doctor Login",
                             color = Color.White,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
@@ -256,12 +278,18 @@ fun LoginScreen(navController: NavController) {
                             onClick = { 
                                 if (email.isNotBlank() && password.isNotBlank()) {
                                     isLoading = true
-                                    auth.signInWithEmailAndPassword(email, password)
+                                    auth.signInWithEmailAndPassword(email.trim(), password.trim())
                                         .addOnCompleteListener { task ->
                                             if (task.isSuccessful) {
+                                                Log.d("LoginScreen", "Login successful")
                                                 Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-                                                navController.navigate(NavRoutes.Dashboard) { popUpTo(NavRoutes.Login) { inclusive = true } }
+                                                if (userRole == "PATIENT") {
+                                                    navController.navigate(NavRoutes.Dashboard) { popUpTo(NavRoutes.Login) { inclusive = true } }
+                                                } else {
+                                                    navController.navigate(NavRoutes.DoctorDashboard) { popUpTo(NavRoutes.Login) { inclusive = true } }
+                                                }
                                             } else {
+                                                Log.e("LoginScreen", "Login failed", task.exception)
                                                 Toast.makeText(context, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                                             }
                                             isLoading = false
@@ -311,19 +339,13 @@ fun LoginScreen(navController: NavController) {
                             color = colorResource(id = R.color.logo_cyan),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable { navController.navigate(NavRoutes.Register) }
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            stringResource(id = R.string.are_you_a_doctor),
-                            color = Color.Gray,
-                            fontSize = 14.sp,
-                            modifier = Modifier.clickable { navController.navigate(NavRoutes.DoctorLogin) } 
+                            modifier = Modifier.clickable { 
+                                if (userRole == "PATIENT") {
+                                    navController.navigate(NavRoutes.Register) 
+                                } else {
+                                    navController.navigate(NavRoutes.DoctorRegister)
+                                }
+                            }
                         )
                     }
                 }

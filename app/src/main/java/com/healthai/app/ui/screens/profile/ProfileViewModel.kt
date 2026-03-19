@@ -1,5 +1,6 @@
 package com.healthai.app.ui.screens.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
@@ -24,16 +25,29 @@ class ProfileViewModel : ViewModel() {
         fetchUser()
     }
 
-    private fun fetchUser() {
+    fun fetchUser() {
         viewModelScope.launch {
             _isLoading.value = true
-            val userId = auth.currentUser?.uid ?: return@launch
-            _user.value = userRepository.getUserById(userId) // Assuming you add getUserById in UserRepository
-            _isLoading.value = false
+            try {
+                val currentUser = auth.currentUser
+                if (currentUser != null) {
+                    val userData = userRepository.getUserById(currentUser.uid)
+                    _user.value = userData
+                } else {
+                    Log.d("ProfileViewModel", "No user logged in")
+                    _user.value = null
+                }
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error fetching user: ${e.message}")
+                _user.value = null
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun logout() {
         auth.signOut()
+        _user.value = null
     }
 }

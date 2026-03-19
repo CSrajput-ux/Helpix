@@ -31,7 +31,7 @@ fun AddReminderScreen(navController: NavController) {
 
     var medicineName by remember { mutableStateOf("") }
     var dosage by remember { mutableStateOf("") }
-    var schedule by remember { mutableStateOf("Rozana") }
+    var schedule by remember { mutableStateOf("Daily") }
     var time by remember { mutableStateOf("09:00 AM") }
     var startDate by remember { mutableStateOf("25/07/2024") }
     var endDate by remember { mutableStateOf("30/07/2024") }
@@ -60,7 +60,7 @@ fun AddReminderScreen(navController: NavController) {
             OutlinedTextField(
                 value = medicineName,
                 onValueChange = { medicineName = it },
-                label = { Text("Dawai ka Naam") },
+                label = { Text("Medicine Name") },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
@@ -74,7 +74,7 @@ fun AddReminderScreen(navController: NavController) {
             OutlinedTextField(
                 value = dosage,
                 onValueChange = { dosage = it },
-                label = { Text("Maatra (e.g., 1 tablet, 2 spoons)") },
+                label = { Text("Dosage (e.g., 1 tablet, 2 spoons)") },
                 modifier = Modifier.fillMaxWidth(),
                  colors = OutlinedTextFieldDefaults.colors(
                     focusedTextColor = Color.White,
@@ -90,7 +90,7 @@ fun AddReminderScreen(navController: NavController) {
             OutlinedTextField(
                 value = time,
                 onValueChange = { time = it },
-                label = { Text("Samay") },
+                label = { Text("Time") },
                 readOnly = true,
                 modifier = Modifier.fillMaxWidth().clickable { /* TODO: Show Time Picker Dialog */ },
                 trailingIcon = { Icon(Icons.Default.Schedule, null) },
@@ -107,7 +107,7 @@ fun AddReminderScreen(navController: NavController) {
                 OutlinedTextField(
                     value = startDate,
                     onValueChange = { startDate = it },
-                    label = { Text("Shuru Karne ki Taarikh") },
+                    label = { Text("Start Date") },
                     readOnly = true,
                     modifier = Modifier.weight(1f).clickable { /* TODO: Show Date Picker Dialog */ },
                     trailingIcon = { Icon(Icons.Default.DateRange, null) },
@@ -122,7 +122,7 @@ fun AddReminderScreen(navController: NavController) {
                  OutlinedTextField(
                     value = endDate,
                     onValueChange = { endDate = it },
-                    label = { Text("Khatm Karne ki Taarikh") },
+                    label = { Text("End Date") },
                     readOnly = true,
                     modifier = Modifier.weight(1f).clickable { /* TODO: Show Date Picker Dialog */ },
                     trailingIcon = { Icon(Icons.Default.DateRange, null) },
@@ -166,7 +166,7 @@ fun AddReminderScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleDropDown(selected: String, onSelected: (String) -> Unit) {
-    val options = listOf("Rozana", "Ek din chhodkar", "Hafte mein ek baar")
+    val options = listOf("Daily", "Every other day", "Once a week")
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {

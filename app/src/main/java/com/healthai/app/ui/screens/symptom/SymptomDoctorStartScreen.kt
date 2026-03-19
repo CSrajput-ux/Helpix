@@ -40,7 +40,7 @@ fun SymptomDoctorStartScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Bimari ko behtar samjhein. Yeh jaankari salah ke liye hai, medical nidaan nahi.",
+                text = "Understand your illness better. This information is for guidance, not a medical diagnosis.",
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -48,7 +48,7 @@ fun SymptomDoctorStartScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(32.dp))
             Text(
-                text = "Aap apne lakshan kaise batana chahenge?",
+                text = "How would you like to describe your symptoms?",
                 color = Color.White,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center
@@ -66,8 +66,8 @@ fun SymptomDoctorStartScreen(navController: NavController) {
                     Icon(Icons.Default.Chat, contentDescription = "Chat", tint = Color(0xFF2979FF), modifier = Modifier.size(40.dp))
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text("Baatcheet Shuru Karein", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("AI se baat karke lakshan batayein", color = Color.Gray, fontSize = 12.sp)
+                        Text("Start Chatting", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Describe your symptoms by chatting with AI", color = Color.Gray, fontSize = 12.sp)
                     }
                 }
             }
@@ -85,8 +85,8 @@ fun SymptomDoctorStartScreen(navController: NavController) {
                     Icon(Icons.Default.AccessibilityNew, contentDescription = "Body Map", tint = Color(0xFF2979FF), modifier = Modifier.size(40.dp))
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text("Sharir ke Ang se Chunein", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Sharir ke hisse ko chunn kar lakshan batayein", color = Color.Gray, fontSize = 12.sp)
+                        Text("Select by Body Part", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Pick a body part to describe symptoms", color = Color.Gray, fontSize = 12.sp)
                     }
                 }
             }

@@ -50,6 +50,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    
+    // Fixed deprecated aaptOptions
+    androidResources {
+        noCompress += "tflite"
+    }
 }
 
 dependencies {
@@ -91,6 +96,11 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
 
+    // TensorFlow Lite (Using Version Catalog)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.support)
+    implementation(libs.tensorflow.lite.metadata)
+
     // ML Kit
     implementation(libs.google.mlkit.vision.common)
 
@@ -106,13 +116,14 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.android.libraries.places:places:3.3.0")
 
-    // Testing & Debugging (FIXED LINES HERE)
+    // Gemini AI
+    implementation(libs.google.generativeai)
+
+    // Testing & Debugging
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
-
-    // Changed the name to match the TOML file
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

@@ -64,7 +64,7 @@ fun PrescriptionReaderScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Doctor ki parchhi ko scan karke dawaiyan aur unki jaankari aasani se samjhein.",
+                text = "Scan the doctor's prescription to easily understand medicines and their details.",
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -73,11 +73,11 @@ fun PrescriptionReaderScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                Text("Nirdesh:", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Instructions:", color = Color.White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                InstructionRow(number = "1.", text = "Parchhi ko ek saaf satah (flat surface) par rakhein.")
-                InstructionRow(number = "2.", text = "Achi roshni ka istemal karein.")
-                InstructionRow(number = "3.", text = "Poori parchhi ko frame ke andar laayein.")
+                InstructionRow(number = "1.", text = "Place the prescription on a flat surface.")
+                InstructionRow(number = "2.", text = "Ensure there is good lighting.")
+                InstructionRow(number = "3.", text = "Bring the entire prescription within the frame.")
             }
             
             Spacer(modifier = Modifier.weight(1f))

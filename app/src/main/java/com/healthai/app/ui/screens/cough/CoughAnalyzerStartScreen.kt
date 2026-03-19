@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -16,12 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
 
 @Composable
@@ -57,7 +58,7 @@ fun CoughAnalyzerStartScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "AI Cough TB Analyzer",
+                text = stringResource(id = R.string.ai_cough_tb_analyzer),
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -65,7 +66,7 @@ fun CoughAnalyzerStartScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Aapki khaansi ki awaaz se TB ke jokhim ka pata lagayein. Yeh sirf ek shuruaati jaanch hai.",
+                text = stringResource(id = R.string.cough_analyzer_subtitle),
                 color = Color.Gray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
@@ -74,11 +75,11 @@ fun CoughAnalyzerStartScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                Text("Nirdesh:", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.instructions), color = Color.White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                InstructionRow(number = "1.", text = "Shaant kamre mein jaaein.")
-                InstructionRow(number = "2.", text = "Phone ko munh se lagbhag 6 inch door rakhein.")
-                InstructionRow(number = "3.", text = "Jab kaha jaaye, tab 2-3 baar zor se khaansein.")
+                InstructionRow(number = "1.", text = stringResource(id = R.string.instruction_1))
+                InstructionRow(number = "2.", text = stringResource(id = R.string.instruction_2))
+                InstructionRow(number = "3.", text = stringResource(id = R.string.instruction_3))
             }
             
             Spacer(modifier = Modifier.weight(1f))
@@ -94,7 +95,7 @@ fun CoughAnalyzerStartScreen(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD500F9)),
                 enabled = hasAudioPermission
             ) {
-                Text("Recording Shuru Karein", color = Color.White, fontWeight = FontWeight.Bold)
+                Text(stringResource(id = R.string.start_recording), color = Color.White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
             }

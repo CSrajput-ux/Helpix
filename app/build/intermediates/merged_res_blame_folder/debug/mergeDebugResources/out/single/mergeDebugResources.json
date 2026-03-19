@@ -12,6 +12,14 @@
         "source": "com.healthai.app-main-86:/drawable/ic_launcher_background.xml"
     },
     {
+        "merged": "com.healthai.app-debug-84:/mipmap-xxxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.healthai.app-main-86:/mipmap-xxxhdpi/ic_launcher_foreground.webp"
+    },
+    {
+        "merged": "com.healthai.app-debug-84:/mipmap-xxhdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.healthai.app-main-86:/mipmap-xxhdpi/ic_launcher_foreground.webp"
+    },
+    {
         "merged": "com.healthai.app-debug-84:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
         "source": "com.healthai.app-main-86:/mipmap-xxxhdpi/ic_launcher_round.webp"
     },
@@ -44,8 +52,16 @@
         "source": "com.healthai.app-main-86:/mipmap-mdpi/ic_launcher_round.webp"
     },
     {
+        "merged": "com.healthai.app-debug-84:/mipmap-xhdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.healthai.app-main-86:/mipmap-xhdpi/ic_launcher_foreground.webp"
+    },
+    {
         "merged": "com.healthai.app-debug-84:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
         "source": "com.healthai.app-main-86:/mipmap-xxhdpi/ic_launcher_round.webp"
+    },
+    {
+        "merged": "com.healthai.app-debug-84:/mipmap-mdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.healthai.app-main-86:/mipmap-mdpi/ic_launcher_foreground.webp"
     },
     {
         "merged": "com.healthai.app-debug-84:/xml_data_extraction_rules.xml.flat",
@@ -58,6 +74,10 @@
     {
         "merged": "com.healthai.app-debug-84:/mipmap-xhdpi_ic_launcher.webp.flat",
         "source": "com.healthai.app-main-86:/mipmap-xhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.healthai.app-debug-84:/mipmap-hdpi_ic_launcher_foreground.webp.flat",
+        "source": "com.healthai.app-main-86:/mipmap-hdpi/ic_launcher_foreground.webp"
     },
     {
         "merged": "com.healthai.app-debug-84:/xml_backup_rules.xml.flat",

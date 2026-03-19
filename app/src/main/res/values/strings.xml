@@ -1,5 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Helpix</string>
-    <string name="hello_world">Hello World!</string>
+
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="email">Email Address</string>
+    <string name="password">Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="email_login">Login with Email</string>
+    <string name="create_account">Create Account</string>
+    <string name="are_you_a_doctor">Are you a Doctor?</string>
+
+    <string name="doctor_login">Doctor Login</string>
+    <string name="doctor_registration">Doctor Registration</string>
+
+    <string name="book_appointment">Book Appointment</string>
+    <string name="health">Health</string>
+    <string name="vitals_history">Vitals History</string>
+    <string name="daily_health_feed">Daily Health Feed</string>
+    <string name="your_score">Your Score</string>
+    <string name="smartwatch_vitals">Smartwatch Vitals</string>
+    <string name="my_appointments">My Appointments</string>
+    <string name="todays_health_score">Today\'s Health Score</string>
+    <string name="watch_connected">Watch Connected</string>
+    <string name="syncing_watch">Syncing...</string>
+
+    <string name="lung_health">Lung Health</string>
+    <string name="skin_health">Skin Health</string>
+    <string name="sleep_quality">Sleep Quality</string>
+    <string name="heart_rate">Heart Rate</string>
+    <string name="ai_health_alerts">AI Alerts</string>
+    <string name="daily_medicines">Medicines</string>
+    <string name="risk_predictions">Risk Predictions</string>
+    <string name="recommended_today">Recommended Today</string>
+    <string name="diet_planner">Diet Planner</string>
+
+    <!-- Cough Analyzer -->
+    <string name="ai_cough_tb_analyzer">AI Cough TB Analyzer</string>
+    <string name="cough_analyzer_subtitle">Assess the risk of TB from the sound of your cough. This is only a preliminary check.</string>
+    <string name="instructions">Instructions:</string>
+    <string name="instruction_1">1. Go to a quiet room.</string>
+    <string name="instruction_2">2. Hold the phone about 6 inches from your mouth.</string>
+    <string name="instruction_3">3. When prompted, cough forcefully 2-3 times.</string>
+    <string name="start_recording">Start Recording</string>
 </resources>

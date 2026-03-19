@@ -8,52 +8,16 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -84,47 +47,73 @@ fun ProfileScreen(navController: NavController, viewModel: ProfileViewModel = vi
 
     val scrollState = rememberScrollState()
     val context = LocalContext.current
-    val languageManager = remember { LanguageManager(context) }
+    
+    // Check if LanguageManager exists, if not, we'll provide a fallback or dummy
+    val languageManager = remember { 
+        try {
+            LanguageManager(context)
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     Scaffold(
         containerColor = Color(0xFF0B1221)
     ) { paddingValues ->
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFF00FFFF))
-            }
-        } else {
-            user?.let { currentUser ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .background(Color(0xFF0B1221))
-                        .verticalScroll(scrollState)
-                ) {
-                    ProfileTopHeader(navController) { 
-                        viewModel.logout()
-                        navController.navigate("login_screen") { popUpTo(0) }
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color(0xFF00FFFF))
+                }
+            } else {
+                user?.let { currentUser ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFF0B1221))
+                            .verticalScroll(scrollState)
+                    ) {
+                        ProfileTopHeader(navController) { 
+                            viewModel.logout()
+                            navController.navigate(NavRoutes.Login) { 
+                                popUpTo(0)
+                                launchSingleTop = true 
+                            }
+                        }
+                        ProfileHeaderCard(currentUser)
+                        PersonalInformationSection(
+                            user = currentUser
+                        )
+                        
+                        languageManager?.let {
+                            LanguageSwitcher(it, context)
+                        }
+                        
+                        SettingsGrid(navController = navController)
+                        DangerZone()
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
-                    ProfileHeaderCard(currentUser)
-                    PersonalInformationSection(
-                        fullName = TextFieldValue(currentUser.name),
-                        onFullNameChange = {},
-                        email = TextFieldValue(currentUser.email),
-                        onEmailChange = {},
-                        phone = TextFieldValue("+1 234 567 890"),
-                        onPhoneChange = {},
-                        dob = TextFieldValue(currentUser.dateOfBirth?.toString() ?: ""),
-                        onDobChange = {},
-                        address = TextFieldValue(currentUser.clinicAddress ?: ""),
-                        onAddressChange = {},
-                        emergencyContact = TextFieldValue("+1 987 654 321"),
-                        onEmergencyContactChange = {}
-                    )
-                    LanguageSwitcher(languageManager, context)
-                    SettingsGrid(navController = navController)
-                    DangerZone()
-                    Spacer(modifier = Modifier.height(24.dp))
+                } ?: run {
+                    // This block handles the case where user is null (not logged in or data missing)
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
+                            Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(80.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text("Profile data is currently unavailable.", color = Color.White, textAlign = TextAlign.Center)
+                            Text("Please ensure you are logged in.", color = Color.Gray, fontSize = 14.sp, textAlign = TextAlign.Center)
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Button(
+                                onClick = { 
+                                    viewModel.logout()
+                                    navController.navigate(NavRoutes.Login) { popUpTo(0) } 
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FFFF)),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("Return to Login", color = Color.Black, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -173,7 +162,7 @@ fun ProfileHeaderCard(user: com.healthai.app.domain.model.User) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background), // Replace with your avatar
+                painter = painterResource(id = R.drawable.ic_launcher_background), 
                 contentDescription = "User Avatar",
                 modifier = Modifier
                     .size(100.dp)
@@ -190,42 +179,38 @@ fun ProfileHeaderCard(user: com.healthai.app.domain.model.User) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = user.name,
+                text = user.name.ifEmpty { "HealthAI User" },
                 color = Color.White,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = user.email,
+                text = user.email.ifEmpty { "No email associated" },
                 color = Color.Gray,
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Badge(text = "Verified Account", color = Color(0xFF10B981)) // Green
-                if(user.userType == "DOCTOR"){
-                    Badge(text = "Doctor", color = Color(0xFF06B6D4)) // Teal
-                } else {
-                    Badge(text = "Patient", color = Color(0xFF06B6D4)) // Teal
-                }
+                Badge(text = "Verified Account", color = Color(0xFF10B981)) 
+                Badge(text = if(user.userType == "DOCTOR") "Doctor" else "Patient", color = Color(0xFF06B6D4))
             }
             Spacer(modifier = Modifier.height(24.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Button(
-                    onClick = { /* Handle Cancel */ },
+                    onClick = { /* Edit Photo Action */ },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF334155))
                 ) {
-                    Text("Cancel", color = Color.White)
+                    Text("Edit Photo", color = Color.White)
                 }
                 Button(
-                    onClick = { /* Handle Save */ },
+                    onClick = { /* Save Changes Action */ },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 8.dp),
                     modifier = Modifier.shadow(8.dp, RoundedCornerShape(12.dp), spotColor = Color(0xFF10B981))
                 ) {
-                    Text("Save", color = Color.White)
+                    Text("Save Changes", color = Color.White)
                 }
             }
         }
@@ -250,7 +235,7 @@ fun LanguageSwitcher(languageManager: LanguageManager, context: Context){
             readOnly = true,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor(),
-            label = { Text("Language", color = Color.Gray) },
+            label = { Text("App Language", color = Color.Gray) },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF00FFFF),
@@ -295,14 +280,10 @@ fun Badge(text: String, color: Color) {
 }
 
 @Composable
-fun PersonalInformationSection(
-    fullName: TextFieldValue, onFullNameChange: (TextFieldValue) -> Unit,
-    email: TextFieldValue, onEmailChange: (TextFieldValue) -> Unit,
-    phone: TextFieldValue, onPhoneChange: (TextFieldValue) -> Unit,
-    dob: TextFieldValue, onDobChange: (TextFieldValue) -> Unit,
-    address: TextFieldValue, onAddressChange: (TextFieldValue) -> Unit,
-    emergencyContact: TextFieldValue, onEmergencyContactChange: (TextFieldValue) -> Unit
-) {
+fun PersonalInformationSection(user: com.healthai.app.domain.model.User) {
+    var name by remember { mutableStateOf(TextFieldValue(user.name)) }
+    var email by remember { mutableStateOf(TextFieldValue(user.email)) }
+    
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "Personal Information",
@@ -312,14 +293,10 @@ fun PersonalInformationSection(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         
-        InfoTextField(label = "Full Name", value = fullName, onValueChange = onFullNameChange)
-        InfoTextField(label = "Email Address", value = email, onValueChange = onEmailChange)
-        InfoTextField(label = "Phone Number", value = phone, onValueChange = onPhoneChange)
-        InfoTextField(label = "Date of Birth", value = dob, onValueChange = onDobChange)
+        InfoTextField(label = "Full Name", value = name, onValueChange = { name = it })
+        InfoTextField(label = "Email Address", value = email, onValueChange = { email = it })
         GenderDropdown()
         BloodGroupDropdown()
-        InfoTextField(label = "Address", value = address, onValueChange = onAddressChange)
-        InfoTextField(label = "Emergency Contact", value = emergencyContact, onValueChange = onEmergencyContactChange)
     }
 }
 
@@ -348,7 +325,7 @@ fun InfoTextField(label: String, value: TextFieldValue, onValueChange: (TextFiel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenderDropdown() {
-    val options = listOf("Male", "Female", "Other", "Prefer not to say")
+    val options = listOf("Male", "Female", "Other")
     var expanded by remember { mutableStateOf(false) }
     var selectedOptionText by remember { mutableStateOf("Gender") }
 
@@ -441,9 +418,9 @@ fun BloodGroupDropdown() {
 @Composable
 fun SettingsGrid(navController: NavController) {
     val settingsItems = listOf(
-        "Security Settings" to Icons.Default.Lock,
+        "Security" to Icons.Default.Lock,
         "Notifications" to Icons.Default.Notifications,
-        "Health Preferences" to Icons.Default.Favorite,
+        "Preferences" to Icons.Default.Favorite,
         "App Settings" to Icons.Default.Settings
     )
     

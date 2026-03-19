@@ -1,5 +1,7 @@
 package com.healthai.app.ui.screens.emergency
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,6 +40,31 @@ val NeonRed = Color(0xFFFF5252)
 @Composable
 fun EmergencyScreen(navController: NavController) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    // Function to launch the dialer
+    val makeCall: (String) -> Unit = { phoneNumber ->
+        val intent = Intent(Intent.ACTION_DIAL).apply {
+            data = Uri.parse("tel:$phoneNumber")
+        }
+        context.startActivity(intent)
+    }
+
+    // Function to search on Google Maps
+    val searchNearby: (String) -> Unit = { query ->
+        val gmmIntentUri = Uri.parse("geo:0,0?q=$query")
+        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+        mapIntent.setPackage("com.google.android.apps.maps")
+        context.startActivity(mapIntent)
+    }
+
+    // Function to start Navigation to nearest hospital
+    val startNavigation: () -> Unit = {
+        val gmmIntentUri = Uri.parse("google.navigation:q=hospital")
+        val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+        mapIntent.setPackage("com.google.android.apps.maps")
+        context.startActivity(mapIntent)
+    }
 
     Scaffold(
         bottomBar = { HelpixBottomNav(navController = navController) },
@@ -100,7 +128,7 @@ fun EmergencyScreen(navController: NavController) {
 
                 // 1. BIG CALL BUTTON
                 Button(
-                    onClick = { /* Call Action */ },
+                    onClick = { makeCall("108") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(140.dp)
@@ -144,18 +172,31 @@ fun EmergencyScreen(navController: NavController) {
 
                 // 3. Location & Nearby
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    EmergencyStatCard("Nearest Hospital", "1.2 km away", Icons.Default.LocationOn, Modifier.weight(1f))
-                    EmergencyStatCard("Blood Banks", "3 nearby", Icons.Default.WaterDrop, Modifier.weight(1f))
+                    EmergencyStatCard(
+                        title = "Nearest Hospital",
+                        subtitle = "Find near you",
+                        icon = Icons.Default.LocationOn,
+                        modifier = Modifier.weight(1f),
+                        onClick = { searchNearby("hospitals near me") }
+                    )
+                    EmergencyStatCard(
+                        title = "Blood Banks",
+                        subtitle = "Find near you",
+                        icon = Icons.Default.WaterDrop,
+                        modifier = Modifier.weight(1f),
+                        onClick = { searchNearby("blood banks near me") }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 4. Location Tracking
+                // 4. Location Tracking (Now Functional for Route/Tracking)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .border(1.dp, NeonRed.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
                         .background(CardRedBg, RoundedCornerShape(16.dp))
+                        .clickable { startNavigation() } // Opens Google Maps Navigation to nearest hospital
                         .padding(16.dp)
                 ) {
                     Column {
@@ -181,7 +222,7 @@ fun EmergencyScreen(navController: NavController) {
                             Column {
                                 Text("Current Location", color = NeonRed, fontSize = 10.sp)
                                 Text("Sharing with emergency services...", color = Color.White, fontSize = 14.sp)
-                                Text("Lat: 28.6139, Long: 77.2090", color = Color.Gray, fontSize = 10.sp)
+                                Text("Tap to start Navigation to nearest Hospital", color = NeonRed, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -199,11 +240,17 @@ fun EmergencyScreen(navController: NavController) {
                         .padding(16.dp)
                 ) {
                     Column {
-                        ContactRow(Icons.Default.LocalHospital, "Ambulance", "108 - Free")
+                        ContactRow(Icons.Default.LocalHospital, "Ambulance", "108 - Free") {
+                            makeCall("108")
+                        }
                         Divider(color = NeonRed.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
-                        ContactRow(Icons.Default.Favorite, "Emergency Contact", "+91 98765 43210")
+                        ContactRow(Icons.Default.Favorite, "Emergency Contact", "+91 98765 43210") {
+                            makeCall("+919876543210")
+                        }
                         Divider(color = NeonRed.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
-                        ContactRow(Icons.Default.LocalPolice, "Police", "100")
+                        ContactRow(Icons.Default.LocalPolice, "Police", "100") {
+                            makeCall("100")
+                        }
                     }
                 }
 
@@ -232,12 +279,13 @@ fun PersonalDetailBox(label: String, value: String, modifier: Modifier) {
 }
 
 @Composable
-fun EmergencyStatCard(title: String, subtitle: String, icon: ImageVector, modifier: Modifier) {
+fun EmergencyStatCard(title: String, subtitle: String, icon: ImageVector, modifier: Modifier, onClick: () -> Unit = {}) {
     Box(
         modifier = modifier
             .height(80.dp)
             .border(1.dp, NeonRed.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
             .background(CardRedBg, RoundedCornerShape(16.dp))
+            .clickable { onClick() }
             .padding(12.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -251,7 +299,7 @@ fun EmergencyStatCard(title: String, subtitle: String, icon: ImageVector, modifi
 }
 
 @Composable
-fun ContactRow(icon: ImageVector, title: String, subtitle: String) {
+fun ContactRow(icon: ImageVector, title: String, subtitle: String, onCallClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -274,7 +322,7 @@ fun ContactRow(icon: ImageVector, title: String, subtitle: String) {
         }
         
         Button(
-            onClick = {},
+            onClick = onCallClick,
             colors = ButtonDefaults.buttonColors(containerColor = NeonRed),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
             modifier = Modifier.height(32.dp)

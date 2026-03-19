@@ -15,6 +15,9 @@ camera = "1.5.2"
 retrofit = "2.9.0"
 gson = "2.9.0"
 mlkitVision = "17.3.0"
+tensorflowLite = "2.14.0"
+tensorflowLiteSupport = "0.4.4"
+generativeAi = "0.9.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +50,14 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 
 # ML Kit
 google-mlkit-vision-common = { group = "com.google.mlkit", name = "vision-common", version.ref = "mlkitVision" }
+
+# TensorFlow Lite
+tensorflow-lite = { group = "org.tensorflow", name = "tensorflow-lite", version.ref = "tensorflowLite" }
+tensorflow-lite-support = { group = "org.tensorflow", name = "tensorflow-lite-support", version.ref = "tensorflowLiteSupport" }
+tensorflow-lite-metadata = { group = "org.tensorflow", name = "tensorflow-lite-metadata", version.ref = "tensorflowLiteSupport" }
+
+# Gemini AI
+google-generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeAi" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
