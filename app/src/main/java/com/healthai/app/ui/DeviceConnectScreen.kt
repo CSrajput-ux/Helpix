@@ -1,6 +1,10 @@
 package com.healthai.app.ui
 
 import android.app.Application
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -11,34 +15,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -46,73 +32,87 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.healthai.app.data.repository.UserRepository
 import com.healthai.app.domain.model.VitalsLog
+import com.healthai.app.services.BleDevice
+import com.healthai.app.services.BluetoothService
 import com.healthai.app.services.ConnectionManager
 import com.healthai.app.ui.navigation.NavRoutes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 //--- DATA & VIEW MODELS ---//
 
-data class Device(val name: String)
-
 sealed class ConnectionState {
     object Disconnected : ConnectionState()
     object Scanning : ConnectionState()
-    data class DevicesFound(val devices: List<Device>) : ConnectionState()
-    data class Connecting(val device: Device) : ConnectionState()
-    data class Connected(val device: Device) : ConnectionState()
+    data class DevicesFound(val devices: List<BleDevice>) : ConnectionState()
+    data class Connecting(val device: BleDevice) : ConnectionState()
+    data class Connected(val device: BleDevice) : ConnectionState()
+    data class Error(val message: String) : ConnectionState()
 }
 
-class DeviceConnectViewModel(application: Application) : ViewModel() {
+class DeviceConnectViewModel(application: Application) : AndroidViewModel(application) {
     private val _state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val state = _state.asStateFlow()
 
     private val _vitals = MutableStateFlow<VitalsLog?>(null)
     val vitals = _vitals.asStateFlow()
 
+    val bluetoothService = BluetoothService(application)
     private val connectionManager = ConnectionManager(application)
     private val userRepository = UserRepository()
     private var vitalsJob: Job? = null
 
-    private val _simulatedDevices = listOf(
-        Device("Helpix Watch Pro"),
-        Device("Galaxy Watch 6"),
-        Device("Mi Band 7")
-    )
-
     init {
-        val connectedDevice = connectionManager.getConnectedDevice()
-        if (connectedDevice != null) {
-            _state.value = ConnectionState.Connected(Device(connectedDevice))
-            startVitalsListener()
+        // Observe real bluetooth scanning results
+        viewModelScope.launch {
+            bluetoothService.foundDevices.collect { bleDevices ->
+                if (_state.value is ConnectionState.Scanning || _state.value is ConnectionState.DevicesFound) {
+                    if (bleDevices.isNotEmpty()) {
+                        _state.value = ConnectionState.DevicesFound(bleDevices)
+                    }
+                }
+            }
+        }
+        
+        viewModelScope.launch {
+            bluetoothService.isScanning.collect { scanning ->
+                if (!scanning && _state.value is ConnectionState.Scanning && bluetoothService.foundDevices.value.isEmpty()) {
+                     _state.value = ConnectionState.Error("No devices found nearby. Make sure your watch is in pairing mode.")
+                }
+            }
         }
     }
 
     fun startScan() {
-        viewModelScope.launch {
-            _state.value = ConnectionState.Scanning
-            kotlinx.coroutines.delay(2000) // Simulate scanning for 2 seconds
-            _state.value = ConnectionState.DevicesFound(_simulatedDevices)
+        if (!bluetoothService.isBluetoothEnabled()) {
+            _state.value = ConnectionState.Error("Bluetooth is disabled. Please enable it to scan.")
+            return
         }
+        _state.value = ConnectionState.Scanning
+        bluetoothService.startScanning()
     }
 
-    fun connectToDevice(device: Device) {
+    fun connectToDevice(bleDevice: BleDevice) {
         viewModelScope.launch {
-            _state.value = ConnectionState.Connecting(device)
-            kotlinx.coroutines.delay(1500) // Simulate connecting for 1.5 seconds
-            connectionManager.saveDevice(device.name)
-            _state.value = ConnectionState.Connected(device)
+            _state.value = ConnectionState.Connecting(bleDevice)
+            bluetoothService.stopScanning()
+            
+            // Simulating connection logic
+            kotlinx.coroutines.delay(2000) 
+            connectionManager.saveDevice(bleDevice.name)
+            _state.value = ConnectionState.Connected(bleDevice)
             startVitalsListener()
         }
     }
@@ -133,7 +133,7 @@ class DeviceConnectViewModel(application: Application) : ViewModel() {
 }
 
 class DeviceConnectViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DeviceConnectViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return DeviceConnectViewModel(application) as T
@@ -148,11 +148,19 @@ class DeviceConnectViewModelFactory(private val application: Application) : View
 fun DeviceConnectScreen(navController: NavController) {
     val context = LocalContext.current
     val application = context.applicationContext as Application
-    val viewModel: DeviceConnectViewModel = androidx.lifecycle.viewmodel.compose.viewModel(
+    val viewModel: DeviceConnectViewModel = viewModel(
         factory = DeviceConnectViewModelFactory(application)
     )
     val state by viewModel.state.collectAsState()
     val vitals by viewModel.vitals.collectAsState()
+
+    val bluetoothLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        if (viewModel.bluetoothService.isBluetoothEnabled()) {
+            viewModel.startScan()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -162,20 +170,31 @@ fun DeviceConnectScreen(navController: NavController) {
     ) {
         when (val currentState = state) {
             is ConnectionState.Disconnected -> {
-                Button(
-                    onClick = { viewModel.startScan() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Scan for Smartwatch", color = Color.Black, fontWeight = FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(Icons.Default.Refresh, contentDescription = null, tint = Color(0xFF00E5FF), modifier = Modifier.size(64.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = { 
+                            if (!viewModel.bluetoothService.isBluetoothEnabled()) {
+                                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                                bluetoothLauncher.launch(enableBtIntent)
+                            } else {
+                                viewModel.startScan() 
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF)),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("Search for Watch", color = Color.Black, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
             is ConnectionState.Scanning -> {
                 RadarScanningView()
             }
             is ConnectionState.DevicesFound -> {
-                DeviceSelectionScreen(devices = currentState.devices) { device ->
-                    viewModel.connectToDevice(device)
+                DeviceSelectionScreen(devices = currentState.devices) { bleDevice ->
+                    viewModel.connectToDevice(bleDevice)
                 }
             }
             is ConnectionState.Connecting -> {
@@ -183,7 +202,7 @@ fun DeviceConnectScreen(navController: NavController) {
                     CircularProgressIndicator(color = Color(0xFF00E5FF))
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Connecting to ${currentState.device.name}...",
+                        text = "Pairing with ${currentState.device.name}...",
                         color = Color.White,
                         fontSize = 18.sp
                     )
@@ -191,16 +210,37 @@ fun DeviceConnectScreen(navController: NavController) {
             }
             is ConnectionState.Connected -> {
                 vitals?.let {
-                    VitalsDashboard(navController = navController, device = currentState.device, vitals = it) {
+                    VitalsDashboard(navController = navController, deviceName = currentState.device.name, vitals = it) {
                         viewModel.disconnect()
                     }
                 } ?: run {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("No vitals data found.", color = Color.White)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+                            CircularProgressIndicator(color = Color(0xFF00E5FF))
                             Spacer(modifier = Modifier.height(16.dp))
-                            Text("Please make sure your smartwatch is connected and sending data.", color = Color.Gray, modifier = Modifier.padding(horizontal = 32.dp))
+                            Text("Waiting for data from ${currentState.device.name}...", color = Color.White, textAlign = TextAlign.Center)
                         }
+                    }
+                }
+            }
+            is ConnectionState.Error -> {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
+                    Text("Oops!", color = Color(0xFFFF5252), fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(currentState.message, color = Color.White, textAlign = TextAlign.Center)
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = { 
+                            if (!viewModel.bluetoothService.isBluetoothEnabled()) {
+                                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                                bluetoothLauncher.launch(enableBtIntent)
+                            } else {
+                                viewModel.startScan() 
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF))
+                    ) {
+                        Text("Try Again", color = Color.Black)
                     }
                 }
             }
@@ -252,14 +292,14 @@ fun RadarScanningView() {
 }
 
 @Composable
-fun DeviceSelectionScreen(devices: List<Device>, onDeviceClick: (Device) -> Unit) {
+fun DeviceSelectionScreen(devices: List<BleDevice>, onDeviceClick: (BleDevice) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
         Text(
-            "Devices Found",
+            "Select Your Watch",
             color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
@@ -267,18 +307,18 @@ fun DeviceSelectionScreen(devices: List<Device>, onDeviceClick: (Device) -> Unit
         )
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(devices) { device ->
-                DeviceListItem(device, onDeviceClick)
+                BleDeviceListItem(device, onDeviceClick)
             }
         }
     }
 }
 
 @Composable
-fun DeviceListItem(device: Device, onDeviceClick: (Device) -> Unit) {
+fun BleDeviceListItem(bleDevice: BleDevice, onDeviceClick: (BleDevice) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onDeviceClick(device) },
+            .clickable { onDeviceClick(bleDevice) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1A293D))
     ) {
@@ -293,7 +333,10 @@ fun DeviceListItem(device: Device, onDeviceClick: (Device) -> Unit) {
                     .background(Color(0xFF00E5FF), CircleShape)
             )
             Spacer(modifier = Modifier.width(16.dp))
-            Text(device.name, color = Color.White, fontSize = 18.sp)
+            Column {
+                Text(bleDevice.name, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(bleDevice.address, color = Color.Gray, fontSize = 12.sp)
+            }
         }
     }
 }
@@ -301,7 +344,7 @@ fun DeviceListItem(device: Device, onDeviceClick: (Device) -> Unit) {
 @Composable
 fun VitalsDashboard(
     navController: NavController,
-    device: Device,
+    deviceName: String,
     vitals: VitalsLog,
     onDisconnect: () -> Unit
 ) {
@@ -320,7 +363,7 @@ fun VitalsDashboard(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Connected to ${device.name}", color = Color.Gray)
+        Text("Paired with $deviceName", color = Color(0xFF00E5FF), fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(24.dp))
 
         // Heart Rate
@@ -365,7 +408,7 @@ fun VitalsDashboard(
             VitalsCard(modifier = Modifier.weight(1f)) {
                  Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.height(80.dp)) {
                      Text("Calories", color = Color.Gray, fontSize = 16.sp)
-                     Text("320 kcal", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold) // Calories are not in VitalsLog, so this is still a dummy value
+                     Text("320 kcal", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                  }
             }
         }
@@ -380,22 +423,22 @@ fun VitalsDashboard(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = { navController.navigate(NavRoutes.HealthHistory) },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF)),
+            modifier = Modifier.fillMaxWidth().height(50.dp)
         ) {
-            Text("View History", color = Color.Black)
+            Text("View Detailed History", color = Color.Black, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
-            onClick = onDisconnect,
-            colors = ButtonDefaults.buttonColors(containerColor = Color.DarkGray)
+        TextButton(
+            onClick = onDisconnect
         ) {
-            Text("Disconnect", color = Color.White)
+            Text("Unpair Device", color = Color(0xFFFF5252))
         }
     }
 }

@@ -29,6 +29,10 @@ class BluetoothService(private val context: Context) {
 
     private val handler = Handler(Looper.getMainLooper())
 
+    fun isBluetoothEnabled(): Boolean {
+        return bluetoothAdapter?.isEnabled == true
+    }
+
     private val scanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
