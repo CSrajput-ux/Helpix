@@ -1,10 +1,12 @@
 package com.healthai.app.ui.viewmodel;
 
+import com.healthai.app.data.remote.HealthConnectManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
+import javax.inject.Provider;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -21,20 +23,23 @@ import javax.annotation.processing.Generated;
     "cast"
 })
 public final class HealthViewModel_Factory implements Factory<HealthViewModel> {
+  private final Provider<HealthConnectManager> healthConnectManagerProvider;
+
+  public HealthViewModel_Factory(Provider<HealthConnectManager> healthConnectManagerProvider) {
+    this.healthConnectManagerProvider = healthConnectManagerProvider;
+  }
+
   @Override
   public HealthViewModel get() {
-    return newInstance();
+    return newInstance(healthConnectManagerProvider.get());
   }
 
-  public static HealthViewModel_Factory create() {
-    return InstanceHolder.INSTANCE;
+  public static HealthViewModel_Factory create(
+      Provider<HealthConnectManager> healthConnectManagerProvider) {
+    return new HealthViewModel_Factory(healthConnectManagerProvider);
   }
 
-  public static HealthViewModel newInstance() {
-    return new HealthViewModel();
-  }
-
-  private static final class InstanceHolder {
-    private static final HealthViewModel_Factory INSTANCE = new HealthViewModel_Factory();
+  public static HealthViewModel newInstance(HealthConnectManager healthConnectManager) {
+    return new HealthViewModel(healthConnectManager);
   }
 }

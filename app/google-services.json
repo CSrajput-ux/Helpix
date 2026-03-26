@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "123456789012",
-    "project_id": "mock-project-id",
-    "storage_bucket": "mock-project-id.appspot.com"
+    "project_number": "635089276772",
+    "project_id": "helpix-37990",
+    "storage_bucket": "helpix-37990.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789012:android:mockapikey",
+        "mobilesdk_app_id": "1:635089276772:android:496a2cf8b44d3d19acf471",
         "android_client_info": {
           "package_name": "com.healthai.app"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "mock_api_key_for_build_success"
+          "current_key": "AIzaSyBVYCCi9Rx8733xaBj85W8k2cUn2lfDLDM"
         }
       ],
       "services": {

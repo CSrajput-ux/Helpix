@@ -5,8 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -65,9 +63,7 @@ fun DashboardScreen(navController: NavController) {
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
-                TopBarSection()
-                Spacer(modifier = Modifier.height(20.dp))
-                ModesRow(navController = navController)
+                TopBarSection(navController)
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Box(
@@ -106,22 +102,22 @@ fun DashboardScreen(navController: NavController) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         QuickActionCard(
-                            title = "Full Body Scan",
-                            subtitle = "Multi-disease\nanalysis",
-                            icon = Icons.Default.CenterFocusWeak,
-                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.MultiDiseaseScanStart) }
+                            title = "Cough TB\nAnalyzer",
+                            subtitle = "Detect TB from\ncough sound",
+                            icon = Icons.Default.GraphicEq,
+                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.CoughAnalyzerStart) }
                         )
                         QuickActionCard(
-                            title = stringResource(id = R.string.book_appointment),
-                            subtitle = "Find and book a\nqualified doctor",
+                            title = "Skin\nDetector",
+                            subtitle = "Identify skin\nconditions",
+                            icon = Icons.Default.Face,
+                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.SkinDetectorStart) }
+                        )
+                        QuickActionCard(
+                            title = "Symptom\nDoctor",
+                            subtitle = "Check your\nsymptoms",
                             icon = Icons.Default.MedicalServices,
-                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.Doctors) }
-                        )
-                        QuickActionCard(
-                            title = "Disease\nHeatmap",
-                            subtitle = "View outbreak\nzones",
-                            icon = Icons.Default.Map,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.SymptomDoctorStart) }
                         )
                     }
                 }
@@ -219,7 +215,7 @@ fun RowScope.NavItem(name: String, icon: androidx.compose.ui.graphics.vector.Ima
 // --- VISUAL COMPONENTS ---
 
 @Composable
-fun TopBarSection() {
+fun TopBarSection(navController: NavController) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -240,54 +236,9 @@ fun TopBarSection() {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             IconBtn(Icons.Outlined.Notifications)
-            IconBtn(Icons.Outlined.Menu)
-        }
-    }
-}
-
-@Composable
-fun ModesRow(navController: NavController) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(end = 16.dp)
-    ) {
-        item {
-            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.SeniorMode) }) { 
-                ModeChip("Senior Mode", Color(0xFF9C27B0), Icons.Default.Person)
+            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.Profile) }) {
+                IconBtn(Icons.Filled.Person)
             }
-        }
-        item {
-            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.KidsMode) }) { 
-                ModeChip("Kids Mode", Color(0xFF00C853), Icons.Default.Face)
-            }
-        }
-        item {
-            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.RuralMode) }) { 
-                ModeChip("Rural Mode", Color(0xFFFFAB00), Icons.Default.Agriculture)
-            }
-        }
-        item {
-            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.Emergency) }) { 
-                ModeChip("Emergency", Color(0xFFFF5252), Icons.Default.Warning)
-            }
-        }
-    }
-}
-
-@Composable
-fun ModeChip(text: String, color: Color, icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    Box(
-        modifier = Modifier
-            .height(40.dp)
-            .border(1.dp, color.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
-            .background(color.copy(alpha = 0.1f), RoundedCornerShape(20.dp))
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = text, color = color, fontWeight = FontWeight.Bold, fontSize = 13.sp)
         }
     }
 }

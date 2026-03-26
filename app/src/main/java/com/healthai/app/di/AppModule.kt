@@ -7,15 +7,20 @@ import com.healthai.app.data.local.dao.UserDao
 import com.healthai.app.data.local.database.HealthDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.healthai.app.data.remote.api.HealthApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    private const val BASE_URL = "http://10.0.2.2:3000/"
 
     @Provides
     @Singleton
@@ -25,18 +30,16 @@ object AppModule {
             HealthDatabase::class.java,
             "health_db"
         )
-        .fallbackToDestructiveMigration() // Agar version change ho toh crash na ho, purana data clear kar de
+        .fallbackToDestructiveMigration()
         .build()
     }
 
-    // --- YE MISSING THA (Fix for HealthMetricDao error) ---
     @Provides
     @Singleton
     fun provideHealthMetricDao(db: HealthDatabase): HealthMetricDao {
         return db.healthMetricDao()
     }
 
-    // --- YE BHI MISSING THA (Fix for future UserDao error) ---
     @Provides
     @Singleton
     fun provideUserDao(db: HealthDatabase): UserDao {
@@ -50,4 +53,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideHealthApiService(): HealthApiService {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(HealthApiService::class.java)
+    }
 }

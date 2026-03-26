@@ -31,6 +31,8 @@
     <string msgid="8397015543330865059" name="android.credentials.TYPE_PASSWORD_CREDENTIAL">"पासवर्ड"</string>
     <string msgid="3929015085059320822" name="androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL">"पासकी"</string>
     <string name="app_name">हेल्पिक्स</string>
+    <string msgid="2102429900219199821" name="biometric_or_screen_lock_prompt_message">"जारी रखने के लिए, बायोमेट्रिक या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string msgid="1160635338192065472" name="biometric_prompt_message">"जारी रखने के लिए, बायोमेट्रिक का इस्तेमाल करें"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"जवाब दें"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"वीडियो"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"अस्वीकार करें"</string>
@@ -58,14 +60,31 @@
     <string name="common_open_on_phone">फ़ोन पर खोलें</string>
     <string name="common_signin_button_text">साइन इन करें</string>
     <string name="common_signin_button_text_long">Google के ज़रिए साइन इन करें</string>
+    <string msgid="5912733858573823945" name="confirm_device_credential_password">"पासवर्ड का इस्तेमाल करें"</string>
     <string msgid="3260749812566568062" name="copy_toast_msg">"लिंक क्लिपबोर्ड पर कॉपी किया गया"</string>
     <string name="cough_analyzer_subtitle">अपनी खांसी की आवाज से टीबी के जोखिम का आकलन करें। यह केवल एक प्रारंभिक जांच है।</string>
     <string msgid="8038256446254964252" name="default_error_message">"अमान्य इनपुट"</string>
+    <string msgid="4776854077120974966" name="default_error_msg">"अनजान गड़बड़ी"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"पॉप-अप विंडो"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"ड्रॉपडाउन मेन्यू"</string>
+    <string msgid="4562557128765735254" name="face_or_screen_lock_prompt_message">"जारी रखने के लिए, अपना चेहरा दिखाएं या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string msgid="2282389249605674226" name="face_prompt_message">"जारी रखने के लिए, अपना चेहरा दिखाएं"</string>
     <string msgid="4566929209979330987" name="fallback_menu_item_copy_link">"लिंक कॉपी करें"</string>
     <string msgid="3413186855122069269" name="fallback_menu_item_open_in_browser">"ब्राउज़र में खोलें"</string>
     <string msgid="7145444925855055364" name="fallback_menu_item_share_link">"लिंक शेयर करें"</string>
+    <string msgid="5462024216548165325" name="fingerprint_dialog_icon_description">"फ़िंगरप्रिंट आइकॉन"</string>
+    <string msgid="1072308044213194243" name="fingerprint_dialog_touch_sensor">"फ़िंगरप्रिंट सेंसर को छुएं"</string>
+    <string msgid="8216738333501875566" name="fingerprint_error_hw_not_available">"फ़िंगरप्रिंट हार्डवेयर मौजूद नहीं है."</string>
+    <string msgid="6306988885793029438" name="fingerprint_error_hw_not_present">"इस डिवाइस में फ़िंगरप्रिंट सेंसर नहीं है"</string>
+    <string msgid="7291787166416782245" name="fingerprint_error_lockout">"कई बार कोशिश की जा चुकी है. कृपया बाद में फिर से कोशिश करें."</string>
+    <string msgid="7520712796891883488" name="fingerprint_error_no_fingerprints">"कोई फ़िंगरप्रिंट रजिस्टर नहीं किया गया है."</string>
+    <string msgid="7627716295344353987" name="fingerprint_error_user_canceled">"उपयोगकर्ता ने फिंगरप्रिंट की पुष्टि की कार्रवाई रद्द कर दी है."</string>
+    <string msgid="3873359464293253009" name="fingerprint_not_recognized">"पहचान नहीं हो पाई"</string>
+    <string msgid="8382576858490514495" name="fingerprint_or_screen_lock_prompt_message">"जारी रखने के लिए, फ़िंगरप्रिंट या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string msgid="7449360011861769080" name="fingerprint_prompt_message">"जारी रखने के लिए, फ़िंगरप्रिंट का इस्तेमाल करें"</string>
+    <string msgid="3791785319221634505" name="generic_error_no_device_credential">"पिन, पैटर्न या पासवर्ड सेट नहीं है."</string>
+    <string msgid="1807436368654974044" name="generic_error_no_keyguard">"इस डिवाइस को पिन, पैटर्न या पासवर्ड की मदद से लॉक/अनलॉक नहीं किया जा सकता."</string>
+    <string msgid="7309881387583143581" name="generic_error_user_canceled">"उपयोगकर्ता ने पुष्टि करने की प्रक्रिया रद्द की."</string>
     <string name="hello_world">नमस्ते दुनिया!</string>
     <string msgid="6827826412747255547" name="in_progress">"जारी है"</string>
     <string msgid="7933458017204019916" name="indeterminate">"कुछ विकल्पों को चुना गया"</string>
@@ -143,6 +162,7 @@
     <string name="places_try_again">फिर से कोशिश करें</string>
     <string msgid="5941395253238309765" name="range_end">"रेंज की सीमा"</string>
     <string msgid="7097486360902471446" name="range_start">"रेंज की शुरुआत"</string>
+    <string msgid="5659570757430909869" name="screen_lock_prompt_message">"जारी रखने के लिए, अपना स्क्रीन लॉक क्रेडेंशियल डालें"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"खोजें"</string>
     <string msgid="6043586758067023" name="selected">"चुना गया"</string>
     <string name="start_recording">रिकॉर्डिंग शुरू करें</string>
@@ -152,4 +172,11 @@
     <string msgid="5946805113151406391" name="template_percent">"<ns1:g id="PERCENTAGE">%1$d</ns1:g> प्रतिशत."</string>
     <string msgid="3765533235322692011" name="tooltip_description">"टूलटिप"</string>
     <string msgid="3124740595719787496" name="tooltip_label">"टूलटिप दिखाएं"</string>
+    <string msgid="6524145989441579428" name="use_biometric_label">"बायोमेट्रिक्स का इस्तेमाल करें"</string>
+    <string msgid="5385448280139639016" name="use_biometric_or_screen_lock_label">"बायोमेट्रिक्स या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string msgid="6533512708069459542" name="use_face_label">"चेहरा दिखाएं"</string>
+    <string msgid="2116180187159450292" name="use_face_or_screen_lock_label">"चेहरा दिखाएं या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string msgid="6961788485681412417" name="use_fingerprint_label">"फ़िंगरप्रिंट का इस्तेमाल करें"</string>
+    <string msgid="7577690399303139443" name="use_fingerprint_or_screen_lock_label">"फ़िंगरप्रिंट या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string msgid="5459869335976243512" name="use_screen_lock_label">"स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
 </resources>

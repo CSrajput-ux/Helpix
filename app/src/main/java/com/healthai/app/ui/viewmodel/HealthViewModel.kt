@@ -1,8 +1,8 @@
-
 package com.healthai.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.healthai.app.data.remote.HealthConnectManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,12 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
-import kotlin.random.Random
 
-// Data State for the Screen
 data class HealthState(
     val currentDate: String = "",
     val healthScore: Int = 0,
@@ -25,45 +25,57 @@ data class HealthState(
     val sleepScore: Float = 0f,
     val lungHealth: Int = 0,
     val skinHealth: Int = 0,
-    val isWatchConnected: Boolean = false
+    val isWatchConnected: Boolean = false,
+    val hasHealthPermissions: Boolean = false
 )
 
 @HiltViewModel
-class HealthViewModel @Inject constructor() : ViewModel() {
+class HealthViewModel @Inject constructor(
+    private val healthConnectManager: HealthConnectManager
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HealthState())
     val uiState: StateFlow<HealthState> = _uiState.asStateFlow()
 
     init {
+        checkPermissions()
         startRealTimeUpdates()
+    }
+
+    fun checkPermissions() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                hasHealthPermissions = healthConnectManager.hasAllPermissions()
+            )
+        }
     }
 
     private fun startRealTimeUpdates() {
         viewModelScope.launch {
             while (true) {
-                // 1. Update Date & Time (Real-time)
                 val sdf = SimpleDateFormat("EEEE, MMMM dd, yyyy • HH:mm:ss", Locale.getDefault())
-                val now = sdf.format(Date())
+                val nowStr = sdf.format(Date())
 
-                // 2. Simulate Smart Watch Data Sync (Health Connect Integration Point)
-                // Asal mein yahan hum "Health Connect API" call karte hain
-                // Abhi ke liye hum random variation dikha rahe hain taaki "Live" lage
-                val liveHeartRate = Random.nextInt(70, 75) // Simulating live pulse
-                val liveScore = 87 // Base score
+                val endTime = Instant.now()
+                val startTime = endTime.minus(24, ChronoUnit.HOURS)
+
+                val (steps, hr) = if (_uiState.value.hasHealthPermissions) {
+                    val s = healthConnectManager.readSteps(startTime, endTime)
+                    val h = healthConnectManager.readHeartRate(startTime, endTime)
+                    Pair(s.toInt(), h)
+                } else {
+                    Pair(0, 0)
+                }
 
                 _uiState.value = _uiState.value.copy(
-                    currentDate = now,
-                    healthScore = liveScore,
-                    heartRate = liveHeartRate,
-                    steps = 6540, // Example step count from watch
-                    sleepQuality = "Fair",
-                    sleepScore = 0.78f,
-                    lungHealth = 92,
-                    skinHealth = 85,
-                    isWatchConnected = true
+                    currentDate = nowStr,
+                    steps = if (steps > 0) steps else _uiState.value.steps,
+                    heartRate = if (hr > 0) hr else _uiState.value.heartRate,
+                    isWatchConnected = _uiState.value.hasHealthPermissions,
+                    healthScore = 87 // Example static score
                 )
 
-                delay(1000) // Update every second
+                delay(5000) // Sync every 5 seconds
             }
         }
     }

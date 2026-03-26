@@ -1,5 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2" xmlns:ns2="http://schemas.android.com/tools">
+    <string-array name="assume_strong_biometrics_models">
+        <item>Pixel 4</item>
+        <item>Pixel 4 XL</item>
+    </string-array>
+    <string-array name="crypto_fingerprint_fallback_prefixes">
+    </string-array>
+    <string-array name="crypto_fingerprint_fallback_vendors">
+        <item>samsung</item>
+    </string-array>
+    <string-array name="delay_showing_prompt_models">
+        <item>Pixel 4</item>
+        <item>Pixel 4 XL</item>
+    </string-array>
+    <string-array name="hide_fingerprint_instantly_prefixes">
+        <item>SM-A50</item> 
+        <item>SM-G973</item> 
+        <item>SM-G975</item> 
+        <item>SM-G977</item> 
+        <item>SM-G770</item> 
+        <item>SM-N970</item> 
+        <item>SM-N971</item> 
+        <item>SM-N975</item> 
+        <item>SM-N976</item> 
+        <item>SM-N770</item> 
+        <item>SC-03L</item> 
+        <item>SC-04L</item> 
+        <item>SC-05L</item> 
+        <item>SC-01M</item> 
+        <item>SCV41</item> 
+        <item>SCV42</item> 
+        <item>SCV45</item> 
+    </string-array>
+    <string-array name="keyguard_biometric_and_credential_exclude_vendors">
+    </string-array>
     <attr format="reference" name="cardViewStyle"/>
     <attr format="reference" name="coordinatorLayoutStyle"/>
     <attr format="reference" name="drawerArrowStyle"/>
@@ -34,6 +68,7 @@
     <color name="background_floating_material_light">@android:color/white</color>
     <color name="background_material_dark">@color/material_grey_850</color>
     <color name="background_material_light">@color/material_grey_50</color>
+    <color name="biometric_error_color">#ff5722</color>
     <color name="black">#FF000000</color>
     <color name="bright_foreground_disabled_material_dark">#80ffffff</color>
     <color name="bright_foreground_disabled_material_light">#80000000</color>
@@ -597,6 +632,7 @@
     <dimen name="fastscroll_default_thickness">8dp</dimen>
     <dimen name="fastscroll_margin">0dp</dimen>
     <dimen name="fastscroll_minimum_range">50dp</dimen>
+    <dimen name="fingerprint_icon_size">64dp</dimen>
     <item format="float" name="highlight_alpha_material_colored" type="dimen">0.26</item>
     <item format="float" name="highlight_alpha_material_dark" type="dimen">0.20</item>
     <item format="float" name="highlight_alpha_material_light" type="dimen">0.12</item>
@@ -764,6 +800,8 @@
     <string name="androidx_startup" translatable="false">androidx.startup</string>
     <string name="app_name">Helpix</string>
     <string name="are_you_a_doctor">Are you a Doctor?</string>
+    <string name="biometric_or_screen_lock_prompt_message">Use your biometric or screen lock to continue</string>
+    <string name="biometric_prompt_message">Use your biometric to continue</string>
     <string name="book_appointment">Book Appointment</string>
     <string name="call_notification_answer_action">Answer</string>
     <string name="call_notification_answer_video_action">Video</string>
@@ -792,12 +830,14 @@
     <string name="common_open_on_phone">Open on phone</string>
     <string name="common_signin_button_text">Sign in</string>
     <string name="common_signin_button_text_long">Sign in with Google</string>
+    <string name="confirm_device_credential_password">Use password</string>
     <string name="copy_toast_msg">Link copied to clipboard</string>
     <string name="cough_analyzer_subtitle">Assess the risk of TB from the sound of your cough. This is only a preliminary check.</string>
     <string name="create_account">Create Account</string>
     <string name="daily_health_feed">Daily Health Feed</string>
     <string name="daily_medicines">Medicines</string>
     <string name="default_error_message">"Invalid input"</string>
+    <string name="default_error_msg">Unknown error</string>
     <string name="default_popup_window_title" ns2:ignore="ExtraTranslation">"Pop-Up Window"</string>
     <string name="diet_planner">Diet Planner</string>
     <string name="doctor_login">Doctor Login</string>
@@ -805,15 +845,30 @@
     <string name="dropdown_menu">"Dropdown menu"</string>
     <string name="email">Email Address</string>
     <string name="email_login">Login with Email</string>
+    <string name="face_or_screen_lock_prompt_message">Use your face or screen lock to continue</string>
+    <string name="face_prompt_message">Use your face to continue</string>
     <string name="fallback_menu_item_copy_link">Copy link</string>
     <string name="fallback_menu_item_open_in_browser">Open in browser</string>
     <string name="fallback_menu_item_share_link">Share link</string>
+    <string name="fingerprint_dialog_icon_description">Fingerprint icon</string>
+    <string name="fingerprint_dialog_touch_sensor">Touch the fingerprint sensor</string>
+    <string name="fingerprint_error_hw_not_available">Fingerprint hardware not available.</string>
+    <string name="fingerprint_error_hw_not_present">This device does not have a fingerprint sensor</string>
+    <string name="fingerprint_error_lockout">Too many attempts. Please try again later.</string>
+    <string name="fingerprint_error_no_fingerprints">No fingerprints enrolled.</string>
+    <string name="fingerprint_error_user_canceled">Fingerprint operation canceled by user.</string>
+    <string name="fingerprint_not_recognized">Not recognized</string>
+    <string name="fingerprint_or_screen_lock_prompt_message">Use your fingerprint or screen lock to continue</string>
+    <string name="fingerprint_prompt_message">Use your fingerprint to continue</string>
     <string name="full_name">Full Name</string>
-    <string name="gcm_defaultSenderId" translatable="false">123456789012</string>
-    <string name="google_api_key" translatable="false">mock_api_key_for_build_success</string>
-    <string name="google_app_id" translatable="false">1:123456789012:android:mockapikey</string>
-    <string name="google_crash_reporting_api_key" translatable="false">mock_api_key_for_build_success</string>
-    <string name="google_storage_bucket" translatable="false">mock-project-id.appspot.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">635089276772</string>
+    <string name="generic_error_no_device_credential">No PIN, pattern, or password set.</string>
+    <string name="generic_error_no_keyguard">This device does not support PIN, pattern, or password.</string>
+    <string name="generic_error_user_canceled">Authentication canceled by user.</string>
+    <string name="google_api_key" translatable="false">AIzaSyBVYCCi9Rx8733xaBj85W8k2cUn2lfDLDM</string>
+    <string name="google_app_id" translatable="false">1:635089276772:android:496a2cf8b44d3d19acf471</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBVYCCi9Rx8733xaBj85W8k2cUn2lfDLDM</string>
+    <string name="google_storage_bucket" translatable="false">helpix-37990.firebasestorage.app</string>
     <string name="health">Health</string>
     <string name="heart_rate">Heart Rate</string>
     <string name="in_progress">In progress</string>
@@ -898,12 +953,13 @@
     <string name="places_powered_by_google">Powered by Google</string>
     <string name="places_search_error">Can\'t load search results.</string>
     <string name="places_try_again">Try again</string>
-    <string name="project_id" translatable="false">mock-project-id</string>
+    <string name="project_id" translatable="false">helpix-37990</string>
     <string name="range_end">"Range end"</string>
     <string name="range_start">"Range start"</string>
     <string name="recommended_today">Recommended Today</string>
     <string name="register">Register</string>
     <string name="risk_predictions">Risk Predictions</string>
+    <string name="screen_lock_prompt_message">Enter your screen lock to continue</string>
     <string name="search_menu_title">Search</string>
     <string name="selected">Selected</string>
     <string name="skin_health">Skin Health</string>
@@ -918,6 +974,13 @@
     <string name="todays_health_score">Today\'s Health Score</string>
     <string name="tooltip_description">tooltip</string>
     <string name="tooltip_label">show tooltip</string>
+    <string name="use_biometric_label">Use biometrics</string>
+    <string name="use_biometric_or_screen_lock_label">Use biometrics or screen lock</string>
+    <string name="use_face_label">Use face</string>
+    <string name="use_face_or_screen_lock_label">Use face or screen lock</string>
+    <string name="use_fingerprint_label">Use fingerprint</string>
+    <string name="use_fingerprint_or_screen_lock_label">Use fingerprint or screen lock</string>
+    <string name="use_screen_lock_label">Use screen lock</string>
     <string name="vitals_history">Vitals History</string>
     <string name="watch_connected">Watch Connected</string>
     <string name="your_score">Your Score</string>
@@ -2386,7 +2449,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="Theme.FuturisticAIHealthcareApp" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.FuturisticAIHealthcareApp" parent="Theme.AppCompat.DayNight.NoActionBar">
+        
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>

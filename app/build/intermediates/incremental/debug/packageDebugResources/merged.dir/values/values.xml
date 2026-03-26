@@ -40,11 +40,11 @@
     <string name="email">Email Address</string>
     <string name="email_login">Login with Email</string>
     <string name="full_name">Full Name</string>
-    <string name="gcm_defaultSenderId" translatable="false">123456789012</string>
-    <string name="google_api_key" translatable="false">mock_api_key_for_build_success</string>
-    <string name="google_app_id" translatable="false">1:123456789012:android:mockapikey</string>
-    <string name="google_crash_reporting_api_key" translatable="false">mock_api_key_for_build_success</string>
-    <string name="google_storage_bucket" translatable="false">mock-project-id.appspot.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">635089276772</string>
+    <string name="google_api_key" translatable="false">AIzaSyBVYCCi9Rx8733xaBj85W8k2cUn2lfDLDM</string>
+    <string name="google_app_id" translatable="false">1:635089276772:android:496a2cf8b44d3d19acf471</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBVYCCi9Rx8733xaBj85W8k2cUn2lfDLDM</string>
+    <string name="google_storage_bucket" translatable="false">helpix-37990.firebasestorage.app</string>
     <string name="health">Health</string>
     <string name="heart_rate">Heart Rate</string>
     <string name="instruction_1">1. Go to a quiet room.</string>
@@ -55,7 +55,7 @@
     <string name="lung_health">Lung Health</string>
     <string name="my_appointments">My Appointments</string>
     <string name="password">Password</string>
-    <string name="project_id" translatable="false">mock-project-id</string>
+    <string name="project_id" translatable="false">helpix-37990</string>
     <string name="recommended_today">Recommended Today</string>
     <string name="register">Register</string>
     <string name="risk_predictions">Risk Predictions</string>
@@ -68,7 +68,8 @@
     <string name="vitals_history">Vitals History</string>
     <string name="watch_connected">Watch Connected</string>
     <string name="your_score">Your Score</string>
-    <style name="Theme.FuturisticAIHealthcareApp" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.FuturisticAIHealthcareApp" parent="Theme.AppCompat.DayNight.NoActionBar">
+        
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
