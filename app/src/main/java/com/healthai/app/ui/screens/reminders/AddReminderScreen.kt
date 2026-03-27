@@ -1,10 +1,11 @@
 package com.healthai.app.ui.screens.reminders
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.DateRange
@@ -14,12 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.healthai.app.data.local.AppDatabase
 import com.healthai.app.data.local.Reminder
+import com.healthai.app.utils.ReminderScheduler
 import kotlinx.coroutines.launch
+import java.util.*
+import java.text.SimpleDateFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,9 +35,40 @@ fun AddReminderScreen(navController: NavController) {
     var medicineName by remember { mutableStateOf("") }
     var dosage by remember { mutableStateOf("") }
     var schedule by remember { mutableStateOf("Daily") }
-    var time by remember { mutableStateOf("09:00 AM") }
-    var startDate by remember { mutableStateOf("25/07/2024") }
-    var endDate by remember { mutableStateOf("30/07/2024") }
+    
+    val calendar = Calendar.getInstance()
+    val hour = calendar.get(Calendar.HOUR_OF_DAY)
+    val minute = calendar.get(Calendar.MINUTE)
+
+    var time by remember { mutableStateOf(String.format(Locale.getDefault(), "%02d:%02d", hour, minute)) }
+    var startDate by remember { mutableStateOf(SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(calendar.time)) }
+    
+    val endCalendar = Calendar.getInstance()
+    endCalendar.add(Calendar.DAY_OF_YEAR, 7)
+    var endDate by remember { mutableStateOf(SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(endCalendar.time)) }
+
+    val timePickerDialog = TimePickerDialog(
+        context,
+        { _, h, m -> time = String.format(Locale.getDefault(), "%02d:%02d", h, m) },
+        hour,
+        minute,
+        true
+    )
+
+    fun showDatePicker(onDateSelected: (String) -> Unit) {
+        val datePicker = DatePickerDialog(
+            context,
+            { _, y, m, d ->
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(y, m, d)
+                onDateSelected(SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(selectedDate.time))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePicker.show()
+    }
 
     Scaffold(
         topBar = {
@@ -42,7 +76,7 @@ fun AddReminderScreen(navController: NavController) {
                 title = { Text("Add New Reminder") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221), titleContentColor = Color.White, navigationIconContentColor = Color.White)
@@ -89,49 +123,49 @@ fun AddReminderScreen(navController: NavController) {
             
             OutlinedTextField(
                 value = time,
-                onValueChange = { time = it },
+                onValueChange = { },
                 label = { Text("Time") },
                 readOnly = true,
-                modifier = Modifier.fillMaxWidth().clickable { /* TODO: Show Time Picker Dialog */ },
+                modifier = Modifier.fillMaxWidth().clickable { timePickerDialog.show() },
+                enabled = false,
                 trailingIcon = { Icon(Icons.Default.Schedule, null) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color(0xFFFF4081),
-                    focusedBorderColor = Color(0xFFFF4081),
-                    unfocusedBorderColor = Color(0xFF334155)
+                    disabledTextColor = Color.White,
+                    disabledBorderColor = Color(0xFF334155),
+                    disabledLabelColor = Color.Gray,
+                    disabledTrailingIconColor = Color.White
                 )
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)){
                 OutlinedTextField(
                     value = startDate,
-                    onValueChange = { startDate = it },
+                    onValueChange = { },
                     label = { Text("Start Date") },
                     readOnly = true,
-                    modifier = Modifier.weight(1f).clickable { /* TODO: Show Date Picker Dialog */ },
+                    enabled = false,
+                    modifier = Modifier.weight(1f).clickable { showDatePicker { startDate = it } },
                     trailingIcon = { Icon(Icons.Default.DateRange, null) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color(0xFFFF4081),
-                        focusedBorderColor = Color(0xFFFF4081),
-                        unfocusedBorderColor = Color(0xFF334155)
+                        disabledTextColor = Color.White,
+                        disabledBorderColor = Color(0xFF334155),
+                        disabledLabelColor = Color.Gray,
+                        disabledTrailingIconColor = Color.White
                     )
                 )
                  OutlinedTextField(
                     value = endDate,
-                    onValueChange = { endDate = it },
+                    onValueChange = { },
                     label = { Text("End Date") },
                     readOnly = true,
-                    modifier = Modifier.weight(1f).clickable { /* TODO: Show Date Picker Dialog */ },
+                    enabled = false,
+                    modifier = Modifier.weight(1f).clickable { showDatePicker { endDate = it } },
                     trailingIcon = { Icon(Icons.Default.DateRange, null) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color(0xFFFF4081),
-                        focusedBorderColor = Color(0xFFFF4081),
-                        unfocusedBorderColor = Color(0xFF334155)
+                        disabledTextColor = Color.White,
+                        disabledBorderColor = Color(0xFF334155),
+                        disabledLabelColor = Color.Gray,
+                        disabledTrailingIconColor = Color.White
                     )
                 )
             }
@@ -149,7 +183,8 @@ fun AddReminderScreen(navController: NavController) {
                             startDate = startDate,
                             endDate = endDate
                         )
-                        db.reminderDao().insertReminder(newReminder)
+                        val id = db.reminderDao().insertReminder(newReminder)
+                        ReminderScheduler.scheduleReminder(context, newReminder.copy(id = id.toInt()))
                         navController.popBackStack()
                     }
                 },
