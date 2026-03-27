@@ -1,6 +1,7 @@
 package com.healthai.app.ui.screens.reminders
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -16,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -92,8 +95,39 @@ fun MedicineRemindersScreen(navController: NavController) {
 @Composable
 fun ReminderListItem(reminder: Reminder, db: AppDatabase) {
     val coroutineScope = rememberCoroutineScope()
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Reminder") },
+            text = { Text("Are you sure you want to delete this reminder for ${reminder.medicineName}?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    coroutineScope.launch {
+                        db.reminderDao().deleteReminder(reminder.id)
+                        showDeleteDialog = false
+                    }
+                }) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = { showDeleteDialog = true }
+                )
+            },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
     ) {
@@ -115,6 +149,9 @@ fun ReminderListItem(reminder: Reminder, db: AppDatabase) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(reminder.medicineName, color = Color.White, fontWeight = FontWeight.Bold)
                 Text("${reminder.dosage} • ${reminder.time}", color = Color.Gray, fontSize = 12.sp)
+            }
+            IconButton(onClick = { showDeleteDialog = true }) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray)
             }
             Checkbox(
                 checked = reminder.isTaken,

@@ -51,7 +51,7 @@
     <string name="common_google_play_services_unknown_issue">%1$s đang gặp sự cố với Dịch vụ Google Play. Hãy thử lại.</string>
     <string name="common_google_play_services_unsupported_text">%1$s sẽ không chạy nếu không có Dịch vụ Google Play. Thiết bị của bạn không hỗ trợ các dịch vụ này.</string>
     <string msgid="6556509956452265614" name="common_google_play_services_update_button">Cập nhật</string>
-    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s sẽ không chạy trừ khi bạn cập nhật Dịch vụ Google Play.</string>
+    <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s sẽ không chạy trừ phi bạn cập nhật Dịch vụ Google Play.</string>
     <string msgid="6006316683626838685" name="common_google_play_services_update_title">Cập nhật dịch vụ của Google Play</string>
     <string name="common_google_play_services_updating_text">%1$s sẽ không chạy nếu không có dịch vụ của Google Play. Dịch vụ này hiện đang cập nhật.</string>
     <string name="common_google_play_services_wear_update_text">Cần phiên bản mới của dịch vụ Google Play. Dịch vụ sẽ sớm tự động cập nhật.</string>
@@ -123,6 +123,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"Hộp thoại"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Đã thu gọn"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Đã mở rộng"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Bật/tắt trình đơn thả xuống"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"Tìm kiếm"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Đóng"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"Các đề xuất ở bên dưới"</string>
@@ -142,8 +143,6 @@
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Chú giải công cụ"</string>
     <string msgid="542007171693138492" name="navigation_menu">"Trình đơn điều hướng"</string>
     <string msgid="6610465462668679431" name="not_selected">"Chưa chọn"</string>
-    <string msgid="875452955155264703" name="off">"Đang tắt"</string>
-    <string msgid="8655164131929253426" name="on">"Đang bật"</string>
     <string name="places_autocomplete_clear_button">Xóa nội dung tìm kiếm</string>
     <string name="places_autocomplete_label">Chọn một địa điểm</string>
     <string name="places_autocomplete_no_results_for_query">Không có kết quả nào cho %1$s</string>
@@ -157,6 +156,9 @@
     <string msgid="5659570757430909869" name="screen_lock_prompt_message">"Nhập phương thức khóa màn hình để tiếp tục"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Tìm kiếm"</string>
     <string msgid="6043586758067023" name="selected">"Đã chọn"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Trống"</string>
+    <string msgid="5834637030682409883" name="state_off">"Đang tắt"</string>
+    <string msgid="1490883874751719580" name="state_on">"Đang bật"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Chuyển"</string>
     <string msgid="1672349317127674378" name="tab">"Thẻ"</string>

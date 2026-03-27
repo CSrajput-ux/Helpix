@@ -31,7 +31,7 @@
     <string msgid="3929015085059320822" name="androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL">"Кіру кілті"</string>
     <string msgid="2102429900219199821" name="biometric_or_screen_lock_prompt_message">"Жалғастыру үшін биометриканы немесе экран құлпын пайдаланыңыз."</string>
     <string msgid="1160635338192065472" name="biometric_prompt_message">"Жалғастыру үшін биометрикаңызды пайдаланыңыз."</string>
-    <string msgid="881409763997275156" name="call_notification_answer_action">"Жауап"</string>
+    <string msgid="881409763997275156" name="call_notification_answer_action">"Жауап беру"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Бейне"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Қабылдамау"</string>
     <string msgid="2659457946726154263" name="call_notification_hang_up_action">"Тұтқаны қою"</string>
@@ -123,6 +123,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"Диалогтік терезе"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Жиылды"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Жайылды"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Ашылмалы мәзірді жаю/жию"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"Іздеу"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Жабу"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"Төмендегі ұсыныстар"</string>
@@ -142,8 +143,6 @@
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Қалқыма көмек"</string>
     <string msgid="542007171693138492" name="navigation_menu">"Навигация мәзірі"</string>
     <string msgid="6610465462668679431" name="not_selected">"Таңдалмады"</string>
-    <string msgid="875452955155264703" name="off">"Өшірулі"</string>
-    <string msgid="8655164131929253426" name="on">"Қосулы"</string>
     <string name="places_autocomplete_clear_button">Іздеу жолын тазарту</string>
     <string name="places_autocomplete_label">Орынды таңдау</string>
     <string name="places_autocomplete_no_results_for_query">%1$s бойынша бірде-бір нәтиже жоқ</string>
@@ -157,6 +156,9 @@
     <string msgid="5659570757430909869" name="screen_lock_prompt_message">"Жалғастыру үшін экран құлпын енгізіңіз."</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Іздеу"</string>
     <string msgid="6043586758067023" name="selected">"Таңдалды"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Бос"</string>
+    <string msgid="5834637030682409883" name="state_off">"Өшірулі"</string>
+    <string msgid="1490883874751719580" name="state_on">"Қосулы"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Ауысу"</string>
     <string msgid="1672349317127674378" name="tab">"Қойынды"</string>

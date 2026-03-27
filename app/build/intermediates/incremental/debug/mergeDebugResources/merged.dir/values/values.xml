@@ -35,7 +35,6 @@
     <string-array name="keyguard_biometric_and_credential_exclude_vendors">
     </string-array>
     <attr format="reference" name="cardViewStyle"/>
-    <attr format="reference" name="coordinatorLayoutStyle"/>
     <attr format="reference" name="drawerArrowStyle"/>
     <attr format="dimension" name="height"/>
     <attr format="enum" name="implementationMode">
@@ -44,6 +43,7 @@
     </attr>
     <attr format="boolean" name="isLightTheme"/>
     <attr format="reference" name="nestedScrollViewStyle"/>
+    <attr format="reference" name="recyclerViewStyle"/>
     <attr format="enum" name="scaleType">
         <enum name="fillStart" value="0"/>
         <enum name="fillCenter" value="1"/>
@@ -652,7 +652,7 @@
     <dimen name="notification_main_column_padding_top">10dp</dimen>
     <dimen name="notification_media_narrow_margin">@dimen/notification_content_margin_start</dimen>
     <dimen name="notification_right_icon_size">16dp</dimen>
-    <dimen name="notification_right_side_padding_top">2dp</dimen>
+    <dimen name="notification_right_side_padding_top">4dp</dimen>
     <dimen name="notification_small_icon_background_padding">3dp</dimen>
     <dimen name="notification_small_icon_size_as_large">24dp</dimen>
     <dimen name="notification_subtext_size">13sp</dimen>
@@ -723,6 +723,7 @@
     <item name="compose_view_saveable_id_tag" type="id"/>
     <item name="consume_window_insets_tag" type="id"/>
     <item name="fragment_container_view_tag" type="id"/>
+    <item name="hide_graphics_layer_in_inspector_tag" type="id"/>
     <item name="hide_in_inspector_tag" type="id"/>
     <item name="home" type="id"/>
     <item name="inspection_slot_table_set" type="id"/>
@@ -754,6 +755,7 @@
     <item name="text2" type="id"/>
     <item name="title" type="id"/>
     <item name="up" type="id"/>
+    <id name="view_tree_disjoint_parent"/>
     <id name="view_tree_lifecycle_owner"/>
     <id name="view_tree_on_back_pressed_dispatcher_owner"/>
     <id name="view_tree_saved_state_registry_owner"/>
@@ -765,6 +767,7 @@
     <integer name="cancel_button_image_alpha">127</integer>
     <integer name="config_tooltipAnimTime">150</integer>
     <integer name="google_play_services_version">12451000</integer>
+    <integer name="m3c_window_layout_in_display_cutout_mode">1</integer>
     <integer name="status_bar_notification_info_maxnum">999</integer>
     <string name="abc_action_bar_home_description">Navigate home</string>
     <string name="abc_action_bar_up_description">Navigate up</string>
@@ -922,6 +925,7 @@
     <string name="m3c_dialog">"Dialog"</string>
     <string name="m3c_dropdown_menu_collapsed">Collapsed</string>
     <string name="m3c_dropdown_menu_expanded">Expanded</string>
+    <string name="m3c_dropdown_menu_toggle">Toggle dropdown menu</string>
     <string name="m3c_search_bar_search">Search</string>
     <string name="m3c_snackbar_dismiss">Dismiss</string>
     <string name="m3c_suggestions_available">Suggestions below</string>
@@ -942,8 +946,6 @@
     <string name="my_appointments">My Appointments</string>
     <string name="navigation_menu">"Navigation menu"</string>
     <string name="not_selected">Not selected</string>
-    <string name="off">Off</string>
-    <string name="on">On</string>
     <string name="password">Password</string>
     <string name="places_autocomplete_clear_button">Clear search</string>
     <string name="places_autocomplete_label">Pick a place</string>
@@ -966,6 +968,9 @@
     <string name="sleep_quality">Sleep Quality</string>
     <string name="smartwatch_vitals">Smartwatch Vitals</string>
     <string name="start_recording">Start Recording</string>
+    <string name="state_empty">Empty</string>
+    <string name="state_off">Off</string>
+    <string name="state_on">On</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="switch_role">Switch</string>
     <string name="syncing_watch">Syncing...</string>
@@ -2090,6 +2095,19 @@
     <style name="DialogWindowTheme">
         <item name="android:windowClipToOutline">false</item>
     </style>
+    <style name="EdgeToEdgeFloatingDialogTheme" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowLayoutInDisplayCutoutMode" ns2:targetApi="27">@integer/m3c_window_layout_in_display_cutout_mode</item>
+        <item name="android:windowClipToOutline">false</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowElevation">0dp</item>
+    </style>
+    <style name="EdgeToEdgeFloatingDialogWindowTheme">
+        <item name="android:dialogTheme">@style/EdgeToEdgeFloatingDialogTheme</item>
+    </style>
     <style name="FloatingDialogTheme">
         <item name="android:windowIsFloating">false</item>
     </style>
@@ -2458,6 +2476,14 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
+    <style name="Theme.PlayCore.Transparent" parent="android:Theme">
+<item name="android:windowIsTranslucent">true</item>
+<item name="android:windowBackground">@android:color/transparent</item>
+<item name="android:windowContentOverlay">@null</item>
+<item name="android:windowNoTitle">true</item>
+<item name="android:windowIsFloating">true</item>
+<item name="android:backgroundDimEnabled">false</item>
+</style>
     <style name="ThemeOverlay.AppCompat" parent="Base.ThemeOverlay.AppCompat"/>
     <style name="ThemeOverlay.AppCompat.ActionBar" parent="Base.ThemeOverlay.AppCompat.ActionBar"/>
     <style name="ThemeOverlay.AppCompat.Dark" parent="Base.ThemeOverlay.AppCompat.Dark"/>
@@ -2567,9 +2593,6 @@
     <style name="Widget.AppCompat.Toolbar.Button.Navigation" parent="Base.Widget.AppCompat.Toolbar.Button.Navigation"/>
     <style name="Widget.Compat.NotificationActionContainer" parent=""/>
     <style name="Widget.Compat.NotificationActionText" parent=""/>
-    <style name="Widget.Support.CoordinatorLayout" parent="android:Widget">
-        <item name="statusBarBackground">#000000</item>
-    </style>
     <declare-styleable name="ActionBar">
         
         <attr name="navigationMode">
@@ -3322,96 +3345,6 @@
             <enum name="add" value="16"/>
         </attr>
     </declare-styleable>
-    <declare-styleable name="CoordinatorLayout">
-        
-        <attr format="reference" name="keylines"/>
-        
-        <attr format="color|reference" name="statusBarBackground"/>
-    </declare-styleable>
-    <declare-styleable name="CoordinatorLayout_Layout">
-        <attr name="android:layout_gravity"/>
-        
-        <attr format="string" name="layout_behavior"/>
-        
-        <attr format="reference" name="layout_anchor"/>
-        
-        <attr format="integer" name="layout_keyline"/>
-
-        
-        <attr name="layout_anchorGravity">
-            <!-- Push object to the top of its container, not changing its size. -->
-            <flag name="top" value="0x30"/>
-            <!-- Push object to the bottom of its container, not changing its size. -->
-            <flag name="bottom" value="0x50"/>
-            <!-- Push object to the left of its container, not changing its size. -->
-            <flag name="left" value="0x03"/>
-            <!-- Push object to the right of its container, not changing its size. -->
-            <flag name="right" value="0x05"/>
-            <!-- Place object in the vertical center of its container, not changing its size. -->
-            <flag name="center_vertical" value="0x10"/>
-            <!-- Grow the vertical size of the object if needed so it completely fills its container. -->
-            <flag name="fill_vertical" value="0x70"/>
-            <!-- Place object in the horizontal center of its container, not changing its size. -->
-            <flag name="center_horizontal" value="0x01"/>
-            <!-- Grow the horizontal size of the object if needed so it completely fills its container. -->
-            <flag name="fill_horizontal" value="0x07"/>
-            <!-- Place the object in the center of its container in both the vertical and horizontal axis, not changing its size. -->
-            <flag name="center" value="0x11"/>
-            <!-- Grow the horizontal and vertical size of the object if needed so it completely fills its container. -->
-            <flag name="fill" value="0x77"/>
-            <!-- Additional option that can be set to have the top and/or bottom edges of
-                 the child clipped to its container's bounds.
-                 The clip will be based on the vertical gravity: a top gravity will clip the bottom
-                 edge, a bottom gravity will clip the top edge, and neither will clip both edges. -->
-            <flag name="clip_vertical" value="0x80"/>
-            <!-- Additional option that can be set to have the left and/or right edges of
-                 the child clipped to its container's bounds.
-                 The clip will be based on the horizontal gravity: a left gravity will clip the right
-                 edge, a right gravity will clip the left edge, and neither will clip both edges. -->
-            <flag name="clip_horizontal" value="0x08"/>
-            <!-- Push object to the beginning of its container, not changing its size. -->
-            <flag name="start" value="0x00800003"/>
-            <!-- Push object to the end of its container, not changing its size. -->
-            <flag name="end" value="0x00800005"/>
-        </attr>
-
-        
-        <attr format="enum" name="layout_insetEdge">
-            <!-- Don't inset. -->
-            <enum name="none" value="0x0"/>
-            <!-- Inset the top edge. -->
-            <enum name="top" value="0x30"/>
-            <!-- Inset the bottom edge. -->
-            <enum name="bottom" value="0x50"/>
-            <!-- Inset the left edge. -->
-            <enum name="left" value="0x03"/>
-            <!-- Inset the right edge. -->
-            <enum name="right" value="0x05"/>
-            <!-- Inset the start edge. -->
-            <enum name="start" value="0x00800003"/>
-            <!-- Inset the end edge. -->
-            <enum name="end" value="0x00800005"/>
-        </attr>
-        
-        <attr name="layout_dodgeInsetEdges">
-            <!-- Don't dodge any edges -->
-            <flag name="none" value="0x0"/>
-            <!-- Dodge the top inset edge. -->
-            <flag name="top" value="0x30"/>
-            <!-- Dodge the bottom inset edge. -->
-            <flag name="bottom" value="0x50"/>
-            <!-- Dodge the left inset edge. -->
-            <flag name="left" value="0x03"/>
-            <!-- Dodge the right inset edge. -->
-            <flag name="right" value="0x05"/>
-            <!-- Dodge the start inset edge. -->
-            <flag name="start" value="0x00800003"/>
-            <!-- Dodge the end inset edge. -->
-            <flag name="end" value="0x00800005"/>
-            <!-- Dodge all the inset edges. -->
-            <flag name="all" value="0x77"/>
-        </attr>
-    </declare-styleable>
     <declare-styleable name="DrawerArrowToggle">
         
         <attr format="color" name="color"/>
@@ -3438,6 +3371,8 @@
         
         <attr format="string" name="fontProviderQuery"/>
         
+        <attr format="string" name="fontProviderFallbackQuery"/>
+        
         <attr format="reference" name="fontProviderCerts"/>
         
         <attr name="fontProviderFetchStrategy">
@@ -3448,7 +3383,7 @@
               default typeface will be used instead. -->
             <enum name="blocking" value="0"/>
             <!-- The async font fetch works as follows.
-              First, check the local cache, then if the requeted font is not cached, trigger a
+              First, check the local cache, then if the requested font is not cached, trigger a
               request the font and continue with layout inflation. Once the font fetch succeeds, the
               target text view will be refreshed with the downloaded font data. The
               fontProviderFetchTimeout will be ignored if async loading is specified. -->
@@ -3643,6 +3578,14 @@
 <attr format="color" name="backgroundColor"/>
 
 <attr format="string" name="mapId"/>
+<attr name="mapColorScheme">
+<enum name="light" value="0"/>
+
+<enum name="dark" value="1"/>
+
+<enum name="follow_system" value="2"/>
+
+</attr>
 </declare-styleable>
     <declare-styleable name="MenuGroup">
 
@@ -3879,6 +3822,7 @@
 
         <attr name="android:orientation"/>
         <attr name="android:descendantFocusability"/>
+        <attr name="android:clipToPadding"/>
         <attr format="integer" name="spanCount"/>
         <attr format="boolean" name="reverseLayout"/>
         <attr format="boolean" name="stackFromEnd"/>

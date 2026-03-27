@@ -3,7 +3,7 @@
     <string msgid="5976598919945601918" name="abc_action_bar_home_description">"ಹೋಮ್‌ಗೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ"</string>
     <string msgid="8388173803310557296" name="abc_action_bar_up_description">"ಮೇಲಕ್ಕೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಿ"</string>
     <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"ಇನ್ನಷ್ಟು ಆಯ್ಕೆಗಳು"</string>
-    <string msgid="4692188335987374352" name="abc_action_mode_done">"ಮುಗಿದಿದೆ"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"ಆಯಿತು"</string>
     <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"ಎಲ್ಲವನ್ನೂ ನೋಡಿ"</string>
     <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"ಆ್ಯಪ್‌ವೊಂದನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
     <string msgid="4215997306490295099" name="abc_capital_off">"ಆಫ್"</string>
@@ -123,6 +123,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"ಡೈಲಾಗ್"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"ಕುಗ್ಗಿಸಲಾಗಿದೆ"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"ವಿಸ್ತರಿಸಲಾಗಿದೆ"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"ಡ್ರಾಪ್‌ಡೌನ್ ಮೆನುವನ್ನು ಟಾಗಲ್ ಮಾಡಿ"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"ಹುಡುಕಿ"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"ವಜಾಗೊಳಿಸಿ"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"ಸಲಹೆಗಳನ್ನು ಕೆಳಗೆ ನೀಡಲಾಗಿದೆ"</string>
@@ -142,8 +143,6 @@
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"ಟೂಲ್‌ಟಿಪ್"</string>
     <string msgid="542007171693138492" name="navigation_menu">"ನ್ಯಾವಿಗೇಶನ್‌ ಮೆನು"</string>
     <string msgid="6610465462668679431" name="not_selected">"ಆಯ್ಕೆ ಮಾಡಿಲ್ಲ"</string>
-    <string msgid="875452955155264703" name="off">"ಆಫ್ ಆಗಿದೆ"</string>
-    <string msgid="8655164131929253426" name="on">"ಆನ್ ಆಗಿದೆ"</string>
     <string name="places_autocomplete_clear_button">ಹುಡುಕಾಟ ತೆರವುಗೊಳಿಸಿ</string>
     <string name="places_autocomplete_label">ಸ್ಥಳವನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="places_autocomplete_no_results_for_query">%1$s ಸಂಬಂಧಿಸಿದ ಯಾವುದೇ ಫಲಿತಾಂಶಗಳಿಲ್ಲ</string>
@@ -157,6 +156,9 @@
     <string msgid="5659570757430909869" name="screen_lock_prompt_message">"ಮುಂದುವರಿಯಲು ನಿಮ್ಮ ಸ್ಕ್ರೀನ್ ಲಾಕ್‌ ಅನ್ನು ನಮೂದಿಸಿ"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"ಹುಡುಕಿ"</string>
     <string msgid="6043586758067023" name="selected">"ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
+    <string msgid="4139871816613051306" name="state_empty">"ಖಾಲಿ"</string>
+    <string msgid="5834637030682409883" name="state_off">"ಆಫ್ ಆಗಿದೆ"</string>
+    <string msgid="1490883874751719580" name="state_on">"ಆನ್ ಆಗಿದೆ"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"ಬದಲಿಸಿ"</string>
     <string msgid="1672349317127674378" name="tab">"ಟ್ಯಾಬ್"</string>

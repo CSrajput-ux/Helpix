@@ -6,8 +6,8 @@
     <string msgid="4692188335987374352" name="abc_action_mode_done">"Готово"</string>
     <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Показати всі"</string>
     <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Вибрати програму"</string>
-    <string msgid="4215997306490295099" name="abc_capital_off">"ЗНИЖКА"</string>
-    <string msgid="884982626291842264" name="abc_capital_on">"УВІМК."</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ВИМКНЕНО"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"УВІМКНЕНО"</string>
     <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
     <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
     <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
@@ -123,6 +123,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"Вікно"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Згорнуто"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Розгорнуто"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Згорнути або розгорнути спадне меню"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"Пошук"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Закрити"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"Підказки внизу"</string>
@@ -142,8 +143,6 @@
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Спливаюча підказка"</string>
     <string msgid="542007171693138492" name="navigation_menu">"Меню навігації"</string>
     <string msgid="6610465462668679431" name="not_selected">"Не вибрано"</string>
-    <string msgid="875452955155264703" name="off">"Вимкнено"</string>
-    <string msgid="8655164131929253426" name="on">"Увімкнено"</string>
     <string name="places_autocomplete_clear_button">Очистити пошук</string>
     <string name="places_autocomplete_label">Вибрати місце</string>
     <string name="places_autocomplete_no_results_for_query">Немає результатів за запитом \"%1$s\"</string>
@@ -157,6 +156,9 @@
     <string msgid="5659570757430909869" name="screen_lock_prompt_message">"Щоб продовжити, введіть дані для розблокування екрана"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Пошук"</string>
     <string msgid="6043586758067023" name="selected">"Вибрано"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Пусто"</string>
+    <string msgid="5834637030682409883" name="state_off">"Вимкнено"</string>
+    <string msgid="1490883874751719580" name="state_on">"Увімкнено"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Перемикач"</string>
     <string msgid="1672349317127674378" name="tab">"Вкладка"</string>

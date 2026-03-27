@@ -2,7 +2,7 @@
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
     <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Tunjukkan jalan ke rumah"</string>
     <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Kembali ke atas"</string>
-    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Opsi lain"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Opsi lainnya"</string>
     <string msgid="4692188335987374352" name="abc_action_mode_done">"Selesai"</string>
     <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Lihat semua"</string>
     <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Pilih aplikasi"</string>
@@ -123,6 +123,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"Dialog"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Diciutkan"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Diperluas"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Aktifkan/nonaktifkan menu dropdown"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"Telusuri"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Tutup"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"Saran di bawah"</string>
@@ -142,8 +143,6 @@
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Tooltip"</string>
     <string msgid="542007171693138492" name="navigation_menu">"Menu navigasi"</string>
     <string msgid="6610465462668679431" name="not_selected">"Tidak dipilih"</string>
-    <string msgid="875452955155264703" name="off">"Nonaktif"</string>
-    <string msgid="8655164131929253426" name="on">"Aktif"</string>
     <string name="places_autocomplete_clear_button">Hapus penelusuran</string>
     <string name="places_autocomplete_label">Pilih tempat</string>
     <string name="places_autocomplete_no_results_for_query">Tidak ada hasil untuk %1$s</string>
@@ -157,6 +156,9 @@
     <string msgid="5659570757430909869" name="screen_lock_prompt_message">"Masukkan kunci layar untuk melanjutkan"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Telusuri"</string>
     <string msgid="6043586758067023" name="selected">"Dipilih"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Kosong"</string>
+    <string msgid="5834637030682409883" name="state_off">"Nonaktif"</string>
+    <string msgid="1490883874751719580" name="state_on">"Aktif"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Alihkan"</string>
     <string msgid="1672349317127674378" name="tab">"Tab"</string>

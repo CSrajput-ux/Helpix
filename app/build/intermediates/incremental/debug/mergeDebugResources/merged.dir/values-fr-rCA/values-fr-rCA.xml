@@ -48,15 +48,15 @@
     <string msgid="7215213145546190223" name="common_google_play_services_install_title">Installer les services Google Play</string>
     <string name="common_google_play_services_notification_channel_name">Disponibilité des services Google Play</string>
     <string name="common_google_play_services_notification_ticker">Erreur liée aux services Google Play</string>
-    <string name="common_google_play_services_unknown_issue">L\'application %1$s éprouve un problème avec les services Google Play. Veuillez réessayer.</string>
-    <string name="common_google_play_services_unsupported_text">L\'application %1$s ne fonctionnera pas sans les services Google Play, qui ne sont pas pris en charge par votre appareil.</string>
+    <string name="common_google_play_services_unknown_issue">L\'appli %1$s éprouve un problème avec les services Google Play. Veuillez réessayer.</string>
+    <string name="common_google_play_services_unsupported_text">L\'appli %1$s ne fonctionnera pas sans les services Google Play, qui ne sont pas pris en charge par votre appareil.</string>
     <string msgid="6556509956452265614" name="common_google_play_services_update_button">Mettre à jour</string>
     <string msgid="9053896323427875356" name="common_google_play_services_update_text">%1$s ne fonctionnera pas tant que vous n\'aurez pas mis à jour les services Google Play.</string>
     <string msgid="6006316683626838685" name="common_google_play_services_update_title">Mettre à jour les services Google Play</string>
     <string name="common_google_play_services_updating_text">%1$s ne fonctionnera pas sans les services Google Play, qui sont actuellement mis à jour.</string>
     <string name="common_google_play_services_wear_update_text">La nouvelle version des services Google Play est nécessaire. Elle sera bientôt installée automatiquement.</string>
     <string name="common_open_on_phone">Ouvrir sur le téléphone</string>
-    <string name="common_signin_button_text">Connexion</string>
+    <string name="common_signin_button_text">Se connecter</string>
     <string name="common_signin_button_text_long">Se connecter avec Google</string>
     <string msgid="5912733858573823945" name="confirm_device_credential_password">"Utiliser le mot de passe"</string>
     <string msgid="3260749812566568062" name="copy_toast_msg">"Lien copié dans le presse-papiers"</string>
@@ -123,6 +123,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"Dialogue"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"Réduit"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"Développé"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"Ouvrir ou fermer le menu déroulant"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"Recherche"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"Fermer"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"Suggestions ci-dessous"</string>
@@ -142,8 +143,6 @@
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"Infobulle"</string>
     <string msgid="542007171693138492" name="navigation_menu">"Menu de navigation"</string>
     <string msgid="6610465462668679431" name="not_selected">"Non sélectionné"</string>
-    <string msgid="875452955155264703" name="off">"Désactivé"</string>
-    <string msgid="8655164131929253426" name="on">"Activé"</string>
     <string name="places_autocomplete_clear_button">Effacer la recherche</string>
     <string name="places_autocomplete_label">Choisir un lieu</string>
     <string name="places_autocomplete_no_results_for_query">Aucun résultat pour %1$s</string>
@@ -157,6 +156,9 @@
     <string msgid="5659570757430909869" name="screen_lock_prompt_message">"Entrez votre verrouillage d\'écran pour continuer"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Rechercher"</string>
     <string msgid="6043586758067023" name="selected">"Sélectionné"</string>
+    <string msgid="4139871816613051306" name="state_empty">"Vide"</string>
+    <string msgid="5834637030682409883" name="state_off">"Désactivé"</string>
+    <string msgid="1490883874751719580" name="state_on">"Activé"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Basculer"</string>
     <string msgid="1672349317127674378" name="tab">"Onglet"</string>

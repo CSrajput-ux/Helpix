@@ -38,19 +38,19 @@
     <string msgid="6107532579223922871" name="call_notification_incoming_text">"ఇన్‌కమింగ్ కాల్"</string>
     <string msgid="8623827134497363134" name="call_notification_ongoing_text">"కాల్ కొనసాగుతోంది"</string>
     <string msgid="59049573811482460" name="call_notification_screening_text">"ఇన్‌కమింగ్ కాల్‌ను స్క్రీన్ చేయండి"</string>
-    <string msgid="406453423630273620" name="close_drawer">"నావిగేషన్ మెనూను మూసివేయి"</string>
-    <string msgid="7573152094250666567" name="close_sheet">"షీట్‌ను మూసివేయి"</string>
-    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">ప్రారంభించు</string>
+    <string msgid="406453423630273620" name="close_drawer">"నావిగేషన్ మెనూను మూసివేయండి"</string>
+    <string msgid="7573152094250666567" name="close_sheet">"షీట్‌ను మూసివేయండి"</string>
+    <string msgid="2523291102206661146" name="common_google_play_services_enable_button">ప్రారంభించండి</string>
     <string msgid="227660514972886228" name="common_google_play_services_enable_text">మీరు Google Play సేవలను ప్రారంభిస్తే మినహా %1$s పని చేయదు.</string>
     <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Google Play సేవలను ప్రారంభించండి</string>
-    <string msgid="7153882981874058840" name="common_google_play_services_install_button">ఇన్‌స్టాల్ చేయి</string>
+    <string msgid="7153882981874058840" name="common_google_play_services_install_button">ఇన్‌స్టాల్ చేయండి</string>
     <string name="common_google_play_services_install_text">%1$s Google Play సేవలు లేకుండా అమలు కాదు, ఆ సేవలు మీ పరికరంలో లేవు.</string>
     <string msgid="7215213145546190223" name="common_google_play_services_install_title">Google Play సేవలను పొందండి</string>
     <string name="common_google_play_services_notification_channel_name">Google Play సేవల లభ్యత</string>
     <string name="common_google_play_services_notification_ticker">Google Play సేవల ఎర్రర్</string>
     <string name="common_google_play_services_unknown_issue">%1$s Google Play సేవలతో సమస్య కలిగి ఉంది. దయచేసి మళ్లీ ట్రై చేయండి.</string>
     <string name="common_google_play_services_unsupported_text">%1$s Google Play సేవలు లేకుండా అమలు కాదు, ఈ సేవలకు మీ పరికరంలో మద్దతు లేదు.</string>
-    <string msgid="6556509956452265614" name="common_google_play_services_update_button">అప్‌డేట్ చేయి</string>
+    <string msgid="6556509956452265614" name="common_google_play_services_update_button">అప్‌డేట్ చేయండి</string>
     <string msgid="9053896323427875356" name="common_google_play_services_update_text">మీరు Google Play సేవలను నవీకరిస్తే మినహా %1$s అమలు కాదు.</string>
     <string msgid="6006316683626838685" name="common_google_play_services_update_title">Google Play సేవలను అప్‌డేట్ చేయండి</string>
     <string name="common_google_play_services_updating_text">%1$s Google Play సేవలు లేకుండా అమలు కాదు, ఆ సేవలు ప్రస్తుతం నవీకరించబడుతున్నాయి.</string>
@@ -123,6 +123,7 @@
     <string msgid="7617233117134790350" name="m3c_dialog">"డైలాగ్"</string>
     <string msgid="3177828188723359358" name="m3c_dropdown_menu_collapsed">"కుదించబడింది"</string>
     <string msgid="2360841780724299882" name="m3c_dropdown_menu_expanded">"విస్తరించబడింది"</string>
+    <string msgid="8687821690726149911" name="m3c_dropdown_menu_toggle">"డ్రాప్‌డౌన్ మెనూను టోగుల్ చేయండి"</string>
     <string msgid="6152806324422087846" name="m3c_search_bar_search">"సెర్చ్ చేయండి"</string>
     <string msgid="6152755701819882931" name="m3c_snackbar_dismiss">"విస్మరించండి"</string>
     <string msgid="7655536806087401899" name="m3c_suggestions_available">"సూచనలు దిగువున ఉన్నాయి"</string>
@@ -142,8 +143,6 @@
     <string msgid="5460405025248574620" name="m3c_tooltip_pane_description">"టూల్‌టిప్"</string>
     <string msgid="542007171693138492" name="navigation_menu">"నావిగేషన్ మెనూ"</string>
     <string msgid="6610465462668679431" name="not_selected">"ఎంచుకోబడలేదు"</string>
-    <string msgid="875452955155264703" name="off">"ఆఫ్‌లో ఉంది"</string>
-    <string msgid="8655164131929253426" name="on">"ఆన్‌లో ఉంది"</string>
     <string name="places_autocomplete_clear_button">సెర్చ్‌ను తీసేయండి</string>
     <string name="places_autocomplete_label">ఒక స్థలాన్ని ఎంచుకోండి</string>
     <string name="places_autocomplete_no_results_for_query">%1$s కోసం ఎలాంటి ఫలితాలు లేవు</string>
@@ -157,6 +156,9 @@
     <string msgid="5659570757430909869" name="screen_lock_prompt_message">"కొనసాగించడానికి మీ స్క్రీన్ లాక్‌ను ఎంటర్ చేయండి"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"సెర్చ్"</string>
     <string msgid="6043586758067023" name="selected">"ఎంచుకోబడింది"</string>
+    <string msgid="4139871816613051306" name="state_empty">"ఖాళీగా ఉంది"</string>
+    <string msgid="5834637030682409883" name="state_off">"ఆఫ్‌లో ఉంది"</string>
+    <string msgid="1490883874751719580" name="state_on">"ఆన్‌లో ఉంది"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
     <string msgid="2561197295334830845" name="switch_role">"Switch"</string>
     <string msgid="1672349317127674378" name="tab">"ట్యాబ్"</string>
