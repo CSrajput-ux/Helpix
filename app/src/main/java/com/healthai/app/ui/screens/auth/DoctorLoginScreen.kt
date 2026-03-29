@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,11 +74,13 @@ fun DoctorLoginScreen(navController: NavController) {
             Text(stringResource(id = R.string.doctor_login), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(32.dp))
 
-            val commonColors = TextFieldDefaults.outlinedTextFieldColors(
+            val commonColors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = colorResource(id = R.color.logo_cyan),
                 unfocusedBorderColor = colorResource(id = R.color.text_grey),
                 focusedTextColor = Color.White,
-                containerColor = Color.Transparent
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
             )
 
             OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(id = R.string.email), color = Color.Gray) }, colors = commonColors, modifier = Modifier.fillMaxWidth())

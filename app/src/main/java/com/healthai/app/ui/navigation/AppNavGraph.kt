@@ -123,7 +123,7 @@ fun AppNavGraph(navController: NavHostController) {
         composable(NavRoutes.AppSettings) {
             AppSettingsScreen(navController = navController)
         }
-        composable("device_connect_screen") {
+        composable(NavRoutes.DeviceConnect) {
             DeviceConnectScreen(navController = navController)
         }
         composable(NavRoutes.Tools) {

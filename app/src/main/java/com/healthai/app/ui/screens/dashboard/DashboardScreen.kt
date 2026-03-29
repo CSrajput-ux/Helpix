@@ -1,5 +1,6 @@
 package com.healthai.app.ui.screens.dashboard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,17 +16,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -36,8 +33,6 @@ import com.healthai.app.ui.navigation.NavRoutes
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(navController: NavController) {
-    var selectedGender by remember { mutableStateOf("Male") }
-
     Scaffold(
         bottomBar = {
             HelpixBottomNav(navController = navController)
@@ -81,44 +76,46 @@ fun DashboardScreen(navController: NavController) {
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        GenderSwitch(selectedGender) { selectedGender = it }
+                        // Watch Connection Section
+                        WatchConnectionCard(navController)
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        Text(
+                            text = "AI Health Analyzers",
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Start
+                        )
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+                        // Analyzer Sections
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            BodyWireframe()
-                            ScanTarget(0f, -140f)
-                            ScanTarget(0f, -50f)
-                            ScanTarget(-60f, 20f)
-                            ScanTarget(40f, 130f)
+                            AnalyzerRow(
+                                title = "Cough TB Analyzer",
+                                subtitle = "Detect TB from cough sound",
+                                icon = Icons.Default.GraphicEq,
+                                onClick = { navController.navigate(NavRoutes.CoughAnalyzerStart) }
+                            )
+                            AnalyzerRow(
+                                title = "Skin Detector",
+                                subtitle = "Identify skin conditions via AI",
+                                icon = Icons.Default.Face,
+                                onClick = { navController.navigate(NavRoutes.SkinDetectorStart) }
+                            )
+                            AnalyzerRow(
+                                title = "Symptom Doctor",
+                                subtitle = "AI-powered symptom checker",
+                                icon = Icons.Default.MedicalServices,
+                                onClick = { navController.navigate(NavRoutes.SymptomDoctorStart) }
+                            )
                         }
-                    }
-
-                    Row(
-                        modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        QuickActionCard(
-                            title = "Cough TB\nAnalyzer",
-                            subtitle = "Detect TB from\ncough sound",
-                            icon = Icons.Default.GraphicEq,
-                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.CoughAnalyzerStart) }
-                        )
-                        QuickActionCard(
-                            title = "Skin\nDetector",
-                            subtitle = "Identify skin\nconditions",
-                            icon = Icons.Default.Face,
-                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.SkinDetectorStart) }
-                        )
-                        QuickActionCard(
-                            title = "Symptom\nDoctor",
-                            subtitle = "Check your\nsymptoms",
-                            icon = Icons.Default.MedicalServices,
-                            modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.SymptomDoctorStart) }
-                        )
                     }
                 }
             }
@@ -126,7 +123,95 @@ fun DashboardScreen(navController: NavController) {
     }
 }
 
-// --- NAVIGATION BAR (FIXED) ---
+@Composable
+fun WatchConnectionCard(navController: NavController) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .clickable { navController.navigate(NavRoutes.DeviceConnect) },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.8f)
+        ),
+        border = BorderStroke(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(60.dp)
+                    .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Watch,
+                    contentDescription = null,
+                    tint = colorResource(id = R.color.logo_cyan),
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Smart Watch",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Connect your watch to track real-time vitals",
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    lineHeight = 16.sp
+                )
+            }
+            
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = Color.Gray
+            )
+        }
+    }
+}
+
+@Composable
+fun AnalyzerRow(title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.6f))
+            .clickable { onClick() }
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = colorResource(id = R.color.logo_cyan))
+        }
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        Column {
+            Text(title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(subtitle, color = Color.Gray, fontSize = 12.sp)
+        }
+    }
+}
+
+// --- NAVIGATION BAR ---
 @Composable
 fun HelpixBottomNav(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -212,8 +297,6 @@ fun RowScope.NavItem(name: String, icon: androidx.compose.ui.graphics.vector.Ima
     )
 }
 
-// --- VISUAL COMPONENTS ---
-
 @Composable
 fun TopBarSection(navController: NavController) {
     Row(
@@ -253,113 +336,6 @@ fun IconBtn(icon: androidx.compose.ui.graphics.vector.ImageVector) {
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = null, tint = Color.White)
-    }
-}
-
-@Composable
-fun GenderSwitch(selected: String, onSelect: (String) -> Unit) {
-    Row(
-        modifier = Modifier
-            .width(200.dp)
-            .height(44.dp)
-            .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(22.dp))
-            .background(Color.Black.copy(alpha = 0.3f), RoundedCornerShape(22.dp)),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        GenderOption("Male", selected == "Male") { onSelect("Male") }
-        GenderOption("Female", selected == "Female") { onSelect("Female") }
-    }
-}
-
-@Composable
-fun RowScope.GenderOption(text: String, isSelected: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .weight(1f)
-            .fillMaxHeight()
-            .padding(2.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(if (isSelected) colorResource(id = R.color.logo_blue) else Color.Transparent)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text, color = Color.White, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal)
-    }
-}
-
-@Composable
-fun BodyWireframe() {
-    val cyanColor = colorResource(id = R.color.logo_cyan)
-    Canvas(modifier = Modifier.height(400.dp).width(220.dp)) {
-        val stroke = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
-
-        drawCircle(color = cyanColor, radius = 30.dp.toPx(), center = center.copy(y = center.y - 140.dp.toPx()), style = stroke)
-        drawLine(cyanColor, start = center.copy(y = center.y - 110.dp.toPx()), end = center.copy(y = center.y - 90.dp.toPx()), strokeWidth = 4.dp.toPx())
-        drawRoundRect(
-            color = cyanColor,
-            topLeft = Offset(center.x - 45.dp.toPx(), center.y - 90.dp.toPx()),
-            size = Size(90.dp.toPx(), 140.dp.toPx()),
-            cornerRadius = CornerRadius(10f, 10f),
-            style = stroke
-        )
-        val leftArm = Path().apply {
-            moveTo(center.x - 50.dp.toPx(), center.y - 80.dp.toPx())
-            quadraticBezierTo(center.x - 100.dp.toPx(), center.y - 20.dp.toPx(), center.x - 60.dp.toPx(), center.y + 40.dp.toPx())
-        }
-        drawPath(leftArm, cyanColor, style = stroke)
-        val rightArm = Path().apply {
-            moveTo(center.x + 50.dp.toPx(), center.y - 80.dp.toPx())
-            quadraticBezierTo(center.x + 100.dp.toPx(), center.y - 20.dp.toPx(), center.x + 60.dp.toPx(), center.y + 40.dp.toPx())
-        }
-        drawPath(rightArm, cyanColor, style = stroke)
-        drawLine(cyanColor, start = Offset(center.x - 25.dp.toPx(), center.y + 50.dp.toPx()), end = Offset(center.x - 35.dp.toPx(), center.y + 180.dp.toPx()), strokeWidth = 4.dp.toPx())
-        drawLine(cyanColor, start = Offset(center.x + 25.dp.toPx(), center.y + 50.dp.toPx()), end = Offset(center.x + 35.dp.toPx(), center.y + 180.dp.toPx()), strokeWidth = 4.dp.toPx())
-    }
-}
-
-@Composable
-fun ScanTarget(offsetX: Float, offsetY: Float) {
-    val cyanColor = colorResource(id = R.color.logo_cyan)
-    Box(
-        modifier = Modifier
-            .offset(x = offsetX.dp, y = offsetY.dp)
-            .size(40.dp)
-    ) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-            val w = size.width
-            val h = size.height
-            val corner = 10.dp.toPx()
-
-            drawPath(Path().apply { moveTo(0f, corner); lineTo(0f, 0f); lineTo(corner, 0f) }, cyanColor, style = stroke)
-            drawPath(Path().apply { moveTo(w-corner, 0f); lineTo(w, 0f); lineTo(w, corner) }, cyanColor, style = stroke)
-            drawPath(Path().apply { moveTo(0f, h-corner); lineTo(0f, h); lineTo(corner, h) }, cyanColor, style = stroke)
-            drawPath(Path().apply { moveTo(w-corner, h); lineTo(w, h); lineTo(w, h-corner) }, cyanColor, style = stroke)
-
-            drawCircle(color = cyanColor.copy(alpha = 0.1f), radius = w/2)
-        }
-    }
-}
-
-@Composable
-fun QuickActionCard(title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier) {
-    Box(
-        modifier = modifier
-            .height(100.dp)
-            .border(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-            .background(colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.9f), RoundedCornerShape(16.dp))
-            .padding(12.dp)
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(icon, contentDescription = null, tint = colorResource(id = R.color.logo_cyan))
-            Column {
-                Text(title, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                Text(subtitle, color = Color.Gray, fontSize = 10.sp, lineHeight = 12.sp)
-            }
-        }
     }
 }
 

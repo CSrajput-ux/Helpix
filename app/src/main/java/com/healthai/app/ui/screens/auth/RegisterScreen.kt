@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -75,11 +76,13 @@ fun RegisterScreen(navController: NavController) {
             Text(stringResource(id = R.string.create_account), color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(32.dp))
 
-            val commonColors = TextFieldDefaults.outlinedTextFieldColors(
+            val commonColors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = colorResource(id = R.color.logo_cyan),
                 unfocusedBorderColor = colorResource(id = R.color.text_grey),
                 focusedTextColor = Color.White,
-                containerColor = Color.Transparent
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
             )
 
             OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(stringResource(id = R.string.full_name), color = Color.Gray) }, colors = commonColors, modifier = Modifier.fillMaxWidth())

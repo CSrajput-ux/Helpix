@@ -23,6 +23,7 @@ object NavRoutes {
     const val DoctorDashboard = "doctor_dashboard_screen"
     const val MyAppointments = "my_appointments_screen"
     const val AppSettings = "app_settings_screen"
+    const val DeviceConnect = "device_connect_screen"
     
     // Multi-Disease Scan Flow
     const val MultiDiseaseScanStart = "multi_disease_scan_start_screen"

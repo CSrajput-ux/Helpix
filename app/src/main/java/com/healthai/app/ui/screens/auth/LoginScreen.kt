@@ -34,6 +34,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
@@ -379,8 +380,9 @@ fun CustomTextField(
         shape = RoundedCornerShape(12.dp),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
         keyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else KeyboardOptions(keyboardType = KeyboardType.Email),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            containerColor = Color(0xFF1E293B),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFF1E293B),
+            unfocusedContainerColor = Color(0xFF1E293B),
             focusedBorderColor = colorResource(id = R.color.logo_cyan),
             unfocusedBorderColor = Color(0xFF334155),
             focusedTextColor = Color.White,
