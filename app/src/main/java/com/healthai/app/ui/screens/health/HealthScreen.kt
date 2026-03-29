@@ -34,7 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
-import com.healthai.app.ui.screens.dashboard.HelpixBottomNav // Import from Dashboard
+import com.healthai.app.ui.screens.dashboard.HelpixBottomNav 
 import com.healthai.app.ui.viewmodel.HealthViewModel
 
 @Composable
@@ -98,11 +98,32 @@ fun HealthScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // --- NAVIGATION CARDS ---
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    NavCard(stringResource(id = R.string.smartwatch_vitals), Icons.Default.Watch, Modifier.weight(1f)) { navController.navigate("device_connect_screen") }
-                    NavCard(stringResource(id = R.string.vitals_history), Icons.Default.History, Modifier.weight(1f)) { navController.navigate(NavRoutes.HealthHistory) }
-                    NavCard(stringResource(id = R.string.my_appointments), Icons.Default.CalendarToday, Modifier.weight(1f)) { navController.navigate(NavRoutes.MyAppointments) }
+                // --- NAVIGATION / REAL-TIME VITALS CARDS ---
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    VitalDisplayCard(
+                        title = "Heartbeat",
+                        value = if (state.heartRate > 0) "${state.heartRate}" else "--",
+                        unit = "bpm",
+                        icon = Icons.Default.Favorite,
+                        modifier = Modifier.weight(1f),
+                        color = Color(0xFFFF4081)
+                    )
+                    VitalDisplayCard(
+                        title = "Temp",
+                        value = if (state.temperature > 0) "${state.temperature}" else "--",
+                        unit = "°C",
+                        icon = Icons.Default.Thermostat,
+                        modifier = Modifier.weight(1f),
+                        color = Color(0xFFFFAB00)
+                    )
+                    VitalDisplayCard(
+                        title = "Blood Pressure",
+                        value = state.bloodPressure,
+                        unit = "",
+                        icon = Icons.Default.Bloodtype,
+                        modifier = Modifier.weight(1f),
+                        color = Color(0xFF2979FF)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -152,45 +173,6 @@ fun HealthScreen(
                 AlertCard("Vitamin D Low", "Consider spending 15 mins in sunlight", "2h ago", Color(0xFFFFAB00))
                 AlertCard("Hydration Reminder", "Drink 2 more glasses of water today", "4h ago", Color(0xFF2979FF))
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // --- MEDICINES ---
-                SectionHeader(stringResource(id = R.string.daily_medicines), Icons.Default.Medication)
-                MedicineCard("Vitamin C", "9:00 AM", true)
-                MedicineCard("Calcium", "2:00 PM", false)
-                MedicineCard("Multivitamin", "8:00 PM", false)
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // --- RISK PREDICTIONS ---
-                SectionHeader(stringResource(id = R.string.risk_predictions), Icons.Default.TrendingUp)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(colorResource(id = R.color.helpix_bg_top))
-                        .padding(16.dp)
-                ) {
-                    Column {
-                        RiskItem("Seasonal Flu", 35, Color(0xFFFFC107))
-                        Spacer(modifier = Modifier.height(12.dp))
-                        RiskItem("Common Cold", 22, Color(0xFF448AFF))
-                        Spacer(modifier = Modifier.height(12.dp))
-                        RiskItem("Allergies", 18, Color(0xFF00E676))
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // --- RECOMMENDATIONS ---
-                SectionHeader(stringResource(id = R.string.recommended_today), Icons.Default.Recommend)
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Box(modifier = Modifier.weight(1f).clickable { navController.navigate(NavRoutes.DietPlanner) }) {
-                        RecommendationCard(stringResource(id = R.string.diet_planner), "2000 cal target", Icons.Default.Restaurant, Color(0xFF00E676), Modifier.fillMaxWidth())
-                    }
-                    RecommendationCard("Exercise", "30 min cardio", Icons.Default.FitnessCenter, Color(0xFFFF9100), Modifier.weight(1f))
-                }
-                
                 Spacer(modifier = Modifier.height(100.dp))
             }
         }
@@ -198,19 +180,25 @@ fun HealthScreen(
 }
 
 @Composable
-fun NavCard(title: String, icon: ImageVector, modifier: Modifier, onClick: () -> Unit) {
+fun VitalDisplayCard(title: String, value: String, unit: String, icon: ImageVector, modifier: Modifier, color: Color) {
     Box(
         modifier = modifier
-            .height(80.dp)
+            .height(100.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(colorResource(id = R.color.helpix_bg_top))
-            .clickable { onClick() }
-            .padding(12.dp)
+            .padding(10.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.align(Alignment.Center)) {
-            Icon(icon, contentDescription = null, tint = colorResource(id = R.color.logo_cyan))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(title, color = Color.White, fontSize = 12.sp)
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(value, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                if (unit.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(unit, color = Color.Gray, fontSize = 10.sp, modifier = Modifier.padding(bottom = 2.dp))
+                }
+            }
+            Text(title, color = Color.Gray, fontSize = 10.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -297,83 +285,5 @@ fun AlertCard(title: String, subtitle: String, time: String, color: Color) {
             Text(subtitle, color = Color.Gray, fontSize = 12.sp)
         }
         Text(time, color = Color.Gray, fontSize = 10.sp)
-    }
-}
-
-@Composable
-fun MedicineCard(name: String, time: String, isTaken: Boolean) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 12.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(colorResource(id = R.color.helpix_bg_top))
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .background(if (isTaken) Color(0xFF00E676) else Color.Transparent)
-                    .border(2.dp, if (isTaken) Color.Transparent else Color.Gray, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isTaken) Icon(Icons.Default.Check, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(name, color = Color.White, fontWeight = FontWeight.Bold)
-                Text(time, color = Color.Gray, fontSize = 12.sp)
-            }
-        }
-        Button(
-            onClick = {},
-            colors = ButtonDefaults.buttonColors(containerColor = if (isTaken) Color.DarkGray else colorResource(id = R.color.logo_cyan).copy(alpha = 0.2f)),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-            modifier = Modifier.height(32.dp)
-        ) {
-            Text(if (isTaken) "Taken" else "Take Now", fontSize = 12.sp, color = if (isTaken) Color.Gray else colorResource(id = R.color.logo_cyan))
-        }
-    }
-}
-
-@Composable
-fun RiskItem(name: String, percent: Int, color: Color) {
-    Column {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(name, color = Color.White, fontSize = 13.sp)
-            Text("$percent%", color = color, fontSize = 13.sp)
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        LinearProgressIndicator(
-            progress = percent / 100f,
-            color = color,
-            trackColor = Color.DarkGray,
-            strokeCap = StrokeCap.Round,
-            modifier = Modifier.fillMaxWidth().height(6.dp)
-        )
-    }
-}
-
-@Composable
-fun RecommendationCard(title: String, subtitle: String, icon: ImageVector, color: Color, modifier: Modifier) {
-    Box(
-        modifier = modifier
-            .height(100.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(color.copy(alpha = 0.1f))
-            .border(1.dp, color.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-            .padding(12.dp)
-    ) {
-        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
-            Icon(icon, contentDescription = null, tint = color)
-            Column {
-                Text(title, color = color, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text(subtitle, color = Color.Gray, fontSize = 11.sp)
-            }
-        }
     }
 }

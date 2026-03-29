@@ -7,5 +7,8 @@ data class VitalsLog(
     @ServerTimestamp val timestamp: Date? = null,
     val heartRate: Int = 0,
     val spo2: Int = 0,
-    val steps: Int = 0
+    val steps: Int = 0,
+    val temperature: Float = 0f,
+    val systolic: Double = 0.0,
+    val diastolic: Double = 0.0
 )

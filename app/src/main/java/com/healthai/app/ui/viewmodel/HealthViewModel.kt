@@ -21,6 +21,8 @@ data class HealthState(
     val healthScore: Int = 0,
     val heartRate: Int = 0,
     val steps: Int = 0,
+    val temperature: Float = 0f,
+    val bloodPressure: String = "--/--",
     val sleepQuality: String = "--",
     val sleepScore: Float = 0f,
     val lungHealth: Int = 0,
@@ -59,23 +61,25 @@ class HealthViewModel @Inject constructor(
                 val endTime = Instant.now()
                 val startTime = endTime.minus(24, ChronoUnit.HOURS)
 
-                val (steps, hr) = if (_uiState.value.hasHealthPermissions) {
-                    val s = healthConnectManager.readSteps(startTime, endTime)
-                    val h = healthConnectManager.readHeartRate(startTime, endTime)
-                    Pair(s.toInt(), h)
+                if (_uiState.value.hasHealthPermissions) {
+                    val steps = healthConnectManager.readSteps(startTime, endTime)
+                    val hr = healthConnectManager.readHeartRate(startTime, endTime)
+                    // Note: Basic Health Connect might not provide direct Temp/BP 
+                    // without specific partner apps, so we'll use placeholder or zero 
+                    // if not supported by the current client.
+                    
+                    _uiState.value = _uiState.value.copy(
+                        currentDate = nowStr,
+                        steps = steps.toInt(),
+                        heartRate = hr,
+                        isWatchConnected = true,
+                        healthScore = 87 
+                    )
                 } else {
-                    Pair(0, 0)
+                    _uiState.value = _uiState.value.copy(currentDate = nowStr)
                 }
 
-                _uiState.value = _uiState.value.copy(
-                    currentDate = nowStr,
-                    steps = if (steps > 0) steps else _uiState.value.steps,
-                    heartRate = if (hr > 0) hr else _uiState.value.heartRate,
-                    isWatchConnected = _uiState.value.hasHealthPermissions,
-                    healthScore = 87 // Example static score
-                )
-
-                delay(5000) // Sync every 5 seconds
+                delay(5000)
             }
         }
     }

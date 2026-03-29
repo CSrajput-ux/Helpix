@@ -25,14 +25,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
+import com.healthai.app.ui.viewmodel.HealthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(
+    navController: NavController,
+    healthViewModel: HealthViewModel = hiltViewModel()
+) {
+    val healthState by healthViewModel.uiState.collectAsState()
+
     Scaffold(
         bottomBar = {
             HelpixBottomNav(navController = navController)
@@ -79,7 +86,16 @@ fun DashboardScreen(navController: NavController) {
                         // Watch Connection Section
                         WatchConnectionCard(navController)
                         
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Real-time Vitals Preview
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            DashboardVitalCard("Heart", "${healthState.heartRate}", Icons.Default.Favorite, Color(0xFFFF4081), Modifier.weight(1f))
+                            DashboardVitalCard("Temp", if (healthState.temperature > 0) "${healthState.temperature}" else "--", Icons.Default.Thermostat, Color(0xFFFFAB00), Modifier.weight(1f))
+                            DashboardVitalCard("BP", healthState.bloodPressure, Icons.Default.Bloodtype, Color(0xFF2979FF), Modifier.weight(1f))
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
                         
                         // New Main Scan Button
                         MainScanCard(navController)
@@ -87,7 +103,7 @@ fun DashboardScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(24.dp))
                         
                         Text(
-                            text = "AI Health Insights",
+                            text = "Health Services",
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
@@ -97,19 +113,31 @@ fun DashboardScreen(navController: NavController) {
                         
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Other Quick Actions or Info
+                        // Quick Actions Row
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             SmallFeatureCard(
-                                title = "Health Vault",
+                                title = "Doctors",
+                                icon = Icons.Default.PersonSearch,
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate(NavRoutes.Doctors) }
+                            )
+                            SmallFeatureCard(
+                                title = "Tools",
+                                icon = Icons.Default.GridView,
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate(NavRoutes.Tools) }
+                            )
+                            SmallFeatureCard(
+                                title = "Vault",
                                 icon = Icons.Default.Folder,
                                 modifier = Modifier.weight(1f),
                                 onClick = { navController.navigate(NavRoutes.HealthVault) }
                             )
                             SmallFeatureCard(
-                                title = "Emergency",
+                                title = "SOS",
                                 icon = Icons.Default.Emergency,
                                 modifier = Modifier.weight(1f),
                                 onClick = { navController.navigate(NavRoutes.Emergency) }
@@ -123,11 +151,27 @@ fun DashboardScreen(navController: NavController) {
 }
 
 @Composable
+fun DashboardVitalCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, modifier: Modifier) {
+    Card(
+        modifier = modifier.height(70.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f)),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.2f))
+    ) {
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+            Text(value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(title, color = Color.Gray, fontSize = 9.sp)
+        }
+    }
+}
+
+@Composable
 fun MainScanCard(navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(160.dp)
+            .height(130.dp)
             .clickable { navController.navigate(NavRoutes.Scan) },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
@@ -146,20 +190,20 @@ fun MainScanCard(navController: NavController) {
                 imageVector = Icons.Default.QrCodeScanner,
                 contentDescription = null,
                 tint = colorResource(id = R.color.logo_cyan),
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(36.dp)
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = "START AI SCAN",
                 color = Color.White,
-                fontSize = 22.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 2.sp
             )
             Text(
                 text = "Cough, Skin & Symptoms Analysis",
                 color = Color.Gray,
-                fontSize = 12.sp
+                fontSize = 10.sp
             )
         }
     }
@@ -169,7 +213,7 @@ fun MainScanCard(navController: NavController) {
 fun SmallFeatureCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
         modifier = modifier
-            .height(100.dp)
+            .height(80.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -182,9 +226,9 @@ fun SmallFeatureCard(title: String, icon: androidx.compose.ui.graphics.vector.Im
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(title, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
@@ -194,7 +238,7 @@ fun WatchConnectionCard(navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(110.dp)
+            .height(90.dp)
             .clickable { navController.navigate(NavRoutes.DeviceConnect) },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
@@ -210,7 +254,7 @@ fun WatchConnectionCard(navController: NavController) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(50.dp)
+                    .size(40.dp)
                     .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
@@ -218,7 +262,7 @@ fun WatchConnectionCard(navController: NavController) {
                     imageVector = Icons.Default.Watch,
                     contentDescription = null,
                     tint = colorResource(id = R.color.logo_cyan),
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
             
@@ -228,13 +272,13 @@ fun WatchConnectionCard(navController: NavController) {
                 Text(
                     text = "Smart Watch",
                     color = Color.White,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "Track real-time vitals",
                     color = Color.Gray,
-                    fontSize = 12.sp
+                    fontSize = 10.sp
                 )
             }
             
@@ -282,23 +326,23 @@ fun HelpixBottomNav(navController: NavController) {
         )
 
         NavItem(
-            name = "Scan",
-            icon = Icons.Filled.QrCodeScanner,
-            isSelected = currentRoute == NavRoutes.Scan,
-            onClick = {
-                if (currentRoute != NavRoutes.Scan) {
-                    navController.navigate(NavRoutes.Scan)
-                }
-            }
-        )
-
-        NavItem(
             name = "Doctors",
             icon = Icons.Filled.MedicalServices,
             isSelected = currentRoute == NavRoutes.Doctors,
             onClick = {
                 if (currentRoute != NavRoutes.Doctors) {
                     navController.navigate(NavRoutes.Doctors)
+                }
+            }
+        )
+
+        NavItem(
+            name = "Tools",
+            icon = Icons.Filled.GridView,
+            isSelected = currentRoute == NavRoutes.Tools,
+            onClick = {
+                if (currentRoute != NavRoutes.Tools) {
+                    navController.navigate(NavRoutes.Tools)
                 }
             }
         )
