@@ -153,25 +153,13 @@ fun HealthScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // --- METRICS GRID ---
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MetricCard(stringResource(id = R.string.lung_health), "Excellent", "${state.lungHealth}%", Color(0xFF00E5FF), 0.92f, Modifier.weight(1f))
-                    MetricCard(stringResource(id = R.string.skin_health), "Good", "${state.skinHealth}%", Color(0xFF00E676), 0.85f, Modifier.weight(1f))
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MetricCard(stringResource(id = R.string.sleep_quality), state.sleepQuality, "${(state.sleepScore * 100).toInt()}%", Color(0xFFD500F9), state.sleepScore, Modifier.weight(1f))
-                    MetricCard(stringResource(id = R.string.heart_rate), "Normal", "${state.heartRate} bpm", Color(0xFFFF4081), 0.72f, Modifier.weight(1f))
-                }
-
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // --- AI ALERTS ---
-                SectionHeader(stringResource(id = R.string.ai_health_alerts), Icons.Default.Psychology)
-                AlertCard("Vitamin D Low", "Consider spending 15 mins in sunlight", "2h ago", Color(0xFFFFAB00))
-                AlertCard("Hydration Reminder", "Drink 2 more glasses of water today", "4h ago", Color(0xFF2979FF))
+                SectionHeader("Urgent Health Notifications", Icons.Default.NotificationsActive)
+                AlertCard("Medicine Reminder", "Time to take your Vitamin C (Next dose in 10 mins)", "Just now", Color(0xFF2979FF))
+                AlertCard("Medical Emergency", "Your heartbeat is slightly above normal. Rest for 5 mins.", "5 mins ago", Color(0xFFFF1744))
+                AlertCard("Disease Area Warning", "You are entering a High Disease Outbreak Zone (Dengue). Wear protection.", "15 mins ago", Color(0xFFFFAB00))
 
                 Spacer(modifier = Modifier.height(100.dp))
             }
@@ -278,7 +266,7 @@ fun AlertCard(title: String, subtitle: String, time: String, color: Color) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Default.Warning, contentDescription = null, tint = color)
+        Icon(if (title.contains("Emergency")) Icons.Default.Warning else if (title.contains("Disease")) Icons.Default.ReportProblem else Icons.Default.Alarm, contentDescription = null, tint = color)
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(title, color = color, fontWeight = FontWeight.Bold, fontSize = 14.sp)

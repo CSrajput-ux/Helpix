@@ -128,7 +128,7 @@ fun ToolsScreen(navController: NavController) {
                     .fillMaxWidth()
                     .background(Color(0xFF020617).copy(alpha = 0.95f))
             ) {
-               ToolsStatsRow() 
+               ToolsStatsRow(toolsList.size) 
             }
         }
     }
@@ -187,7 +187,7 @@ fun ToolCard(tool: ToolItem, onClick: () -> Unit) { // Added onClick parameter
 }
 
 @Composable
-fun ToolsStatsRow() {
+fun ToolsStatsRow(activeToolsCount: Int) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -197,11 +197,11 @@ fun ToolsStatsRow() {
             .padding(vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem("24", "Active Tools", Color(0xFF2979FF), Icons.Default.Bolt)
+        StatItem(activeToolsCount.toString(), "Active Tools", Color(0xFF2979FF), Icons.Default.Bolt)
         VerticalDivider()
-        StatItem("142", "Scans Done", Color(0xFF00E676), Icons.Default.CenterFocusWeak)
+        StatItem("0", "Scans Done", Color(0xFF00E676), Icons.Default.CenterFocusWeak)
         VerticalDivider()
-        StatItem("98%", "AI Accuracy", Color(0xFFD500F9), Icons.Default.Psychology)
+        StatItem("100%", "AI Ready", Color(0xFFD500F9), Icons.Default.Psychology)
     }
 }
 
