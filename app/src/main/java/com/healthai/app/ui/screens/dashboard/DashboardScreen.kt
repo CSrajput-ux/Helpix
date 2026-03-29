@@ -79,10 +79,15 @@ fun DashboardScreen(navController: NavController) {
                         // Watch Connection Section
                         WatchConnectionCard(navController)
                         
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        // New Main Scan Button
+                        MainScanCard(navController)
+                        
                         Spacer(modifier = Modifier.height(24.dp))
                         
                         Text(
-                            text = "AI Health Analyzers",
+                            text = "AI Health Insights",
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
@@ -92,28 +97,22 @@ fun DashboardScreen(navController: NavController) {
                         
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Analyzer Sections
-                        Column(
+                        // Other Quick Actions or Info
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            AnalyzerRow(
-                                title = "Cough TB Analyzer",
-                                subtitle = "Detect TB from cough sound",
-                                icon = Icons.Default.GraphicEq,
-                                onClick = { navController.navigate(NavRoutes.CoughAnalyzerStart) }
+                            SmallFeatureCard(
+                                title = "Health Vault",
+                                icon = Icons.Default.Folder,
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate(NavRoutes.HealthVault) }
                             )
-                            AnalyzerRow(
-                                title = "Skin Detector",
-                                subtitle = "Identify skin conditions via AI",
-                                icon = Icons.Default.Face,
-                                onClick = { navController.navigate(NavRoutes.SkinDetectorStart) }
-                            )
-                            AnalyzerRow(
-                                title = "Symptom Doctor",
-                                subtitle = "AI-powered symptom checker",
-                                icon = Icons.Default.MedicalServices,
-                                onClick = { navController.navigate(NavRoutes.SymptomDoctorStart) }
+                            SmallFeatureCard(
+                                title = "Emergency",
+                                icon = Icons.Default.Emergency,
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate(NavRoutes.Emergency) }
                             )
                         }
                     }
@@ -124,11 +123,78 @@ fun DashboardScreen(navController: NavController) {
 }
 
 @Composable
+fun MainScanCard(navController: NavController) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(160.dp)
+            .clickable { navController.navigate(NavRoutes.Scan) },
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(id = R.color.logo_cyan).copy(alpha = 0.15f)
+        ),
+        border = BorderStroke(2.dp, Brush.linearGradient(
+            colors = listOf(colorResource(id = R.color.logo_cyan), colorResource(id = R.color.neon_pink))
+        ))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.QrCodeScanner,
+                contentDescription = null,
+                tint = colorResource(id = R.color.logo_cyan),
+                modifier = Modifier.size(48.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "START AI SCAN",
+                color = Color.White,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 2.sp
+            )
+            Text(
+                text = "Cough, Skin & Symptoms Analysis",
+                color = Color.Gray,
+                fontSize = 12.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun SmallFeatureCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(
+        modifier = modifier
+            .height(100.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.6f)
+        ),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(title, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        }
+    }
+}
+
+@Composable
 fun WatchConnectionCard(navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(140.dp)
+            .height(110.dp)
             .clickable { navController.navigate(NavRoutes.DeviceConnect) },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
@@ -139,12 +205,12 @@ fun WatchConnectionCard(navController: NavController) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(20.dp),
+                .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(60.dp)
+                    .size(50.dp)
                     .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
@@ -152,7 +218,7 @@ fun WatchConnectionCard(navController: NavController) {
                     imageVector = Icons.Default.Watch,
                     contentDescription = null,
                     tint = colorResource(id = R.color.logo_cyan),
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(28.dp)
                 )
             }
             
@@ -162,14 +228,13 @@ fun WatchConnectionCard(navController: NavController) {
                 Text(
                     text = "Smart Watch",
                     color = Color.White,
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Connect your watch to track real-time vitals",
+                    text = "Track real-time vitals",
                     color = Color.Gray,
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp
+                    fontSize = 12.sp
                 )
             }
             
@@ -178,35 +243,6 @@ fun WatchConnectionCard(navController: NavController) {
                 contentDescription = null,
                 tint = Color.Gray
             )
-        }
-    }
-}
-
-@Composable
-fun AnalyzerRow(title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.6f))
-            .clickable { onClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icon, contentDescription = null, tint = colorResource(id = R.color.logo_cyan))
-        }
-        
-        Spacer(modifier = Modifier.width(16.dp))
-        
-        Column {
-            Text(title, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(subtitle, color = Color.Gray, fontSize = 12.sp)
         }
     }
 }
@@ -222,8 +258,8 @@ fun HelpixBottomNav(navController: NavController) {
         contentColor = Color.White
     ) {
         NavItem(
-            name = "Scan",
-            icon = Icons.Filled.QrCodeScanner,
+            name = "Home",
+            icon = Icons.Filled.Home,
             isSelected = currentRoute == NavRoutes.Dashboard,
             onClick = {
                 if (currentRoute != NavRoutes.Dashboard) {
@@ -246,12 +282,12 @@ fun HelpixBottomNav(navController: NavController) {
         )
 
         NavItem(
-            name = "Tools",
-            icon = Icons.Filled.GridView,
-            isSelected = currentRoute == NavRoutes.Tools,
+            name = "Scan",
+            icon = Icons.Filled.QrCodeScanner,
+            isSelected = currentRoute == NavRoutes.Scan,
             onClick = {
-                if (currentRoute != NavRoutes.Tools) {
-                    navController.navigate(NavRoutes.Tools)
+                if (currentRoute != NavRoutes.Scan) {
+                    navController.navigate(NavRoutes.Scan)
                 }
             }
         )
