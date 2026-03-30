@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.healthai.app.ui.DeviceConnectScreen
+import com.healthai.app.ui.WatchScannerScreen
 import com.healthai.app.ui.screens.auth.DoctorLoginScreen
 import com.healthai.app.ui.screens.auth.DoctorRegisterScreen
 import com.healthai.app.ui.screens.auth.LoginScreen
@@ -125,6 +126,12 @@ fun AppNavGraph(navController: NavHostController) {
         }
         composable(NavRoutes.DeviceConnect) {
             DeviceConnectScreen(navController = navController)
+        }
+        composable(NavRoutes.WatchScanner) {
+            WatchScannerScreen(navController = navController) { qrCode ->
+                // Handle the scanned QR code (e.g., connect to watch)
+                navController.popBackStack()
+            }
         }
         composable(NavRoutes.Tools) {
             ToolsScreen(navController = navController)

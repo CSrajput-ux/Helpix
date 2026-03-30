@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -37,13 +38,16 @@ class BluetoothService(private val context: Context) {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device
-            val deviceName = device.name ?: "Unknown Device"
+            // IMPORTANT: Some devices hide name in scan record
+            val deviceName = result.scanRecord?.deviceName ?: device.name ?: "Unknown Device"
+            
             val bleDevice = BleDevice(deviceName, device.address, device)
             
             val currentList = _foundDevices.value.toMutableList()
             if (!currentList.any { it.address == bleDevice.address }) {
                 currentList.add(bleDevice)
                 _foundDevices.value = currentList
+                Log.d("BluetoothService", "Found device: $deviceName [${device.address}]")
             }
         }
 
@@ -55,20 +59,26 @@ class BluetoothService(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     fun startScanning() {
-        if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
-            Log.e("BluetoothService", "Bluetooth is disabled or not supported")
+        if (bleScanner == null || bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
+            Log.e("BluetoothService", "Bluetooth LE Scanner is not available")
             return
         }
 
         _foundDevices.value = emptyList()
         _isScanning.value = true
         
-        // Stop scanning after 10 seconds
+        val settings = ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY) // High power, fast results
+            .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
+            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+            .build()
+
+        // Stop scanning after 15 seconds
         handler.postDelayed({
             stopScanning()
-        }, 10000)
+        }, 15000)
 
-        bleScanner?.startScan(scanCallback)
+        bleScanner.startScan(null, settings, scanCallback)
     }
 
     @SuppressLint("MissingPermission")
