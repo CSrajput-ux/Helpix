@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.healthai.app-mergeDebugResources-90:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.healthai.app-mergeDebugResources-91:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
                     "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\4299851ab078683f3ed386184456553d\\transformed\\play-services-auth-20.7.0\\res\\values-watch-v20\\values.xml",

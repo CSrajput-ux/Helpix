@@ -39,9 +39,6 @@ data class ToolItem(
 fun ToolsScreen(navController: NavController) {
     // Tool List
     val toolsList = listOf(
-        ToolItem("Multi-Disease Scanner", "AI-powered full body analysis", Icons.Default.CenterFocusStrong, Color(0xFF00E5FF)),
-        ToolItem("Cough TB Analyzer", "Detect TB from cough sound", Icons.Default.GraphicEq, Color(0xFFD500F9)),
-        ToolItem("Skin Detector", "Identify skin conditions", Icons.Default.Face, Color(0xFF00E676)),
         ToolItem("Symptom Doctor", "Check your symptoms", Icons.Default.MedicalServices, Color(0xFF2979FF)),
         ToolItem("AI Chat Doctor", "24/7 medical assistance", Icons.Default.Chat, Color(0xFF00B0FF)),
         ToolItem("Emergency SOS", "Quick emergency help", Icons.Default.Warning, Color(0xFFFF1744)), 
@@ -51,7 +48,6 @@ fun ToolsScreen(navController: NavController) {
         ToolItem("Diet Planner", "Personalized meal plans", Icons.Default.Restaurant, Color(0xFF76FF03)),
         ToolItem("Fitness Tracker", "Track your workouts", Icons.Default.MonitorHeart, Color(0xFF00E5FF)),
         ToolItem("Prescription Reader", "AI OCR for prescriptions", Icons.Default.Description, Color(0xFF2962FF)),
-        ToolItem("Digital Health Passport", "Your medical ID card", Icons.Default.CreditCard, Color(0xFF6200EA)),
         ToolItem("Disease Heatmap", "Track outbreak zones", Icons.Default.Map, Color(0xFFFF6D00))
     )
 
@@ -102,8 +98,6 @@ fun ToolsScreen(navController: NavController) {
                     items(toolsList) { tool ->
                         ToolCard(tool) {
                             when (tool.title) {
-                                "Multi-Disease Scanner" -> navController.navigate(NavRoutes.MultiDiseaseScanStart)
-                                "Cough TB Analyzer" -> navController.navigate(NavRoutes.CoughAnalyzerStart)
                                 "Skin Detector" -> navController.navigate(NavRoutes.SkinDetectorStart)
                                 "Symptom Doctor" -> navController.navigate(NavRoutes.SymptomDoctorStart)
                                 "AI Chat Doctor" -> navController.navigate(NavRoutes.AiChat)

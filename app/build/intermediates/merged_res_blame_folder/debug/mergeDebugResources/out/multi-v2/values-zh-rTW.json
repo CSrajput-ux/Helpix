@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.healthai.app-mergeDebugResources-90:/values-zh-rTW/values-zh-rTW.xml",
+            "outputFile": "com.healthai.app-mergeDebugResources-91:/values-zh-rTW/values-zh-rTW.xml",
             "map": [
                 {
                     "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\9d71c1c40e531da4c902a2d6bf07f8cd\\transformed\\browser-1.4.0\\res\\values-zh-rTW\\values-zh-rTW.xml",

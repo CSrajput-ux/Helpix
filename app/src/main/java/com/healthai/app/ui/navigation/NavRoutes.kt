@@ -24,6 +24,7 @@ object NavRoutes {
     const val MyAppointments = "my_appointments_screen"
     const val AppSettings = "app_settings_screen"
     const val DeviceConnect = "device_connect_screen"
+    const val WatchScanner = "watch_scanner_screen"
     
     // Multi-Disease Scan Flow
     const val MultiDiseaseScanStart = "multi_disease_scan_start_screen"

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.healthai.app-mergeDebugResources-90:/values-bn/values-bn.xml",
+            "outputFile": "com.healthai.app-mergeDebugResources-91:/values-bn/values-bn.xml",
             "map": [
                 {
                     "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\c168e31c3916d6f6a4369b8048edee11\\transformed\\material3-release\\res\\values-bn\\values-bn.xml",

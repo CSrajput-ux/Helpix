@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.healthai.app-mergeDebugResources-90:/values-sk/values-sk.xml",
+            "outputFile": "com.healthai.app-mergeDebugResources-91:/values-sk/values-sk.xml",
             "map": [
                 {
                     "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\c00f4177d0dcf3105ec2dd801c27d4f7\\transformed\\biometric-1.2.0-alpha05\\res\\values-sk\\values-sk.xml",
