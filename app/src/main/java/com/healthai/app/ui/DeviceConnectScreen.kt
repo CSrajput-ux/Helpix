@@ -1,8 +1,11 @@
 package com.healthai.app.ui
 
+import android.Manifest
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -22,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -154,6 +159,16 @@ fun DeviceConnectScreen(navController: NavController) {
     val state by viewModel.state.collectAsState()
     val vitals by viewModel.vitals.collectAsState()
 
+    // Permission Launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.entries.all { it.value }
+        if (allGranted) {
+            viewModel.startScan()
+        }
+    }
+
     val bluetoothLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { _ ->
@@ -170,12 +185,45 @@ fun DeviceConnectScreen(navController: NavController) {
     ) {
         when (val currentState = state) {
             is ConnectionState.Disconnected -> {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
                     Icon(Icons.Default.Refresh, contentDescription = null, tint = Color(0xFF00E5FF), modifier = Modifier.size(64.dp))
                     Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        "Connect Your Smart Watch",
+                        color = Color.White,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        "Choose a method to pair your device",
+                        color = Color.Gray,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    
+                    Spacer(modifier = Modifier.height(40.dp))
+                    
+                    // Bluetooth Search Button
                     Button(
                         onClick = { 
-                            if (!viewModel.bluetoothService.isBluetoothEnabled()) {
+                            val requiredPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION)
+                            } else {
+                                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                            }
+
+                            val isPermissionGranted = requiredPermissions.all { 
+                                ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED 
+                            }
+
+                            if (!isPermissionGranted) {
+                                permissionLauncher.launch(requiredPermissions)
+                            } else if (!viewModel.bluetoothService.isBluetoothEnabled()) {
                                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                                 bluetoothLauncher.launch(enableBtIntent)
                             } else {
@@ -183,9 +231,31 @@ fun DeviceConnectScreen(navController: NavController) {
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF)),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth().height(56.dp)
                     ) {
-                        Text("Search for Watch", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, tint = Color.Black)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Search via Bluetooth", color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // QR Scanner Button
+                    OutlinedButton(
+                        onClick = { navController.navigate(NavRoutes.WatchScanner) },
+                        border = ButtonDefaults.outlinedButtonBorder.copy(width = 2.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00E5FF)),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth().height(56.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.QrCodeScanner, contentDescription = null)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Scan Watch QR Code", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -197,6 +267,7 @@ fun DeviceConnectScreen(navController: NavController) {
                     viewModel.connectToDevice(bleDevice)
                 }
             }
+            // ... rest of the code remains same
             is ConnectionState.Connecting -> {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     CircularProgressIndicator(color = Color(0xFF00E5FF))
@@ -231,12 +302,7 @@ fun DeviceConnectScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
                         onClick = { 
-                            if (!viewModel.bluetoothService.isBluetoothEnabled()) {
-                                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                                bluetoothLauncher.launch(enableBtIntent)
-                            } else {
-                                viewModel.startScan() 
-                            }
+                            viewModel.startScan() 
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF))
                     ) {

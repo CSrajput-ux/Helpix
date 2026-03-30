@@ -99,30 +99,9 @@ fun DoctorLoginScreen(navController: NavController) {
                     backgroundColor = colorResource(id = R.color.logo_blue),
                     textColor = Color.White,
                     onClick = {
-                        if (email.isNotBlank() && password.isNotBlank()) {
-                            isLoading = true
-                            auth.signInWithEmailAndPassword(email, password)
-                                .addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        scope.launch {
-                                            val firebaseUser = auth.currentUser!!
-                                            val userDoc = firestore.collection("users").document(firebaseUser.uid).get().await()
-                                            if (userDoc.exists() && userDoc.getString("userType") == "DOCTOR") {
-                                                Toast.makeText(context, "Doctor login successful!", Toast.LENGTH_SHORT).show()
-                                                navController.navigate(NavRoutes.DoctorDashboard) { popUpTo(NavRoutes.Login) { inclusive = true } }
-                                            } else {
-                                                auth.signOut()
-                                                Toast.makeText(context, "Login failed: Not a doctor account.", Toast.LENGTH_LONG).show()
-                                            }
-                                            isLoading = false
-                                        }
-                                    } else {
-                                        Toast.makeText(context, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                                        isLoading = false
-                                    }
-                                }
-                        } else {
-                            Toast.makeText(context, "Please fill all fields.", Toast.LENGTH_SHORT).show()
+                        // BYPASS LOGIN: Navigate directly to Doctor Dashboard
+                        navController.navigate(NavRoutes.DoctorDashboard) { 
+                            popUpTo(NavRoutes.Login) { inclusive = true }
                         }
                     }
                 )

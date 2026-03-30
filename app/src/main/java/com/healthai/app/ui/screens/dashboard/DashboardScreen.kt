@@ -44,11 +44,7 @@ fun DashboardScreen(
     Scaffold(
         bottomBar = {
             HelpixBottomNav(navController = navController)
-        },
-        floatingActionButton = {
-            SkinScanButton(onClick = { navController.navigate(NavRoutes.SkinDetectorStart) })
-        },
-        floatingActionButtonPosition = FabPosition.Center
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -82,10 +78,9 @@ fun DashboardScreen(
                             colorResource(id = R.color.helpix_bg_top).copy(alpha = 0.5f),
                             RoundedCornerShape(24.dp)
                         )
-                        .padding(16.dp)
                 ) {
                     Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Watch Connection Section
@@ -102,8 +97,8 @@ fun DashboardScreen(
 
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        // New Main Scan Button
-                        MainScanCard(navController)
+                        // New Main Scan Button -> Now COUGH TB ANALYZER
+                        CoughScanCard(navController)
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
@@ -130,10 +125,10 @@ fun DashboardScreen(
                                 onClick = { navController.navigate(NavRoutes.Doctors) }
                             )
                             SmallFeatureCard(
-                                title = "Tools",
-                                icon = Icons.Default.GridView,
+                                title = "Reader",
+                                icon = Icons.Default.Description,
                                 modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(NavRoutes.Tools) }
+                                onClick = { navController.navigate(NavRoutes.PrescriptionReader) }
                             )
                             SmallFeatureCard(
                                 title = "Vault",
@@ -149,7 +144,19 @@ fun DashboardScreen(
                             )
                         }
                     }
+
+                    // Floating Button overlapping at the bottom
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .offset(y = 28.dp) // Half of button height (56/2 = 28)
+                    ) {
+                        SkinScanButton(onClick = { navController.navigate(NavRoutes.SkinDetectorStart) })
+                    }
                 }
+                
+                // Add spacer to prevent overlap with bottom nav
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
@@ -160,12 +167,11 @@ fun SkinScanButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
-            .padding(bottom = 24.dp) // Adjusted to be "thoda uper" as requested
             .height(56.dp)
             .shadow(12.dp, RoundedCornerShape(28.dp)),
         shape = RoundedCornerShape(28.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = colorResource(id = R.color.logo_blue) // Matched to App's Color Theme
+            containerColor = colorResource(id = R.color.logo_blue)
         ),
         contentPadding = PaddingValues(horizontal = 24.dp)
     ) {
@@ -204,12 +210,12 @@ fun DashboardVitalCard(title: String, value: String, icon: androidx.compose.ui.g
 }
 
 @Composable
-fun MainScanCard(navController: NavController) {
+fun CoughScanCard(navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .height(130.dp)
-            .clickable { navController.navigate(NavRoutes.Scan) },
+            .clickable { navController.navigate(NavRoutes.CoughAnalyzerStart) },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.logo_cyan).copy(alpha = 0.15f)
@@ -224,21 +230,21 @@ fun MainScanCard(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = Icons.Default.QrCodeScanner,
+                imageVector = Icons.Default.GraphicEq,
                 contentDescription = null,
                 tint = colorResource(id = R.color.logo_cyan),
                 modifier = Modifier.size(36.dp)
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "START AI SCAN",
+                text = "COUGH TB ANALYZER",
                 color = Color.White,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 2.sp
+                letterSpacing = 1.sp
             )
             Text(
-                text = "Cough, Skin & Symptoms Analysis",
+                text = "AI-powered TB, Cough & Respiratory Analysis",
                 color = Color.Gray,
                 fontSize = 10.sp
             )
