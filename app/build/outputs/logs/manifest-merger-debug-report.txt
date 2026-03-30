@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-77:12
-INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-77:12
-INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-77:12
-INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-77:12
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-78:12
+INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-78:12
+INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-78:12
+INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:2:1-78:12
 MERGED from [androidx.hilt:hilt-navigation-compose:1.2.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\3c51771a934fe8c7079c92025e42c69c\transformed\hilt-navigation-compose-1.2.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.hilt:hilt-navigation:1.2.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\d235a44ce2f5c0792975e8e5e5f0b7da\transformed\hilt-navigation-1.2.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.navigation:navigation-common:2.8.8] C:\Users\jkgga\.gradle\caches\8.13\transforms\0b65147daf4aee40c6493b24a15b1ae3\transformed\navigation-common-2.8.8\AndroidManifest.xml:17:1-22:12
@@ -12,6 +12,7 @@ MERGED from [androidx.navigation:navigation-common-ktx:2.8.8] C:\Users\jkgga\.gr
 MERGED from [androidx.navigation:navigation-runtime-ktx:2.8.8] C:\Users\jkgga\.gradle\caches\8.13\transforms\bc518c67b1459e1ebf024777df6e5551\transformed\navigation-runtime-ktx-2.8.8\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.navigation:navigation-compose:2.8.8] C:\Users\jkgga\.gradle\caches\8.13\transforms\3b4c10c5d90e975d9988123d9d8bbad5\transformed\navigation-compose-2.8.8\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.camera:camera-video:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\c42f5f05ab552d1faa2a59b0e4136323\transformed\camera-video-1.4.1\AndroidManifest.xml:2:1-7:12
+MERGED from [androidx.camera:camera-mlkit-vision:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\f801a362749d33147bb756d1a0963f84\transformed\camera-mlkit-vision-1.4.1\AndroidManifest.xml:14:1-22:12
 MERGED from [androidx.camera:camera-lifecycle:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\7e373e4ee64d5964afa5b8b1ea44812b\transformed\camera-lifecycle-1.4.1\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.camera:camera-camera2:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\3571270d93789e930be291d5016b2259\transformed\camera-camera2-1.4.1\AndroidManifest.xml:17:1-36:12
 MERGED from [androidx.camera:camera-core:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1fd725d4f786b176aeee8a197f760420\transformed\camera-core-1.4.1\AndroidManifest.xml:17:1-36:12
@@ -19,6 +20,11 @@ MERGED from [androidx.camera:camera-view:1.4.1] C:\Users\jkgga\.gradle\caches\8.
 MERGED from [androidx.biometric:biometric:1.2.0-alpha05] C:\Users\jkgga\.gradle\caches\8.13\transforms\c00f4177d0dcf3105ec2dd801c27d4f7\transformed\biometric-1.2.0-alpha05\AndroidManifest.xml:17:1-27:12
 MERGED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\48df7b9a3323bcf8204b4b2b3e13db70\transformed\places-4.1.0\AndroidManifest.xml:2:1-24:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\cff56ef54ad23dae84ca0f41be3b9f5e\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.mlkit:barcode-scanning:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\cbe8247eb2dcae0a383759128e06ca99\transformed\barcode-scanning-17.3.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:2:1-18:12
+MERGED from [com.google.mlkit:barcode-scanning-common:17.0.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\ac4d147e722ef0da1f87e847906caceb\transformed\barcode-scanning-common-17.0.0\AndroidManifest.xml:2:1-7:12
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:2:1-18:12
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:2:1-26:12
 MERGED from [androidx.appcompat:appcompat:1.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\f1183763c160fc9ec60b7b5cc15e2497\transformed\appcompat-1.7.0\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.dagger:hilt-android:2.51.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\3ca5f6f05be81d13eaa764ea590210ff\transformed\hilt-android-2.51.1\AndroidManifest.xml:16:1-19:12
 MERGED from [androidx.health.connect:connect-client:1.1.0-alpha11] C:\Users\jkgga\.gradle\caches\8.13\transforms\ec0f755a004f2d3f83f399ddd6dd1980\transformed\connect-client-1.1.0-alpha11\AndroidManifest.xml:17:1-35:12
@@ -39,10 +45,8 @@ MERGED from [androidx.compose.ui:ui-tooling-android:1.7.6] C:\Users\jkgga\.gradl
 MERGED from [androidx.compose.ui:ui-graphics-android:1.7.6] C:\Users\jkgga\.gradle\caches\8.13\transforms\948d87f2c5b20a53eec5258ac67d4f93\transformed\ui-graphics-release\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.gms:play-services-maps:19.0.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\87fdbb4e2ec4d3407789bb66605187ea\transformed\play-services-maps-19.0.0\AndroidManifest.xml:17:1-44:12
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:17:1-75:12
-MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:2:1-18:12
 MERGED from [com.google.android.gms:play-services-location:21.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\a761872dac6958e5c155a387801e0824\transformed\play-services-location-21.3.0\AndroidManifest.xml:2:1-8:12
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:2:1-26:12
-MERGED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:2:1-26:12
 MERGED from [androidx.credentials:credentials:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\c69d0a940367fbb3b79abca1e0b4d0d2\transformed\credentials-1.2.0-rc01\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\4e2c129d0a9ca92a19f233ba0ec073eb\transformed\credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:17:1-44:12
 MERGED from [com.google.android.gms:play-services-auth:20.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\4299851ab078683f3ed386184456553d\transformed\play-services-auth-20.7.0\AndroidManifest.xml:17:1-40:12
@@ -58,6 +62,7 @@ MERGED from [com.google.firebase:firebase-auth-interop:20.0.0] C:\Users\jkgga\.g
 MERGED from [com.google.firebase:firebase-ml-modeldownloader:26.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\03975529769bf619f1233d161376f45e\transformed\firebase-ml-modeldownloader-26.0.1\AndroidManifest.xml:15:1-35:12
 MERGED from [com.google.firebase:firebase-installations:19.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\d5ef49dbfc855c090c2cb0ac54742656\transformed\firebase-installations-19.1.0\AndroidManifest.xml:2:1-24:12
 MERGED from [com.google.firebase:firebase-common:22.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\c61cd8749cb5e4e3dc81438802af9cbf\transformed\firebase-common-22.0.1\AndroidManifest.xml:15:1-41:12
+MERGED from [com.google.mlkit:vision-interfaces:16.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\7255210a9733ab5ec629d895c0ebe4ba\transformed\vision-interfaces-16.3.0\AndroidManifest.xml:2:1-7:12
 MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\51dbfc39d136cd324a1ea3c806eadd51\transformed\room-runtime-2.6.1\AndroidManifest.xml:17:1-31:12
 MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\d1b4b5234c191d0654dd90ab213c6fcc\transformed\room-ktx-2.6.1\AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.ai.client.generativeai:generativeai:0.9.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\56699fe87cbe50968f86190812898440\transformed\generativeai-0.9.0\AndroidManifest.xml:17:1-24:12
@@ -260,30 +265,38 @@ ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.x
 	android:name
 		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:24:22-71
 uses-permission#android.permission.BLUETOOTH_SCAN
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:25:5-120
-	android:usesPermissionFlags
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:25:71-117
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:25:5-73
 	android:name
 		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:25:22-70
 uses-permission#android.permission.BLUETOOTH_CONNECT
 ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:26:5-76
 	android:name
 		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:26:22-73
-uses-feature#android.hardware.bluetooth_le
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:28:5-89
-	android:required
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:28:64-87
+uses-permission#android.permission.BLUETOOTH_ADVERTISE
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:27:5-78
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:28:19-63
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:27:22-75
+uses-feature#android.hardware.bluetooth_le
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:29:5-89
+	android:required
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:29:64-87
+	android:name
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:29:19-63
 application
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:30:5-75:19
-INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:30:5-75:19
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:31:5-76:19
+INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:31:5-76:19
 MERGED from [androidx.camera:camera-camera2:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\3571270d93789e930be291d5016b2259\transformed\camera-camera2-1.4.1\AndroidManifest.xml:23:5-34:19
 MERGED from [androidx.camera:camera-camera2:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\3571270d93789e930be291d5016b2259\transformed\camera-camera2-1.4.1\AndroidManifest.xml:23:5-34:19
 MERGED from [androidx.camera:camera-core:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1fd725d4f786b176aeee8a197f760420\transformed\camera-core-1.4.1\AndroidManifest.xml:23:5-34:19
 MERGED from [androidx.camera:camera-core:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1fd725d4f786b176aeee8a197f760420\transformed\camera-core-1.4.1\AndroidManifest.xml:23:5-34:19
 MERGED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\48df7b9a3323bcf8204b4b2b3e13db70\transformed\places-4.1.0\AndroidManifest.xml:14:5-22:19
 MERGED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\48df7b9a3323bcf8204b4b2b3e13db70\transformed\places-4.1.0\AndroidManifest.xml:14:5-22:19
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:8:5-24:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:8:5-24:19
 MERGED from [androidx.health.connect:connect-client:1.1.0-alpha11] C:\Users\jkgga\.gradle\caches\8.13\transforms\ec0f755a004f2d3f83f399ddd6dd1980\transformed\connect-client-1.1.0-alpha11\AndroidManifest.xml:23:5-33:19
 MERGED from [androidx.health.connect:connect-client:1.1.0-alpha11] C:\Users\jkgga\.gradle\caches\8.13\transforms\ec0f755a004f2d3f83f399ddd6dd1980\transformed\connect-client-1.1.0-alpha11\AndroidManifest.xml:23:5-33:19
 MERGED from [androidx.compose.ui:ui-tooling-android:1.7.6] C:\Users\jkgga\.gradle\caches\8.13\transforms\47e04fbf6c24c744c7247fac98ecfee7\transformed\ui-tooling-release\AndroidManifest.xml:22:5-26:19
@@ -292,14 +305,10 @@ MERGED from [com.google.android.gms:play-services-maps:19.0.0] C:\Users\jkgga\.g
 MERGED from [com.google.android.gms:play-services-maps:19.0.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\87fdbb4e2ec4d3407789bb66605187ea\transformed\play-services-maps-19.0.0\AndroidManifest.xml:36:5-42:19
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:28:5-73:19
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:28:5-73:19
-MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
-MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
 MERGED from [com.google.android.gms:play-services-location:21.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\a761872dac6958e5c155a387801e0824\transformed\play-services-location-21.3.0\AndroidManifest.xml:6:5-20
 MERGED from [com.google.android.gms:play-services-location:21.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\a761872dac6958e5c155a387801e0824\transformed\play-services-location-21.3.0\AndroidManifest.xml:6:5-20
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:13:5-24:19
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:13:5-24:19
-MERGED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:8:5-24:19
-MERGED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:8:5-24:19
 MERGED from [androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\4e2c129d0a9ca92a19f233ba0ec073eb\transformed\credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:23:5-42:19
 MERGED from [androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\4e2c129d0a9ca92a19f233ba0ec073eb\transformed\credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:23:5-42:19
 MERGED from [com.google.android.gms:play-services-auth:20.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\4299851ab078683f3ed386184456553d\transformed\play-services-auth-20.7.0\AndroidManifest.xml:22:5-38:19
@@ -359,83 +368,83 @@ MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\jkgga\.gradle\c
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.15.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\17346967a7ef47775d1d16f580df4aac\transformed\core-1.15.0\AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:38:9-35
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:39:9-35
 	android:label
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:36:9-41
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:37:9-41
 	android:fullBackupContent
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:34:9-54
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:35:9-54
 	android:roundIcon
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:37:9-54
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:38:9-54
 	tools:targetApi
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:40:9-29
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:41:9-29
 	android:icon
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:35:9-43
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:36:9-43
 	android:allowBackup
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:32:9-35
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:33:9-35
 	android:dataExtractionRules
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:33:9-65
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:34:9-65
 	android:usesCleartextTraffic
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:39:9-44
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:40:9-44
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:31:9-42
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:32:9-42
 meta-data#com.google.android.geo.API_KEY
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:42:9-44:55
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:43:9-45:55
 	android:value
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:44:13-53
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:45:13-53
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:43:13-58
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:44:13-58
 activity#com.healthai.app.MainActivity
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:46:9-54:20
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:47:9-55:20
 	android:exported
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:48:13-36
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:49:13-36
 	android:theme
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:49:13-67
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:50:13-67
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:47:13-41
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:48:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:50:13-53:29
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:51:13-54:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:51:17-69
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:52:17-69
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:51:25-66
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:52:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:52:17-77
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:53:17-77
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:52:27-74
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:53:27-74
 activity-alias#com.healthai.app.ViewPermissionUsageActivity
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:56:9-64:26
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:57:9-65:26
 	android:exported
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:58:13-36
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:59:13-36
 	android:targetActivity
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:59:13-51
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:60:13-51
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:57:13-55
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:58:13-55
 intent-filter#action:name:androidx.health.control.action.VIEW_PERMISSION_USAGE+category:name:android.intent.category.DEFAULT
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:60:13-63:29
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:61:13-64:29
 action#androidx.health.control.action.VIEW_PERMISSION_USAGE
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:61:17-95
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:62:17-95
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:61:25-92
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:62:25-92
 category#android.intent.category.DEFAULT
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:62:17-76
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:63:17-76
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:62:27-73
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:63:27-73
 receiver#com.healthai.app.receiver.ReminderReceiver
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:66:9-73:20
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:67:9-74:20
 	android:exported
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:68:13-37
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:69:13-37
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:67:13-54
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:68:13-54
 intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:com.healthai.app.ACTION_REMINDER
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:69:13-72:29
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:70:13-73:29
 action#com.healthai.app.ACTION_REMINDER
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:70:17-75
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:71:17-75
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:70:25-72
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:71:25-72
 action#android.intent.action.BOOT_COMPLETED
-ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:71:17-79
+ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:72:17-79
 	android:name
-		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:71:25-76
+		ADDED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml:72:25-76
 uses-sdk
 INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml
@@ -456,6 +465,8 @@ MERGED from [androidx.navigation:navigation-compose:2.8.8] C:\Users\jkgga\.gradl
 MERGED from [androidx.navigation:navigation-compose:2.8.8] C:\Users\jkgga\.gradle\caches\8.13\transforms\3b4c10c5d90e975d9988123d9d8bbad5\transformed\navigation-compose-2.8.8\AndroidManifest.xml:5:5-44
 MERGED from [androidx.camera:camera-video:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\c42f5f05ab552d1faa2a59b0e4136323\transformed\camera-video-1.4.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.camera:camera-video:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\c42f5f05ab552d1faa2a59b0e4136323\transformed\camera-video-1.4.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.camera:camera-mlkit-vision:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\f801a362749d33147bb756d1a0963f84\transformed\camera-mlkit-vision-1.4.1\AndroidManifest.xml:18:5-20:70
+MERGED from [androidx.camera:camera-mlkit-vision:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\f801a362749d33147bb756d1a0963f84\transformed\camera-mlkit-vision-1.4.1\AndroidManifest.xml:18:5-20:70
 MERGED from [androidx.camera:camera-lifecycle:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\7e373e4ee64d5964afa5b8b1ea44812b\transformed\camera-lifecycle-1.4.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.camera:camera-lifecycle:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\7e373e4ee64d5964afa5b8b1ea44812b\transformed\camera-lifecycle-1.4.1\AndroidManifest.xml:5:5-44
 MERGED from [androidx.camera:camera-camera2:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\3571270d93789e930be291d5016b2259\transformed\camera-camera2-1.4.1\AndroidManifest.xml:21:5-44
@@ -470,6 +481,16 @@ MERGED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.g
 MERGED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\48df7b9a3323bcf8204b4b2b3e13db70\transformed\places-4.1.0\AndroidManifest.xml:7:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\cff56ef54ad23dae84ca0f41be3b9f5e\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\cff56ef54ad23dae84ca0f41be3b9f5e\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:barcode-scanning:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\cbe8247eb2dcae0a383759128e06ca99\transformed\barcode-scanning-17.3.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:barcode-scanning:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\cbe8247eb2dcae0a383759128e06ca99\transformed\barcode-scanning-17.3.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:6:5-44
+MERGED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:barcode-scanning-common:17.0.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\ac4d147e722ef0da1f87e847906caceb\transformed\barcode-scanning-common-17.0.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:barcode-scanning-common:17.0.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\ac4d147e722ef0da1f87e847906caceb\transformed\barcode-scanning-common-17.0.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:6:5-44
 MERGED from [androidx.appcompat:appcompat:1.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\f1183763c160fc9ec60b7b5cc15e2497\transformed\appcompat-1.7.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.appcompat:appcompat:1.7.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\f1183763c160fc9ec60b7b5cc15e2497\transformed\appcompat-1.7.0\AndroidManifest.xml:5:5-44
 MERGED from [com.google.dagger:hilt-android:2.51.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\3ca5f6f05be81d13eaa764ea590210ff\transformed\hilt-android-2.51.1\AndroidManifest.xml:18:3-42
@@ -510,14 +531,10 @@ MERGED from [com.google.android.gms:play-services-maps:19.0.0] C:\Users\jkgga\.g
 MERGED from [com.google.android.gms:play-services-maps:19.0.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\87fdbb4e2ec4d3407789bb66605187ea\transformed\play-services-maps-19.0.0\AndroidManifest.xml:20:5-44
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:21:5-23:151
 MERGED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:21:5-23:151
-MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
-MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:6:5-44
 MERGED from [com.google.android.gms:play-services-location:21.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\a761872dac6958e5c155a387801e0824\transformed\play-services-location-21.3.0\AndroidManifest.xml:4:5-44
 MERGED from [com.google.android.gms:play-services-location:21.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\a761872dac6958e5c155a387801e0824\transformed\play-services-location-21.3.0\AndroidManifest.xml:4:5-44
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:6:5-44
 MERGED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:6:5-44
-MERGED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:6:5-44
-MERGED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:6:5-44
 MERGED from [androidx.credentials:credentials:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\c69d0a940367fbb3b79abca1e0b4d0d2\transformed\credentials-1.2.0-rc01\AndroidManifest.xml:5:5-44
 MERGED from [androidx.credentials:credentials:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\c69d0a940367fbb3b79abca1e0b4d0d2\transformed\credentials-1.2.0-rc01\AndroidManifest.xml:5:5-44
 MERGED from [androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\4e2c129d0a9ca92a19f233ba0ec073eb\transformed\credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:21:5-44
@@ -548,6 +565,8 @@ MERGED from [com.google.firebase:firebase-installations:19.1.0] C:\Users\jkgga\.
 MERGED from [com.google.firebase:firebase-installations:19.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\d5ef49dbfc855c090c2cb0ac54742656\transformed\firebase-installations-19.1.0\AndroidManifest.xml:5:5-44
 MERGED from [com.google.firebase:firebase-common:22.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\c61cd8749cb5e4e3dc81438802af9cbf\transformed\firebase-common-22.0.1\AndroidManifest.xml:19:5-44
 MERGED from [com.google.firebase:firebase-common:22.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\c61cd8749cb5e4e3dc81438802af9cbf\transformed\firebase-common-22.0.1\AndroidManifest.xml:19:5-44
+MERGED from [com.google.mlkit:vision-interfaces:16.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\7255210a9733ab5ec629d895c0ebe4ba\transformed\vision-interfaces-16.3.0\AndroidManifest.xml:5:5-44
+MERGED from [com.google.mlkit:vision-interfaces:16.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\7255210a9733ab5ec629d895c0ebe4ba\transformed\vision-interfaces-16.3.0\AndroidManifest.xml:5:5-44
 MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\51dbfc39d136cd324a1ea3c806eadd51\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
 MERGED from [androidx.room:room-runtime:2.6.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\51dbfc39d136cd324a1ea3c806eadd51\transformed\room-runtime-2.6.1\AndroidManifest.xml:21:5-44
 MERGED from [androidx.room:room-ktx:2.6.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\d1b4b5234c191d0654dd90ab213c6fcc\transformed\room-ktx-2.6.1\AndroidManifest.xml:20:5-44
@@ -715,7 +734,7 @@ MERGED from [com.google.firebase:protolite-well-known-types:18.0.1] C:\Users\jkg
 MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\jkgga\.gradle\caches\8.13\transforms\26e3b43675001b4ac93cf8a22a698638\transformed\core-common-2.0.3\AndroidManifest.xml:7:5-9:41
 MERGED from [com.google.android.play:core-common:2.0.3] C:\Users\jkgga\.gradle\caches\8.13\transforms\26e3b43675001b4ac93cf8a22a698638\transformed\core-common-2.0.3\AndroidManifest.xml:7:5-9:41
 	tools:overrideLibrary
-		ADDED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:23:9-148
+		ADDED from [androidx.camera:camera-mlkit-vision:1.4.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\f801a362749d33147bb756d1a0963f84\transformed\camera-mlkit-vision-1.4.1\AndroidManifest.xml:20:9-67
 	android:targetSdkVersion
 		INJECTED from C:\Users\jkgga\OneDrive\Desktop\Helpix\app\src\main\AndroidManifest.xml
 	android:minSdkVersion
@@ -764,6 +783,48 @@ ADDED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.gr
 		ADDED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\48df7b9a3323bcf8204b4b2b3e13db70\transformed\places-4.1.0\AndroidManifest.xml:19:13-61
 	android:name
 		ADDED from [com.google.android.libraries.places:places:4.1.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\48df7b9a3323bcf8204b4b2b3e13db70\transformed\places-4.1.0\AndroidManifest.xml:16:13-91
+service#com.google.mlkit.common.internal.MlKitComponentDiscoveryService
+ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:9:9-15:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:15:9-23:19
+MERGED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:15:9-23:19
+	android:exported
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:11:13-37
+	tools:targetApi
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:19:13-32
+	android:directBootAware
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:17:13-43
+	android:name
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:10:13-91
+meta-data#com.google.firebase.components:com.google.mlkit.vision.barcode.internal.BarcodeRegistrar
+ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:12:13-14:85
+	android:value
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:14:17-82
+	android:name
+		ADDED from [com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ff032db0bf89c243496151bd6834f6b\transformed\play-services-mlkit-barcode-scanning-18.3.1\AndroidManifest.xml:13:17-120
+meta-data#com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar
+ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:12:13-14:85
+	android:value
+		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:14:17-82
+	android:name
+		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:13:17-124
+provider#com.google.mlkit.common.internal.MlKitInitProvider
+ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:9:9-13:38
+	android:authorities
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:11:13-69
+	android:exported
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:12:13-37
+	android:initOrder
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:13:13-35
+	android:name
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:10:13-78
+meta-data#com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar
+ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:20:13-22:85
+	android:value
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:22:17-82
+	android:name
+		ADDED from [com.google.mlkit:common:18.11.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\150b2fbd8d4445fa6a9cd5054bd68630\transformed\common-18.11.0\AndroidManifest.xml:21:17-120
 service#androidx.health.platform.client.impl.sdkservice.HealthDataSdkService
 ADDED from [androidx.health.connect:connect-client:1.1.0-alpha11] C:\Users\jkgga\.gradle\caches\8.13\transforms\ec0f755a004f2d3f83f399ddd6dd1980\transformed\connect-client-1.1.0-alpha11\AndroidManifest.xml:24:9-32:19
 	android:enabled
@@ -874,24 +935,6 @@ ADDED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\cac
 		ADDED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:71:17-82
 	android:name
 		ADDED from [com.google.firebase:firebase-auth:24.0.1] C:\Users\jkgga\.gradle\caches\8.13\transforms\568e9264bfc9d54b83496c0369efcc12\transformed\firebase-auth-24.0.1\AndroidManifest.xml:70:17-109
-service#com.google.mlkit.common.internal.MlKitComponentDiscoveryService
-ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:9:9-15:19
-MERGED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:15:9-23:19
-MERGED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:15:9-23:19
-	android:exported
-		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:11:13-37
-	tools:targetApi
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:19:13-32
-	android:directBootAware
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:17:13-43
-	android:name
-		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:10:13-91
-meta-data#com.google.firebase.components:com.google.mlkit.vision.common.internal.VisionCommonRegistrar
-ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:12:13-14:85
-	android:value
-		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:14:17-82
-	android:name
-		ADDED from [com.google.mlkit:vision-common:17.3.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\700e394971ba0dbfed57b78cce5d8ba4\transformed\vision-common-17.3.0\AndroidManifest.xml:13:17-124
 meta-data#com.google.firebase.components:com.google.firebase.firestore.FirebaseFirestoreKtxRegistrar
 ADDED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:17:13-19:85
 	android:value
@@ -904,22 +947,6 @@ ADDED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradl
 		ADDED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:22:17-82
 	android:name
 		ADDED from [com.google.firebase:firebase-firestore:26.1.2] C:\Users\jkgga\.gradle\caches\8.13\transforms\6ef810ccd47b25046e4e5d1437473478\transformed\firebase-firestore-26.1.2\AndroidManifest.xml:21:17-111
-provider#com.google.mlkit.common.internal.MlKitInitProvider
-ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:9:9-13:38
-	android:authorities
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:11:13-69
-	android:exported
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:12:13-37
-	android:initOrder
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:13:13-35
-	android:name
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:10:13-78
-meta-data#com.google.firebase.components:com.google.mlkit.common.internal.CommonComponentRegistrar
-ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:20:13-22:85
-	android:value
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:22:17-82
-	android:name
-		ADDED from [com.google.mlkit:common:18.6.0] C:\Users\jkgga\.gradle\caches\8.13\transforms\1ae0d57cef782fff249d8f47436ae645\transformed\common-18.6.0\AndroidManifest.xml:21:17-120
 service#androidx.credentials.playservices.CredentialProviderMetadataHolder
 ADDED from [androidx.credentials:credentials-play-services-auth:1.2.0-rc01] C:\Users\jkgga\.gradle\caches\8.13\transforms\4e2c129d0a9ca92a19f233ba0ec073eb\transformed\credentials-play-services-auth-1.2.0-rc01\AndroidManifest.xml:24:9-32:19
 	android:enabled

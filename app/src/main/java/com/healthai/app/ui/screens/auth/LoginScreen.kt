@@ -1,6 +1,5 @@
 package com.healthai.app.ui.screens.auth
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -36,7 +35,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,10 +57,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
-import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -71,10 +67,6 @@ fun LoginScreen(navController: NavController) {
     var isRememberMeChecked by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var userRole by remember { mutableStateOf("PATIENT") } // Default to Patient
-
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val auth = FirebaseAuth.getInstance()
 
     Box(
         modifier = Modifier
@@ -277,26 +269,15 @@ fun LoginScreen(navController: NavController) {
                     } else {
                         Button(
                             onClick = { 
-                                if (email.isNotBlank() && password.isNotBlank()) {
-                                    isLoading = true
-                                    auth.signInWithEmailAndPassword(email.trim(), password.trim())
-                                        .addOnCompleteListener { task ->
-                                            if (task.isSuccessful) {
-                                                Log.d("LoginScreen", "Login successful")
-                                                Toast.makeText(context, "Login successful!", Toast.LENGTH_SHORT).show()
-                                                if (userRole == "PATIENT") {
-                                                    navController.navigate(NavRoutes.Dashboard) { popUpTo(NavRoutes.Login) { inclusive = true } }
-                                                } else {
-                                                    navController.navigate(NavRoutes.DoctorDashboard) { popUpTo(NavRoutes.Login) { inclusive = true } }
-                                                }
-                                            } else {
-                                                Log.e("LoginScreen", "Login failed", task.exception)
-                                                Toast.makeText(context, "Login failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                                            }
-                                            isLoading = false
-                                        }
+                                // BYPASS LOGIN: Direct navigation based on role
+                                if (userRole == "PATIENT") {
+                                    navController.navigate(NavRoutes.Dashboard) {
+                                        popUpTo(NavRoutes.Login) { inclusive = true }
+                                    }
                                 } else {
-                                    Toast.makeText(context, "Please fill all fields.", Toast.LENGTH_SHORT).show()
+                                    navController.navigate(NavRoutes.DoctorDashboard) {
+                                        popUpTo(NavRoutes.Login) { inclusive = true }
+                                    }
                                 }
                             },
                             modifier = Modifier
