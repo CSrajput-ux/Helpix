@@ -108,13 +108,18 @@ dependencies {
     // ML Kit
     implementation(libs.google.mlkit.vision.common)
 
-    // Retrofit
+    // Retrofit & OkHttp
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 
     // Biometric & Health
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.health.connect)
+
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
 
     // Charts
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
