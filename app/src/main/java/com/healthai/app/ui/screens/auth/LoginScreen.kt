@@ -58,7 +58,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.data.remote.api.HelpixRepository
 import com.healthai.app.ui.navigation.NavRoutes
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -67,6 +69,10 @@ fun LoginScreen(navController: NavController) {
     var isRememberMeChecked by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var userRole by remember { mutableStateOf("PATIENT") } // Default to Patient
+
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val helpixRepository = remember { HelpixRepository(context) }
 
     Box(
         modifier = Modifier
@@ -269,14 +275,37 @@ fun LoginScreen(navController: NavController) {
                     } else {
                         Button(
                             onClick = { 
-                                // BYPASS LOGIN: Direct navigation based on role
-                                if (userRole == "PATIENT") {
-                                    navController.navigate(NavRoutes.Dashboard) {
-                                        popUpTo(NavRoutes.Login) { inclusive = true }
-                                    }
-                                } else {
-                                    navController.navigate(NavRoutes.DoctorDashboard) {
-                                        popUpTo(NavRoutes.Login) { inclusive = true }
+                                if (email.isBlank() || password.isBlank()) {
+                                    Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                
+                                isLoading = true
+                                scope.launch {
+                                    try {
+                                        val response = helpixRepository.login(email, password)
+                                        if (response.isSuccessful) {
+                                            val tokenResponse = response.body()
+                                            val role = tokenResponse?.role ?: "PATIENT"
+                                            
+                                            Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
+                                            
+                                            if (role == "PATIENT") {
+                                                navController.navigate(NavRoutes.Dashboard) {
+                                                    popUpTo(NavRoutes.Login) { inclusive = true }
+                                                }
+                                            } else {
+                                                navController.navigate(NavRoutes.DoctorDashboard) {
+                                                    popUpTo(NavRoutes.Login) { inclusive = true }
+                                                }
+                                            }
+                                        } else {
+                                            Toast.makeText(context, "Login Failed: ${response.message()}", Toast.LENGTH_LONG).show()
+                                        }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, "Error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                                    } finally {
+                                        isLoading = false
                                     }
                                 }
                             },
