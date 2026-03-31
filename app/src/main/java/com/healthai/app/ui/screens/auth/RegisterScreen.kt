@@ -16,13 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -34,10 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
 import com.healthai.app.R
-import com.healthai.app.data.repository.UserRepository
-import com.healthai.app.domain.model.User
+import com.healthai.app.data.remote.api.HelpixRepository
+import com.healthai.app.data.remote.api.SignupRequest
 import com.healthai.app.ui.components.AIButton
 import com.healthai.app.ui.navigation.NavRoutes
 import kotlinx.coroutines.launch
@@ -52,8 +45,7 @@ fun RegisterScreen(navController: NavController) {
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val auth = FirebaseAuth.getInstance()
-    val userRepository = UserRepository()
+    val helpixRepository = remember { HelpixRepository(context) }
 
     Box(
         modifier = Modifier
@@ -117,27 +109,29 @@ fun RegisterScreen(navController: NavController) {
                         }
 
                         isLoading = true
-                        auth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    val firebaseUser = auth.currentUser
-                                    val user = User(
-                                        id = firebaseUser!!.uid,
-                                        email = email,
-                                        name = name
-                                    )
-                                    scope.launch {
-                                        userRepository.createUser(user)
-                                        Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
-                                        navController.navigate(NavRoutes.Dashboard) { popUpTo(NavRoutes.Login) { inclusive = true } }
-                                        isLoading = false
+                        scope.launch {
+                            try {
+                                val signupRequest = SignupRequest(
+                                    full_name = name,
+                                    email = email,
+                                    password = password,
+                                    role = "PATIENT"
+                                )
+                                val response = helpixRepository.signup(signupRequest)
+                                if (response.isSuccessful) {
+                                    Toast.makeText(context, "Registration successful!", Toast.LENGTH_SHORT).show()
+                                    navController.navigate(NavRoutes.Login) { 
+                                        popUpTo(NavRoutes.Register) { inclusive = true } 
                                     }
                                 } else {
-                                    Toast.makeText(context, "Registration failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                                    isLoading = false
+                                    Toast.makeText(context, "Registration failed: ${response.message()}", Toast.LENGTH_LONG).show()
                                 }
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "Error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                            } finally {
+                                isLoading = false
                             }
-
+                        }
                     }
                 )
             }
