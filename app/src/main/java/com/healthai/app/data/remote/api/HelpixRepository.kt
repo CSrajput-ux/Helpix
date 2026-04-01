@@ -87,14 +87,14 @@ object HelpixRetrofitClient {
 // ---------------------------------------------------------------------------
 class HelpixRepository(private val context: Context) {
 
-    // ✅ UPDATED with your local IP
-    private val BASE_URL = "http://10.160.112.92:8000"
+    // ✅ UPDATED with your local IP from ipconfig
+    private val BASE_URL = "http://10.147.96.92:8000"
 
     private val api: HelpixApi by lazy {
         HelpixRetrofitClient.create(BASE_URL, context)
     }
 
-    // ---- Authentication ----
+    // ---- Authentication & Profile ----
     suspend fun signup(req: SignupRequest) = api.signup(req)
 
     suspend fun login(email: String, psw: String): Response<TokenResponse> {
@@ -109,10 +109,12 @@ class HelpixRepository(private val context: Context) {
 
     suspend fun profile() = api.getProfile()
 
+    suspend fun updateProfile(req: UpdateProfileRequest) = api.updateProfile(req)
+
     // ---- Vitals & Health Score ----
     suspend fun syncVitals(req: VitalsSyncRequest) = api.syncVitals(req)
 
-    suspend fun getLatestVitals() = api.getLatestVitals()
+    suspend fun i_getLatestVitals() = api.getLatestVitals()
 
     suspend fun getHealthScore() = api.getTodayHealthScore()
 
