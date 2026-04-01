@@ -2,6 +2,9 @@
 
 Helpix is a futuristic, AI-powered mobile healthcare application built with modern Android development practices. It serves as a comprehensive platform for both patients and doctors, offering a wide range of features from real-time health monitoring to appointment booking.
 
+## 📺 Project Demo
+Check out the project in action: [**View Demo Video**](https://drive.google.com/file/d/1_iEXYnoIR3V-6Gl4gr-1QDDQGnT1YpZl/view?usp=sharing)
+
 ## ✨ Features
 
 - **Dual User Portals:** Separate, secure registration and login flows for both **Patients** and **Doctors**.
