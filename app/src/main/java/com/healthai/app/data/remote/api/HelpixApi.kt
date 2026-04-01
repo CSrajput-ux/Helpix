@@ -31,13 +31,27 @@ data class TokenResponse(
 )
 
 data class UserProfile(
-    val user_id: String,
-    val full_name: String,
-    val email: String,
-    val role: String,
-    val specialization: String?,
-    val license_number: String?,
-    val created_at: String
+    val user_id: String? = null,
+    val full_name: String? = null,
+    val email: String? = null,
+    val role: String? = null,
+    val specialization: String? = null,
+    val license_number: String? = null,
+    val age: Int? = null,
+    val blood_group: String? = null,
+    val gender: String? = null,
+    val emergency_contact: String? = null,
+    val location: String? = null,
+    val created_at: String? = null
+)
+
+data class UpdateProfileRequest(
+    val full_name: String? = null,
+    val age: Int? = null,
+    val blood_group: String? = null,
+    val gender: String? = null,
+    val emergency_contact: String? = null,
+    val location: String? = null
 )
 
 // ---------------------------------------------------------------------------
@@ -194,7 +208,7 @@ data class ChatResponse(
 
 interface HelpixApi {
 
-    // ---- Auth ----
+    // ---- Auth & Profile ----
     @POST("auth/signup")
     suspend fun signup(@Body body: SignupRequest): Response<UserProfile>
 
@@ -203,6 +217,9 @@ interface HelpixApi {
 
     @GET("auth/profile")
     suspend fun getProfile(): Response<UserProfile>
+
+    @PATCH("auth/profile")
+    suspend fun updateProfile(@Body body: UpdateProfileRequest): Response<UserProfile>
 
     // ---- Vitals & Health Score ----
     @POST("vitals/sync")

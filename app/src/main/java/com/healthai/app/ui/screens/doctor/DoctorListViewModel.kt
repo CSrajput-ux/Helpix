@@ -21,8 +21,13 @@ class DoctorListViewModel : ViewModel() {
     fun fetchDoctors() {
         viewModelScope.launch {
             _isLoading.value = true
-            _doctors.value = userRepository.getDoctors()
-            _isLoading.value = false
+            try {
+                _doctors.value = userRepository.getDoctors()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 }
