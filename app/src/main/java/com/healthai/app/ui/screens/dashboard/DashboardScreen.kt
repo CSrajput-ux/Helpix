@@ -441,21 +441,27 @@ fun TopBarSection(navController: NavController) {
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            IconBtn(Icons.Outlined.Notifications)
+            IconBtn(Icons.Outlined.Settings) {
+                navController.navigate(NavRoutes.AppSettings)
+            }
+            IconBtn(Icons.Outlined.Notifications) {
+                // Navigate to notifications
+            }
             Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.Profile) }) {
-                IconBtn(Icons.Filled.Person)
+                IconBtn(Icons.Filled.Person) {}
             }
         }
     }
 }
 
 @Composable
-fun IconBtn(icon: androidx.compose.ui.graphics.vector.ImageVector) {
+fun IconBtn(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(44.dp)
             .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
-            .background(Color.White.copy(alpha = 0.05f), CircleShape),
+            .background(Color.White.copy(alpha = 0.05f), CircleShape)
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Icon(icon, contentDescription = null, tint = Color.White)
