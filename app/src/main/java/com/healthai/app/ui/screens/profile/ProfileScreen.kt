@@ -1,13 +1,6 @@
 package com.healthai.app.ui.screens.profile
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.location.Geocoder
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -16,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,13 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.android.gms.location.LocationServices
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +35,6 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    
     val user by viewModel.user.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -55,25 +43,19 @@ fun ProfileScreen(
     var age by remember { mutableStateOf("") }
     var bloodGroup by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
+    var gender by remember { mutableStateOf("") }
+    var emergencyContact by remember { mutableStateOf("") }
     var isEditing by remember { mutableStateOf(false) }
 
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            getCurrentLocation(context, fusedLocationClient) { loc ->
-                location = loc
-            }
-        }
-    }
-
+    // Update local state when user profile is fetched
     LaunchedEffect(user) {
         user?.let {
-            fullName = it.name
-            age = "25" // Placeholder for now
-            location = it.clinicAddress ?: ""
+            fullName = it.full_name ?: ""
+            age = it.age?.toString() ?: ""
+            bloodGroup = it.blood_group ?: ""
+            location = it.location ?: ""
+            gender = it.gender ?: ""
+            emergencyContact = it.emergency_contact ?: ""
         }
     }
 
@@ -90,6 +72,14 @@ fun ProfileScreen(
                     if (!isLoading && user != null) {
                         TextButton(onClick = {
                             if (isEditing) {
+                                viewModel.updateProfile(
+                                    fullName = fullName,
+                                    age = age.toIntOrNull(),
+                                    bloodGroup = bloodGroup,
+                                    gender = gender,
+                                    emergencyContact = emergencyContact,
+                                    location = location
+                                )
                                 isEditing = false
                                 Toast.makeText(context, "Profile Updated", Toast.LENGTH_SHORT).show()
                             } else {
@@ -109,7 +99,7 @@ fun ProfileScreen(
         },
         containerColor = Color(0xFF0F172A)
     ) { padding ->
-        if (isLoading) {
+        if (isLoading && user == null) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = colorResource(id = R.color.logo_cyan))
             }
@@ -122,8 +112,12 @@ fun ProfileScreen(
                 Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.size(100.dp), tint = Color.Gray)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Please login to view profile.", color = Color.White)
-                Button(onClick = { navController.navigate(NavRoutes.Login) }) {
-                    Text("Return to Login")
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { navController.navigate(NavRoutes.Login) },
+                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.logo_cyan))
+                ) {
+                    Text("Return to Login", color = Color.Black)
                 }
             }
         } else {
@@ -196,6 +190,31 @@ fun ProfileScreen(
                     }
                 }
 
+                ProfileTextField(
+                    label = "Gender",
+                    value = gender,
+                    onValueChange = { gender = it },
+                    enabled = isEditing,
+                    icon = Icons.Default.Transgender
+                )
+
+                ProfileTextField(
+                    label = "Location",
+                    value = location,
+                    onValueChange = { location = it },
+                    enabled = isEditing,
+                    icon = Icons.Default.LocationOn
+                )
+
+                ProfileTextField(
+                    label = "Emergency Contact",
+                    value = emergencyContact,
+                    onValueChange = { emergencyContact = it },
+                    enabled = isEditing,
+                    icon = Icons.Default.Phone,
+                    keyboardType = KeyboardType.Phone
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 if (!isEditing) {
@@ -262,28 +281,4 @@ fun ProfileTextField(
             disabledLabelColor = Color.Gray
         )
     )
-}
-
-@SuppressLint("MissingPermission")
-fun getCurrentLocation(context: Context, client: com.google.android.gms.location.FusedLocationProviderClient, onLocationFound: (String) -> Unit) {
-    client.lastLocation.addOnSuccessListener { loc ->
-        if (loc != null) {
-            val geocoder = Geocoder(context, Locale.getDefault())
-            try {
-                val addresses = geocoder.getFromLocation(loc.latitude, loc.longitude, 1)
-                if (!addresses.isNullOrEmpty()) {
-                    val address = addresses[0]
-                    val city = address.locality ?: ""
-                    val country = address.countryName ?: ""
-                    onLocationFound("$city, $country")
-                } else {
-                    onLocationFound("${loc.latitude}, ${loc.longitude}")
-                }
-            } catch (e: Exception) {
-                onLocationFound("${loc.latitude}, ${loc.longitude}")
-            }
-        } else {
-            Toast.makeText(context, "Please turn on GPS", Toast.LENGTH_SHORT).show()
-        }
-    }
 }

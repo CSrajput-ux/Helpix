@@ -1,10 +1,14 @@
 package com.healthai.app.ui.screens.reminders
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,6 +32,9 @@ import com.healthai.app.data.local.AppDatabase
 import com.healthai.app.data.local.Reminder
 import com.healthai.app.ui.navigation.NavRoutes
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,17 +71,7 @@ fun MedicineRemindersScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Calendar placeholder
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .background(Color(0xFF1E293B))
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Weekly Calendar View Placeholder", color = Color.Gray)
-            }
+            HorizontalCalendarView()
 
             LazyColumn(
                 modifier = Modifier.padding(16.dp),
@@ -86,6 +83,86 @@ fun MedicineRemindersScreen(navController: NavController) {
                 }
                 items(reminders) { reminder ->
                     ReminderListItem(reminder, db)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun HorizontalCalendarView() {
+    val today = LocalDate.now()
+    var selectedDate by remember { mutableStateOf(today) }
+    
+    // Get all days of the current month
+    val firstDayOfMonth = today.withDayOfMonth(1)
+    val daysInMonth = (1..today.lengthOfMonth()).map { day ->
+        firstDayOfMonth.withDayOfMonth(day)
+    }
+
+    // Initial scroll position near today's date
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = (today.dayOfMonth - 3).coerceAtLeast(0))
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF1E293B).copy(alpha = 0.5f))
+            .padding(vertical = 16.dp)
+    ) {
+        // Month Year Header
+        Text(
+            text = today.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + today.year,
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
+        )
+
+        LazyRow(
+            state = listState,
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(daysInMonth) { date ->
+                val isSelected = date == selectedDate
+                val isToday = date == today
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.clickable { selectedDate = date }
+                ) {
+                    Text(
+                        text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
+                        color = if (isSelected) Color(0xFFFF4081) else Color.Gray,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(45.dp)
+                            .clip(CircleShape)
+                            .background(
+                                when {
+                                    isSelected -> Color(0xFFFF4081)
+                                    isToday -> Color(0xFFFF4081).copy(alpha = 0.15f)
+                                    else -> Color(0xFF1E293B)
+                                }
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = if (isSelected || isToday) Color(0xFFFF4081) else Color.Transparent,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = date.dayOfMonth.toString(),
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
                 }
             }
         }
