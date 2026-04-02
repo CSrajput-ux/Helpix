@@ -26,9 +26,11 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
+import com.healthai.app.ui.screens.profile.ProfileViewModel
 
 // Custom Emergency Colors
 val EmergencyBgTop = Color(0xFF4A0E0E) // Dark Red
@@ -38,9 +40,14 @@ val CardRedBg = Color(0xFF2B1212) // Semi-transparent Red
 val NeonRed = Color(0xFFFF5252)
 
 @Composable
-fun EmergencyScreen(navController: NavController) {
+fun EmergencyScreen(
+    navController: NavController,
+    profileViewModel: ProfileViewModel = viewModel()
+) {
     val scrollState = rememberScrollState()
     val context = LocalContext.current
+    
+    val userProfile by profileViewModel.user.collectAsState()
 
     // Function to launch the dialer
     val makeCall: (String) -> Unit = { phoneNumber ->
@@ -146,7 +153,7 @@ fun EmergencyScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 2. Personal Emergency Card
+                // 2. Personal Emergency Card (CONNECTED TO REAL DATA)
                 Text("👤 Your Emergency Card", color = Color.White, fontSize = 16.sp, modifier = Modifier.padding(bottom = 12.dp))
                 Box(
                     modifier = Modifier
@@ -157,13 +164,13 @@ fun EmergencyScreen(navController: NavController) {
                 ) {
                     Column {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            PersonalDetailBox("Name", "John Doe", Modifier.weight(1f))
-                            PersonalDetailBox("Age", "32 years", Modifier.weight(1f))
+                            PersonalDetailBox("Name", userProfile?.full_name ?: "Guest User", Modifier.weight(1f))
+                            PersonalDetailBox("Age", if (userProfile?.age != null) "${userProfile?.age} years" else "--", Modifier.weight(1f))
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            PersonalDetailBox("Blood Group", "🩸 O+", Modifier.weight(1f))
-                            PersonalDetailBox("Allergies", "None", Modifier.weight(1f))
+                            PersonalDetailBox("Blood Group", "🩸 ${userProfile?.blood_group ?: "--"}", Modifier.weight(1f))
+                            PersonalDetailBox("Allergies", userProfile?.allergies ?: "None", Modifier.weight(1f))
                         }
                     }
                 }
@@ -244,8 +251,8 @@ fun EmergencyScreen(navController: NavController) {
                             makeCall("108")
                         }
                         Divider(color = NeonRed.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
-                        ContactRow(Icons.Default.Favorite, "Emergency Contact", "+91 98765 43210") {
-                            makeCall("+919876543210")
+                        ContactRow(Icons.Default.Favorite, "Emergency Contact", userProfile?.emergency_contact ?: "+91 98765 43210") {
+                            makeCall(userProfile?.emergency_contact ?: "+919876543210")
                         }
                         Divider(color = NeonRed.copy(alpha = 0.2f), modifier = Modifier.padding(vertical = 12.dp))
                         ContactRow(Icons.Default.LocalPolice, "Police", "100") {
