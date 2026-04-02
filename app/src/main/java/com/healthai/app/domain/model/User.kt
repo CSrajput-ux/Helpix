@@ -7,6 +7,7 @@ data class User(
     val id: String = "",
     val email: String = "",
     val name: String = "",
+    val profilePictureUrl: String? = null,
     val dateOfBirth: Date? = null,
     @ServerTimestamp val createdAt: Date? = null,
 
