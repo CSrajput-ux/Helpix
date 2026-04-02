@@ -1,0 +1,33 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+.gradle/
+build/
+app/build/
+local.properties
+.DS_Store
+
+# Kotlin
+.kotlin/
+
+# Secrets
+google-services.json
+
+# Binaries
+*.flat
+*.jar
+*.dex
+*.bin
+*.lock
+
+# Logs
+*.txt
+*.log
+full_log.txt
+build_log.txt
+plain_log.txt
+compile_error.txt
+build_error_v2.txt
+lint_results.txt
+build_result.txt
+wrapper_error.txt

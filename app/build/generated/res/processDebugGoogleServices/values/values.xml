@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="gcm_defaultSenderId" translatable="false">635089276772</string>
-    <string name="google_api_key" translatable="false">AIzaSyBVYCCi9Rx8733xaBj85W8k2cUn2lfDLDM</string>
-    <string name="google_app_id" translatable="false">1:635089276772:android:496a2cf8b44d3d19acf471</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBVYCCi9Rx8733xaBj85W8k2cUn2lfDLDM</string>
-    <string name="google_storage_bucket" translatable="false">helpix-37990.firebasestorage.app</string>
-    <string name="project_id" translatable="false">helpix-37990</string>
-</resources>
