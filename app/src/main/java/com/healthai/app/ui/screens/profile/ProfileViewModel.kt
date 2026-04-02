@@ -1,6 +1,7 @@
 package com.healthai.app.ui.screens.profile
 
 import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,11 @@ import com.healthai.app.data.remote.api.UserProfile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.FileOutputStream
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -46,13 +52,55 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun uploadProfileImage(uri: Uri) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val file = uriToFile(uri)
+                if (file != null) {
+                    val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                    val body = MultipartBody.Part.createFormData("image", file.name, requestFile)
+                    
+                    val response = repository.uploadProfileImage(body)
+                    if (response.isSuccessful) {
+                        _user.value = response.body()
+                        Log.d("ProfileViewModel", "Profile image uploaded successfully")
+                    } else {
+                        Log.e("ProfileViewModel", "Image upload failed: ${response.code()}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ProfileViewModel", "Error uploading image: ${e.message}")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    private fun uriToFile(uri: Uri): File? {
+        val context = getApplication<Application>().applicationContext
+        val contentResolver = context.contentResolver
+        val file = File(context.cacheDir, "temp_profile_image.jpg")
+        return try {
+            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val outputStream = FileOutputStream(file)
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+            file
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     fun updateProfile(
         fullName: String, 
         age: Int?, 
         bloodGroup: String?, 
         gender: String?, 
         emergencyContact: String?, 
-        location: String?
+        location: String?,
+        allergies: String?
     ) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -63,7 +111,8 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     blood_group = bloodGroup,
                     gender = gender,
                     emergency_contact = emergencyContact,
-                    location = location
+                    location = location,
+                    allergies = allergies
                 )
                 val response = repository.updateProfile(request)
                 if (response.isSuccessful) {
