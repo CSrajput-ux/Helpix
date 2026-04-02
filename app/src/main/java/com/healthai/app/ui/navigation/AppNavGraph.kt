@@ -20,8 +20,8 @@ import com.healthai.app.ui.screens.cough.CoughRecordingScreen
 import com.healthai.app.ui.screens.dashboard.DashboardScreen
 import com.healthai.app.ui.screens.diet.DietPlannerScreen
 import com.healthai.app.ui.screens.doctor.DoctorDashboardScreen
-import com.healthai.app.ui.screens.doctor.DoctorListScreen
-import com.healthai.app.ui.screens.doctor.DoctorProfileScreen
+import com.healthai.app.ui.screens.doctor.DoctorsScreen
+import com.healthai.app.ui.screens.DoctorDetailsScreen
 import com.healthai.app.ui.screens.emergency.EmergencyScreen
 import com.healthai.app.ui.screens.fitness.FitnessTrackerScreen
 import com.healthai.app.ui.screens.health.HealthHistoryScreen
@@ -100,14 +100,10 @@ fun AppNavGraph(navController: NavHostController) {
             ProfileScreen(navController = navController)
         }
         composable(NavRoutes.Doctors) {
-            DoctorListScreen(navController = navController)
+            DoctorsScreen(navController = navController)
         }
-        composable(
-            route = "${NavRoutes.DoctorDetails}/{doctorId}",
-            arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
-            DoctorProfileScreen(navController = navController, doctorId = doctorId)
+        composable(NavRoutes.DoctorDetails) {
+            DoctorDetailsScreen(navController = navController)
         }
         composable(NavRoutes.Health) {
             HealthScreen(navController = navController)

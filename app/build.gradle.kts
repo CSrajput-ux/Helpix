@@ -131,6 +131,9 @@ dependencies {
 
     // Gemini AI
     implementation(libs.google.generativeai)
+    
+    // Image Loading
+    implementation(libs.coil.compose)
 
     // Testing & Debugging
     testImplementation(libs.junit)
