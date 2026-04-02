@@ -128,9 +128,6 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     implementation(libs.google.places)
-
-    // Gemini AI
-    implementation(libs.google.generativeai)
     
     // Image Loading
     implementation(libs.coil.compose)
