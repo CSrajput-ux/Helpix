@@ -15,7 +15,8 @@ data class SignupRequest(
     val password: String,
     val role: String = "PATIENT",
     val specialization: String? = null,
-    val license_number: String? = null
+    val license_number: String? = null,
+    val clinic_address: String? = null
 )
 
 data class LoginRequest(
@@ -37,11 +38,14 @@ data class UserProfile(
     val role: String? = null,
     val specialization: String? = null,
     val license_number: String? = null,
+    val clinic_address: String? = null,
     val age: Int? = null,
     val blood_group: String? = null,
     val gender: String? = null,
     val emergency_contact: String? = null,
     val location: String? = null,
+    val allergies: String? = null,
+    val profile_image_url: String? = null,
     val created_at: String? = null
 )
 
@@ -51,7 +55,8 @@ data class UpdateProfileRequest(
     val blood_group: String? = null,
     val gender: String? = null,
     val emergency_contact: String? = null,
-    val location: String? = null
+    val location: String? = null,
+    val allergies: String? = null
 )
 
 // ---------------------------------------------------------------------------
@@ -220,6 +225,12 @@ interface HelpixApi {
 
     @PATCH("auth/profile")
     suspend fun updateProfile(@Body body: UpdateProfileRequest): Response<UserProfile>
+
+    @Multipart
+    @POST("auth/profile/image")
+    suspend fun uploadProfileImage(
+        @Part image: MultipartBody.Part
+    ): Response<UserProfile>
 
     // ---- Vitals & Health Score ----
     @POST("vitals/sync")

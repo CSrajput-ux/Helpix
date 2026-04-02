@@ -9,6 +9,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -19,6 +20,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 // ---------------------------------------------------------------------------
@@ -45,8 +47,8 @@ object TokenStore {
 // ---------------------------------------------------------------------------
 // JWT Header Interceptor
 // ---------------------------------------------------------------------------
-class AuthInterceptor(private val context: Context) : okhttp3.Interceptor {
-    override fun intercept(chain: okhttp3.Interceptor.Chain): okhttp3.Response {
+class AuthInterceptor(private val context: Context) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
         val token = runBlocking { TokenStore.get(context) }
         val request = if (!token.isNullOrBlank()) {
             chain.request().newBuilder()
@@ -60,6 +62,30 @@ class AuthInterceptor(private val context: Context) : okhttp3.Interceptor {
 }
 
 // ---------------------------------------------------------------------------
+// Retry Interceptor
+// ---------------------------------------------------------------------------
+class RetryInterceptor(private val maxRetry: Int = 3) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+        val request = chain.request()
+        var response: okhttp3.Response? = null
+        var exception: IOException? = null
+        
+        var tryCount = 0
+        while (tryCount < maxRetry) {
+            try {
+                response = chain.proceed(request)
+                if (response.isSuccessful) return response
+            } catch (e: IOException) {
+                exception = e
+            }
+            tryCount++
+        }
+        
+        return response ?: throw exception ?: IOException("Unknown network error")
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Retrofit Client Builder
 // ---------------------------------------------------------------------------
 object HelpixRetrofitClient {
@@ -67,10 +93,15 @@ object HelpixRetrofitClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
+        
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(context))
+            .addInterceptor(RetryInterceptor(maxRetry = 3))
             .addInterceptor(logging)
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .build()
 
         return Retrofit.Builder()
@@ -87,8 +118,8 @@ object HelpixRetrofitClient {
 // ---------------------------------------------------------------------------
 class HelpixRepository(private val context: Context) {
 
-    // ✅ UPDATED with your local IP from ipconfig
-    private val BASE_URL = "http://10.147.96.92:8000"
+    // ✅ UPDATED for Android Emulator
+    private val BASE_URL = "http://10.0.2.2:8000"
 
     private val api: HelpixApi by lazy {
         HelpixRetrofitClient.create(BASE_URL, context)
@@ -110,6 +141,8 @@ class HelpixRepository(private val context: Context) {
     suspend fun profile() = api.getProfile()
 
     suspend fun updateProfile(req: UpdateProfileRequest) = api.updateProfile(req)
+    
+    suspend fun uploadProfileImage(body: MultipartBody.Part) = api.uploadProfileImage(body)
 
     // ---- Vitals & Health Score ----
     suspend fun syncVitals(req: VitalsSyncRequest) = api.syncVitals(req)

@@ -10,15 +10,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.os.LocaleListCompat
 import androidx.navigation.compose.rememberNavController
 import com.healthai.app.services.LanguageManager
+import com.healthai.app.services.ThemeManager
 import com.healthai.app.ui.navigation.AppNavGraph
+import com.healthai.app.ui.theme.HelpixTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,10 +43,19 @@ class MainActivity : AppCompatActivity() {
         checkAndRequestPermissions()
 
         setContent {
-            MaterialTheme { 
+            val themeManager = remember { ThemeManager(this) }
+            val currentTheme = themeManager.getTheme()
+            
+            val isDarkTheme = when(currentTheme) {
+                ThemeManager.THEME_LIGHT -> false
+                ThemeManager.THEME_DARK -> true
+                else -> isSystemInDarkTheme()
+            }
+
+            HelpixTheme(darkTheme = isDarkTheme) { 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
                     AppNavGraph(navController = navController)
@@ -55,12 +67,10 @@ class MainActivity : AppCompatActivity() {
     private fun checkAndRequestPermissions() {
         val permissions = mutableListOf<String>()
         
-        // Notification Permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
         
-        // Bluetooth & Location Permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             permissions.add(Manifest.permission.BLUETOOTH_SCAN)
             permissions.add(Manifest.permission.BLUETOOTH_CONNECT)

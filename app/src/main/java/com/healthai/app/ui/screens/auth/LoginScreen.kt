@@ -285,8 +285,8 @@ fun LoginScreen(navController: NavController) {
                                     try {
                                         val response = helpixRepository.login(email, password)
                                         if (response.isSuccessful) {
-                                            val tokenResponse = response.body()
-                                            val role = tokenResponse?.role ?: "PATIENT"
+                                            val tokenData = response.body()
+                                            val role = tokenData?.role ?: "PATIENT"
                                             
                                             Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
                                             
