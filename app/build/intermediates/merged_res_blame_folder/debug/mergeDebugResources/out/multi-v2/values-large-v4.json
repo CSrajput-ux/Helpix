@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.healthai.app-mergeDebugResources-91:/values-large-v4/values-large-v4.xml",
+            "outputFile": "com.healthai.app-mergeDebugResources-92:/values-large-v4/values-large-v4.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\095e3ea8060fefc4e8e37655fb64477f\\transformed\\appcompat-1.7.0\\res\\values-large-v4\\values-large-v4.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\60fd0ed075f1d1c9ba11c05ac0d48d40\\transformed\\appcompat-1.7.0\\res\\values-large-v4\\values-large-v4.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",

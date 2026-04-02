@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.healthai.app-mergeDebugResources-91:/values-en-rIN/values-en-rIN.xml",
+            "outputFile": "com.healthai.app-mergeDebugResources-92:/values-en-rIN/values-en-rIN.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\095e3ea8060fefc4e8e37655fb64477f\\transformed\\appcompat-1.7.0\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\60fd0ed075f1d1c9ba11c05ac0d48d40\\transformed\\appcompat-1.7.0\\res\\values-en-rIN\\values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -21,24 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\ef2f6b270f9152e20bcca5c048893c86\\transformed\\ui-release\\res\\values-en-rIN\\values-en-rIN.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "105,197,279,373,472,559,641,730,819,903,981,1063,1136,1212,1284,1354,1431,1497",
-                        "endColumns": "91,81,93,98,86,81,88,88,83,77,81,72,75,71,69,76,65,120",
-                        "endOffsets": "192,274,368,467,554,636,725,814,898,976,1058,1131,1207,1279,1349,1426,1492,1613"
-                    },
-                    "to": {
-                        "startLines": "40,41,44,46,47,66,67,125,126,127,128,131,132,133,134,136,137,138",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "3965,4057,4343,4527,4626,6880,6962,13165,13254,13338,13416,13701,13774,13850,13922,14093,14170,14236",
-                        "endColumns": "91,81,93,98,86,81,88,88,83,77,81,72,75,71,69,76,65,120",
-                        "endOffsets": "4052,4134,4432,4621,4708,6957,7046,13249,13333,13411,13493,13769,13845,13917,13987,14165,14231,14352"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\98e5e0ef5fa03e2fb4e9da508cddf26d\\transformed\\credentials-1.2.0-rc01\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\b6771eb6bd99ef68b8157aa54affb737\\transformed\\credentials-1.2.0-rc01\\res\\values-en-rIN\\values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -55,41 +38,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\ca8a81095917d0334db4ea7db41529a4\\transformed\\foundation-release\\res\\values-en-rIN\\values-en-rIN.xml",
-                    "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,141",
-                        "endColumns": "85,84",
-                        "endOffsets": "136,221"
-                    },
-                    "to": {
-                        "startLines": "139,140",
-                        "startColumns": "4,4",
-                        "startOffsets": "14357,14443",
-                        "endColumns": "85,84",
-                        "endOffsets": "14438,14523"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\462c901f922f09dd6302a977f2a96436\\transformed\\biometric-1.2.0-alpha05\\res\\values-en-rIN\\values-en-rIN.xml",
-                    "from": {
-                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "55,199,313,419,509,643,747,858,977,1106,1244,1371,1489,1620,1720,1868,1986,2112,2251,2371,2491,2584,2707,2789,2901,2997,3123",
-                        "endColumns": "143,113,105,89,133,103,110,118,128,137,126,117,130,99,147,117,125,138,119,119,92,122,81,111,95,125,95",
-                        "endOffsets": "194,308,414,504,638,742,853,972,1101,1239,1366,1484,1615,1715,1863,1981,2107,2246,2366,2486,2579,2702,2784,2896,2992,3118,3214"
-                    },
-                    "to": {
-                        "startLines": "31,32,42,45,48,49,53,54,55,56,57,58,59,60,61,62,63,64,65,129,141,142,143,144,145,146,147",
-                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "2988,3132,4139,4437,4713,4847,5256,5367,5486,5615,5753,5880,5998,6129,6229,6377,6495,6621,6760,13498,14528,14621,14744,14826,14938,15034,15160",
-                        "endColumns": "143,113,105,89,133,103,110,118,128,137,126,117,130,99,147,117,125,138,119,119,92,122,81,111,95,125,95",
-                        "endOffsets": "3127,3241,4240,4522,4842,4946,5362,5481,5610,5748,5875,5993,6124,6224,6372,6490,6616,6755,6875,13613,14616,14739,14821,14933,15029,15155,15251"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\c1fd84e6e981e9fe2059e51d0097bf7b\\transformed\\material3-release\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\774e5bf84a28a916fa394e59897ce800\\transformed\\material3-release\\res\\values-en-rIN\\values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -106,7 +55,41 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\fe5930fbf0d1107f0e5fb598602e9e57\\transformed\\browser-1.4.0\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\afd6dec5357b8f0a7ae6133244b684cf\\transformed\\ui-release\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "105,197,279,373,472,559,641,730,819,903,981,1063,1136,1212,1284,1354,1431,1497",
+                        "endColumns": "91,81,93,98,86,81,88,88,83,77,81,72,75,71,69,76,65,120",
+                        "endOffsets": "192,274,368,467,554,636,725,814,898,976,1058,1131,1207,1279,1349,1426,1492,1613"
+                    },
+                    "to": {
+                        "startLines": "40,41,44,46,47,66,67,125,126,127,128,131,132,133,134,136,137,138",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "3965,4057,4343,4527,4626,6880,6962,13165,13254,13338,13416,13701,13774,13850,13922,14093,14170,14236",
+                        "endColumns": "91,81,93,98,86,81,88,88,83,77,81,72,75,71,69,76,65,120",
+                        "endOffsets": "4052,4134,4432,4621,4708,6957,7046,13249,13333,13411,13493,13769,13845,13917,13987,14165,14231,14352"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\446d0f87a40c679da01d74cc2f163784\\transformed\\biometric-1.2.0-alpha05\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "from": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,199,313,419,509,643,747,858,977,1106,1244,1371,1489,1620,1720,1868,1986,2112,2251,2371,2491,2584,2707,2789,2901,2997,3123",
+                        "endColumns": "143,113,105,89,133,103,110,118,128,137,126,117,130,99,147,117,125,138,119,119,92,122,81,111,95,125,95",
+                        "endOffsets": "194,308,414,504,638,742,853,972,1101,1239,1366,1484,1615,1715,1863,1981,2107,2246,2366,2486,2579,2702,2784,2896,2992,3118,3214"
+                    },
+                    "to": {
+                        "startLines": "31,32,42,45,48,49,53,54,55,56,57,58,59,60,61,62,63,64,65,129,141,142,143,144,145,146,147",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "2988,3132,4139,4437,4713,4847,5256,5367,5486,5615,5753,5880,5998,6129,6229,6377,6495,6621,6760,13498,14528,14621,14744,14826,14938,15034,15160",
+                        "endColumns": "143,113,105,89,133,103,110,118,128,137,126,117,130,99,147,117,125,138,119,119,92,122,81,111,95,125,95",
+                        "endOffsets": "3127,3241,4240,4522,4842,4946,5362,5481,5610,5748,5875,5993,6124,6224,6372,6490,6616,6755,6875,13613,14616,14739,14821,14933,15029,15155,15251"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\e4518870b0f7f6602919dbb70ac4d964\\transformed\\browser-1.4.0\\res\\values-en-rIN\\values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
@@ -123,7 +106,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\1f1b26ea223829318775fcae77d9fef7\\transformed\\core-1.15.0\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\0e9529a0055f9ac5bfff39a85008a4d3\\transformed\\core-1.15.0\\res\\values-en-rIN\\values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -137,6 +120,23 @@
                         "startOffsets": "3246,3342,3444,3543,3642,3746,3849,13992",
                         "endColumns": "95,101,98,98,103,102,115,100",
                         "endOffsets": "3337,3439,3538,3637,3741,3844,3960,14088"
+                    }
+                },
+                {
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\6cb05fde44d87822d436c0a11af74a44\\transformed\\foundation-release\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,141",
+                        "endColumns": "85,84",
+                        "endOffsets": "136,221"
+                    },
+                    "to": {
+                        "startLines": "139,140",
+                        "startColumns": "4,4",
+                        "startOffsets": "14357,14443",
+                        "endColumns": "85,84",
+                        "endOffsets": "14438,14523"
                     }
                 }
             ]

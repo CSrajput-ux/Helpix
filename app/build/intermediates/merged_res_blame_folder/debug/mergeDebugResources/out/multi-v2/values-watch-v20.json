@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.healthai.app-mergeDebugResources-91:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "com.healthai.app-mergeDebugResources-92:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\5e750de167256483d26c7d91f63c8906\\transformed\\play-services-auth-20.7.0\\res\\values-watch-v20\\values.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\8990e1338c5ce17b668261b9959a9545\\transformed\\play-services-auth-20.7.0\\res\\values-watch-v20\\values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11",
                         "startColumns": "0,0,0,0,0,0,0,0",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\095e3ea8060fefc4e8e37655fb64477f\\transformed\\appcompat-1.7.0\\res\\values-watch-v20\\values-watch-v20.xml",
+                    "source": "C:\\Users\\jkgga\\.gradle\\caches\\8.13\\transforms\\60fd0ed075f1d1c9ba11c05ac0d48d40\\transformed\\appcompat-1.7.0\\res\\values-watch-v20\\values-watch-v20.xml",
                     "from": {
                         "startLines": "2,5,8",
                         "startColumns": "4,4,4",
