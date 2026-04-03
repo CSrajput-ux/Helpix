@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.viewmodel.HealthViewModel
@@ -40,10 +42,22 @@ fun DashboardScreen(
     healthViewModel: HealthViewModel = hiltViewModel()
 ) {
     val healthState by healthViewModel.uiState.collectAsState()
+    var userType by remember { mutableStateOf("PATIENT") } // Default to Patient
+
+    // Fetch user type from Firestore
+    LaunchedEffect(Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    userType = document.getString("userType") ?: "PATIENT"
+                }
+        }
+    }
 
     Scaffold(
         bottomBar = {
-            HelpixBottomNav(navController = navController)
+            HelpixBottomNav(navController = navController, userType = userType)
         }
     ) { paddingValues ->
         Box(
@@ -113,17 +127,27 @@ fun DashboardScreen(
                         
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Quick Actions Row
+                        // Quick Actions Row (DYNAMIC)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            SmallFeatureCard(
-                                title = "Doctors",
-                                icon = Icons.Default.PersonSearch,
-                                modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(NavRoutes.Doctors) }
-                            )
+                            if (userType == "DOCTOR") {
+                                SmallFeatureCard(
+                                    title = "Schedule",
+                                    icon = Icons.Default.EventNote,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { navController.navigate(NavRoutes.DoctorDashboard) }
+                                )
+                            } else {
+                                SmallFeatureCard(
+                                    title = "Doctors",
+                                    icon = Icons.Default.PersonSearch,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = { navController.navigate(NavRoutes.Doctors) }
+                                )
+                            }
+                            
                             SmallFeatureCard(
                                 title = "Reader",
                                 icon = Icons.Default.Description,
@@ -334,9 +358,9 @@ fun WatchConnectionCard(navController: NavController) {
     }
 }
 
-// --- NAVIGATION BAR ---
+// --- DYNAMIC NAVIGATION BAR ---
 @Composable
-fun HelpixBottomNav(navController: NavController) {
+fun HelpixBottomNav(navController: NavController, userType: String = "PATIENT") {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -368,16 +392,30 @@ fun HelpixBottomNav(navController: NavController) {
             }
         )
 
-        NavItem(
-            name = "Doctors",
-            icon = Icons.Filled.MedicalServices,
-            isSelected = currentRoute == NavRoutes.Doctors,
-            onClick = {
-                if (currentRoute != NavRoutes.Doctors) {
-                    navController.navigate(NavRoutes.Doctors)
+        // DYNAMIC ITEM: Doctors or Schedule
+        if (userType == "DOCTOR") {
+            NavItem(
+                name = "Schedule",
+                icon = Icons.Filled.EventNote,
+                isSelected = currentRoute == NavRoutes.DoctorDashboard,
+                onClick = {
+                    if (currentRoute != NavRoutes.DoctorDashboard) {
+                        navController.navigate(NavRoutes.DoctorDashboard)
+                    }
                 }
-            }
-        )
+            )
+        } else {
+            NavItem(
+                name = "Doctors",
+                icon = Icons.Filled.MedicalServices,
+                isSelected = currentRoute == NavRoutes.Doctors,
+                onClick = {
+                    if (currentRoute != NavRoutes.Doctors) {
+                        navController.navigate(NavRoutes.Doctors)
+                    }
+                }
+            )
+        }
 
         NavItem(
             name = "Tools",

@@ -28,37 +28,29 @@ class DoctorDashboardViewModel : ViewModel() {
             
             val currentUser = auth.currentUser
             if (currentUser != null) {
-                // Real data if logged in
                 _appointments.value = appointmentRepository.getAppointmentsForDoctor(currentUser.uid)
             } else {
-                // DUMMY DATA for testing since login is bypassed
-                delay(1000) // Simulating network
+                // DUMMY DATA for testing
+                delay(1000)
                 _appointments.value = listOf(
-                    Appointment(
-                        id = "1",
-                        patientId = "PAT-882193",
-                        doctorId = "DOC-001",
-                        appointmentDate = Date(),
-                        status = "SCHEDULED"
-                    ),
-                    Appointment(
-                        id = "2",
-                        patientId = "PAT-445210",
-                        doctorId = "DOC-001",
-                        appointmentDate = Date(System.currentTimeMillis() + 3600000),
-                        status = "SCHEDULED"
-                    ),
-                    Appointment(
-                        id = "3",
-                        patientId = "PAT-112233",
-                        doctorId = "DOC-001",
-                        appointmentDate = Date(System.currentTimeMillis() + 7200000),
-                        status = "COMPLETED"
-                    )
+                    Appointment(id = "1", patientId = "PAT-882193", doctorId = "DOC-001", appointmentDate = Date(), status = "PENDING"),
+                    Appointment(id = "2", patientId = "PAT-445210", doctorId = "DOC-001", appointmentDate = Date(System.currentTimeMillis() + 3600000), status = "SCHEDULED"),
+                    Appointment(id = "3", patientId = "PAT-112233", doctorId = "DOC-001", appointmentDate = Date(System.currentTimeMillis() + 7200000), status = "COMPLETED")
                 )
             }
 
             _isLoading.value = false
+        }
+    }
+
+    fun updateStatus(appointmentId: String, status: String) {
+        viewModelScope.launch {
+            try {
+                appointmentRepository.updateAppointmentStatus(appointmentId, status)
+                fetchAppointments() // Refresh list
+            } catch (e: Exception) {
+                // Handle error
+            }
         }
     }
 }
