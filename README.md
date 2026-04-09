@@ -70,6 +70,3 @@ To build and run this project, you will need to set up a Firebase project.
 
 Contributions, issues, and feature requests are welcome. Feel free to check the [issues page](https://github.com/CSrajput-ux/Helpix/issues) if you want to contribute.
 
----
-
-This README file should give any developer a great starting point to understand and contribute to your project.
