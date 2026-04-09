@@ -49,23 +49,15 @@ object TokenStore {
 // ---------------------------------------------------------------------------
 class AuthInterceptor(private val context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
-        val request = chain.request()
-        
-        // Skip token fetch for auth endpoints to reduce delay
-        val path = request.url.encodedPath
-        if (path.contains("/auth/login") || path.contains("/auth/signup")) {
-            return chain.proceed(request)
-        }
-
         val token = runBlocking { TokenStore.get(context) }
-        val authenticatedRequest = if (!token.isNullOrBlank()) {
-            request.newBuilder()
+        val request = if (!token.isNullOrBlank()) {
+            chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $token")
                 .build()
         } else {
-            request
+            chain.request()
         }
-        return chain.proceed(authenticatedRequest)
+        return chain.proceed(request)
     }
 }
 
@@ -81,20 +73,15 @@ class RetryInterceptor(private val maxRetry: Int = 3) : Interceptor {
         var tryCount = 0
         while (tryCount < maxRetry) {
             try {
-                response?.close() // Close previous response to avoid leaks
                 response = chain.proceed(request)
-                
-                // If successful or a client error (4xx like Wrong Password), DO NOT RETRY
-                if (response.isSuccessful || response.code in 400..499) {
-                    return response
-                }
+                if (response.isSuccessful) return response
             } catch (e: IOException) {
                 exception = e
             }
             tryCount++
         }
         
-        return response ?: throw exception ?: IOException("Network error after $maxRetry retries")
+        return response ?: throw exception ?: IOException("Unknown network error")
     }
 }
 
@@ -109,11 +96,11 @@ object HelpixRetrofitClient {
         
         val okHttpClient = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(context))
-            .addInterceptor(RetryInterceptor(maxRetry = 2)) // Reduced retries
+            .addInterceptor(RetryInterceptor(maxRetry = 3))
             .addInterceptor(logging)
-            .connectTimeout(15, TimeUnit.SECONDS) // Reduced from 60s to 15s
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .build()
 
@@ -131,7 +118,7 @@ object HelpixRetrofitClient {
 // ---------------------------------------------------------------------------
 class HelpixRepository(private val context: Context) {
 
-    // ✅ NOTE: Use "10.0.2.2" for Emulator, but your COMPUTER'S IP (e.g. 192.168.x.x) for Physical Device
+    // ✅ UPDATED for Android Emulator
     private val BASE_URL = "http://10.0.2.2:8000"
 
     private val api: HelpixApi by lazy {
