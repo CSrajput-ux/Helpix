@@ -5,7 +5,7 @@ Helpix is a futuristic, AI-powered mobile healthcare application built with mode
 ## 📺 Project Demo
 Check out the project in action: [**View Demo Video**](https://drive.google.com/file/d/1_iEXYnoIR3V-6Gl4gr-1QDDQGnT1YpZl/view?usp=sharing)
 
-## ✨ Features
+## ✨ Features : 
 
 - **Dual User Portals:** Separate, secure registration and login flows for both **Patients** and **Doctors**.
 - **AI Health Scanner:** A central dashboard for initiating various health scans.
@@ -37,7 +37,7 @@ Check out the project in action: [**View Demo Video**](https://drive.google.com/
 - **Dependency Injection:** Hilt for managing dependencies throughout the application.
 - **Navigation:** Jetpack Navigation Compose for navigating between screens.
 
-## 🚀 Setup Instructions
+## 🚀 Setup Instructions :
 
 To build and run this project, you will need to set up a Firebase project.
 
@@ -66,7 +66,7 @@ To build and run this project, you will need to set up a Firebase project.
     - Let Gradle sync the dependencies.
     - Build and run the app on an emulator or a physical device.
 
-## 🤝 Contributions
+## 🤝 Contributions : 
 
 Contributions, issues, and feature requests are welcome. Feel free to check the [issues page](https://github.com/CSrajput-ux/Helpix/issues) if you want to contribute.
 
