@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -27,11 +26,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav 
@@ -44,10 +44,22 @@ fun HealthScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    var userType by remember { mutableStateOf("PATIENT") }
+
+    // Fetch user type for BottomNav consistency
+    LaunchedEffect(Unit) {
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    userType = document.getString("userType") ?: "PATIENT"
+                }
+        }
+    }
     
     Scaffold(
         bottomBar = {
-            HelpixBottomNav(navController = navController)
+            HelpixBottomNav(navController = navController, userType = userType)
         }
     ) { padding ->
         Box(
@@ -63,44 +75,48 @@ fun HealthScreen(
                     )
                 )
         ) {
+            // Grid Background like Dashboard
+            GridBackgroundHealth()
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 20.dp)
                     .verticalScroll(scrollState)
             ) {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // --- HEADER ---
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                 ) {
                     Column {
                         Text(
-                            text = stringResource(id = R.string.daily_health_feed),
+                            text = "Daily Health Feed",
                             color = colorResource(id = R.color.logo_cyan),
-                            fontSize = 22.sp,
+                            fontSize = 26.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             text = state.currentDate,
                             color = Color.Gray,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text(stringResource(id = R.string.your_score), color = Color.Gray, fontSize = 10.sp)
-                        Text("${state.healthScore}", color = Color(0xFF00E676), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        Text("Your Score", color = Color.Gray, fontSize = 10.sp)
+                        Text("${state.healthScore}", color = Color(0xFF00E676), fontSize = 32.sp, fontWeight = FontWeight.ExtraBold)
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                // --- NAVIGATION / REAL-TIME VITALS CARDS ---
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    VitalDisplayCard(
+                // --- REAL-TIME VITALS CARDS (Matching Dashboard style) ---
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    VitalFeedCard(
                         title = "Heartbeat",
                         value = if (state.heartRate > 0) "${state.heartRate}" else "--",
                         unit = "bpm",
@@ -108,7 +124,7 @@ fun HealthScreen(
                         modifier = Modifier.weight(1f),
                         color = Color(0xFFFF4081)
                     )
-                    VitalDisplayCard(
+                    VitalFeedCard(
                         title = "Temp",
                         value = if (state.temperature > 0) "${state.temperature}" else "--",
                         unit = "°C",
@@ -116,9 +132,9 @@ fun HealthScreen(
                         modifier = Modifier.weight(1f),
                         color = Color(0xFFFFAB00)
                     )
-                    VitalDisplayCard(
+                    VitalFeedCard(
                         title = "Blood Pressure",
-                        value = state.bloodPressure,
+                        value = if(state.bloodPressure.isNotBlank()) state.bloodPressure else "--/--",
                         unit = "",
                         icon = Icons.Default.Bloodtype,
                         modifier = Modifier.weight(1f),
@@ -126,64 +142,69 @@ fun HealthScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                // --- BIG HEALTH SCORE CARD ---
+                // --- TODAY'S HEALTH SCORE CARD (BIG) ---
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(180.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(colorResource(id = R.color.helpix_bg_top))
-                        .border(1.dp, colorResource(id = R.color.card_border_glow).copy(alpha = 0.3f), RoundedCornerShape(24.dp))
-                        .padding(16.dp)
+                        .height(200.dp)
+                        .clip(RoundedCornerShape(28.dp))
+                        .background(colorResource(id = R.color.helpix_bg_top).copy(alpha = 0.6f))
+                        .border(1.dp, colorResource(id = R.color.card_border_glow).copy(alpha = 0.3f), RoundedCornerShape(28.dp))
+                        .padding(20.dp)
                 ) {
-                    Text(stringResource(id = R.string.todays_health_score), color = colorResource(id = R.color.logo_cyan), fontSize = 14.sp)
-                    Icon(Icons.Default.Watch, contentDescription = "Watch", tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.align(Alignment.TopEnd))
+                    Text("Today's Health Score", color = colorResource(id = R.color.logo_cyan), fontSize = 15.sp, fontWeight = FontWeight.Medium)
+                    Icon(Icons.Default.Watch, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.align(Alignment.TopEnd).size(24.dp))
 
                     Box(modifier = Modifier.align(Alignment.Center)) {
-                        CircularScoreIndicator(score = state.healthScore)
+                        CircularScoreGauge(score = state.healthScore)
                     }
                     
                     Text(
-                        text = if (state.isWatchConnected) stringResource(id = R.string.watch_connected) else stringResource(id = R.string.syncing_watch),
-                        color = if (state.isWatchConnected) Color(0xFF00E676) else Color.Yellow,
-                        fontSize = 10.sp,
+                        text = if (state.isWatchConnected) "Watch Connected" else "Syncing...",
+                        color = if (state.isWatchConnected) Color(0xFF00E676) else Color(0xFFFFD600),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.BottomCenter)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                // --- AI ALERTS ---
-                SectionHeader("Urgent Health Notifications", Icons.Default.NotificationsActive)
-                AlertCard("Medicine Reminder", "Time to take your Vitamin C (Next dose in 10 mins)", "Just now", Color(0xFF2979FF))
-                AlertCard("Medical Emergency", "Your heartbeat is slightly above normal. Rest for 5 mins.", "5 mins ago", Color(0xFFFF1744))
-                AlertCard("Disease Area Warning", "You are entering a High Disease Outbreak Zone (Dengue). Wear protection.", "15 mins ago", Color(0xFFFFAB00))
+                // --- URGENT NOTIFICATIONS SECTION ---
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 16.dp)) {
+                    Icon(Icons.Default.NotificationsActive, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text("Urgent Health Notifications", color = colorResource(id = R.color.logo_cyan), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
 
-                Spacer(modifier = Modifier.height(100.dp))
+                AlertFeedCard("Medicine Reminder", "Time to take your Vitamin C (Next dose in 10 mins)", "Just now", Color(0xFF2979FF), Icons.Default.Alarm)
+                AlertFeedCard("Medical Emergency", "Your heartbeat is slightly above normal. Rest for 5 mins.", "5 mins ago", Color(0xFFFF1744), Icons.Default.Warning)
+                AlertFeedCard("Disease Area Warning", "You are entering a High Disease Outbreak Zone (Dengue). Wear protection.", "15 mins ago", Color(0xFFFFAB00), Icons.Default.ReportProblem)
+
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
 }
 
 @Composable
-fun VitalDisplayCard(title: String, value: String, unit: String, icon: ImageVector, modifier: Modifier, color: Color) {
-    Box(
-        modifier = modifier
-            .height(100.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(colorResource(id = R.color.helpix_bg_top))
-            .padding(10.dp)
+fun VitalFeedCard(title: String, value: String, unit: String, icon: ImageVector, modifier: Modifier, color: Color) {
+    Card(
+        modifier = modifier.height(110.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.2f))
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.height(4.dp))
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.Bottom) {
-                Text(value, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(value, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
                 if (unit.isNotEmpty()) {
                     Spacer(modifier = Modifier.width(2.dp))
-                    Text(unit, color = Color.Gray, fontSize = 10.sp, modifier = Modifier.padding(bottom = 2.dp))
+                    Text(unit, color = Color.Gray, fontSize = 10.sp, modifier = Modifier.padding(bottom = 3.dp))
                 }
             }
             Text(title, color = Color.Gray, fontSize = 10.sp, fontWeight = FontWeight.Medium)
@@ -191,25 +212,14 @@ fun VitalDisplayCard(title: String, value: String, unit: String, icon: ImageVect
     }
 }
 
-// --- SUB-COMPONENTS ---
-
 @Composable
-fun SectionHeader(title: String, icon: ImageVector) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 12.dp)) {
-        Icon(icon, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(20.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(title, color = colorResource(id = R.color.logo_cyan), fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-    }
-}
-
-@Composable
-fun CircularScoreIndicator(score: Int) {
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(100.dp)) {
+fun CircularScoreGauge(score: Int) {
+    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(110.dp)) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 8.dp.toPx()
-            drawCircle(color = Color.DarkGray.copy(alpha = 0.3f), style = Stroke(strokeWidth))
+            val strokeWidth = 10.dp.toPx()
+            drawCircle(color = Color.White.copy(alpha = 0.05f), style = Stroke(strokeWidth))
             drawArc(
-                brush = Brush.sweepGradient(listOf(Color(0xFF00E5FF), Color(0xFF00E676))),
+                brush = Brush.sweepGradient(listOf(Color(0xFF00E5FF), Color(0xFF00E676), Color(0xFF00E5FF))),
                 startAngle = -90f,
                 sweepAngle = (360 * (score / 100f)),
                 useCenter = false,
@@ -217,61 +227,52 @@ fun CircularScoreIndicator(score: Int) {
             )
         }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("$score", color = Color.White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Text("Excellent", color = Color(0xFF00E676), fontSize = 10.sp)
+            Text("$score", color = Color.White, fontSize = 32.sp, fontWeight = FontWeight.ExtraBold)
+            Text("Excellent", color = Color(0xFF00E676), fontSize = 11.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
-fun MetricCard(title: String, status: String, value: String, color: Color, progress: Float, modifier: Modifier) {
-    Box(
-        modifier = modifier
-            .height(100.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(colorResource(id = R.color.helpix_bg_top))
-            .padding(12.dp)
-    ) {
-        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
-            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Icon(if (title.contains("Heart")) Icons.Default.Favorite else Icons.Default.Air, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
-                Text(status, color = color, fontSize = 10.sp)
-            }
-            Column {
-                Text(title, color = Color.White, fontSize = 12.sp)
-                Spacer(modifier = Modifier.height(4.dp))
-                LinearProgressIndicator(
-                    progress = progress,
-                    color = color,
-                    trackColor = color.copy(alpha = 0.2f),
-                    strokeCap = StrokeCap.Round,
-                    modifier = Modifier.fillMaxWidth().height(4.dp)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(value, color = Color.White, fontSize = 10.sp, modifier = Modifier.align(Alignment.End))
-            }
-        }
-    }
-}
-
-@Composable
-fun AlertCard(title: String, subtitle: String, time: String, color: Color) {
-    Row(
+fun AlertFeedCard(title: String, subtitle: String, time: String, color: Color, icon: ImageVector) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 12.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(colorResource(id = R.color.helpix_bg_top))
-            .border(1.dp, color.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(bottom = 12.dp),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.helpix_bg_top).copy(alpha = 0.4f)),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.2f))
     ) {
-        Icon(if (title.contains("Emergency")) Icons.Default.Warning else if (title.contains("Disease")) Icons.Default.ReportProblem else Icons.Default.Alarm, contentDescription = null, tint = color)
-        Spacer(modifier = Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = color, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-            Text(subtitle, color = Color.Gray, fontSize = 12.sp)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(44.dp).background(color.copy(alpha = 0.1f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, color = color, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(subtitle, color = Color.Gray, fontSize = 12.sp, lineHeight = 16.sp)
+            }
+            Text(time, color = Color.Gray, fontSize = 10.sp, modifier = Modifier.align(Alignment.Top))
         }
-        Text(time, color = Color.Gray, fontSize = 10.sp)
+    }
+}
+
+@Composable
+fun GridBackgroundHealth() {
+    val color = Color.White.copy(alpha = 0.03f)
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val gridSize = 45.dp.toPx()
+        for (x in 0..size.width.toInt() step gridSize.toInt()) {
+            drawLine(color, start = Offset(x.toFloat(), 0f), end = Offset(x.toFloat(), size.height))
+        }
+        for (y in 0..size.height.toInt() step gridSize.toInt()) {
+            drawLine(color, start = Offset(0f, y.toFloat()), end = Offset(size.width, y.toFloat()))
+        }
     }
 }

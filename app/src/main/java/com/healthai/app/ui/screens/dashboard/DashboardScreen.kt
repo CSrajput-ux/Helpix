@@ -42,9 +42,8 @@ fun DashboardScreen(
     healthViewModel: HealthViewModel = hiltViewModel()
 ) {
     val healthState by healthViewModel.uiState.collectAsState()
-    var userType by remember { mutableStateOf("PATIENT") } // Default to Patient
+    var userType by remember { mutableStateOf("PATIENT") }
 
-    // Fetch user type from Firestore
     LaunchedEffect(Unit) {
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
@@ -97,12 +96,9 @@ fun DashboardScreen(
                         modifier = Modifier.fillMaxSize().padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Watch Connection Section
                         WatchConnectionCard(navController)
-                        
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        // Real-time Vitals Preview
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             DashboardVitalCard("Heart", "${healthState.heartRate}", Icons.Default.Favorite, Color(0xFFFF4081), Modifier.weight(1f))
                             DashboardVitalCard("Temp", if (healthState.temperature > 0) "${healthState.temperature}" else "--", Icons.Default.Thermostat, Color(0xFFFFAB00), Modifier.weight(1f))
@@ -110,255 +106,35 @@ fun DashboardScreen(
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
-                        
-                        // New Main Scan Button -> Now COUGH TB ANALYZER
                         CoughScanCard(navController)
-                        
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        Text(
-                            text = "Health Services",
-                            color = Color.White,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.fillMaxWidth(),
-                            textAlign = TextAlign.Start
-                        )
-                        
+                        Text(text = "Health Services", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Quick Actions Row (DYNAMIC)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            if (userType == "DOCTOR") {
-                                SmallFeatureCard(
-                                    title = "Schedule",
-                                    icon = Icons.Default.EventNote,
-                                    modifier = Modifier.weight(1f),
-                                    onClick = { navController.navigate(NavRoutes.DoctorDashboard) }
-                                )
-                            } else {
-                                SmallFeatureCard(
-                                    title = "Doctors",
-                                    icon = Icons.Default.PersonSearch,
-                                    modifier = Modifier.weight(1f),
-                                    onClick = { navController.navigate(NavRoutes.Doctors) }
-                                )
-                            }
-                            
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SmallFeatureCard(
-                                title = "Reader",
-                                icon = Icons.Default.Description,
+                                title = "Doctors",
+                                icon = Icons.Default.PersonSearch,
                                 modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(NavRoutes.PrescriptionReader) }
+                                onClick = { navController.navigate(NavRoutes.Doctors) }
                             )
-                            SmallFeatureCard(
-                                title = "Vault",
-                                icon = Icons.Default.Folder,
-                                modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(NavRoutes.HealthVault) }
-                            )
-                            SmallFeatureCard(
-                                title = "SOS",
-                                icon = Icons.Default.Emergency,
-                                modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(NavRoutes.Emergency) }
-                            )
+                            SmallFeatureCard(title = "Reader", icon = Icons.Default.Description, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.PrescriptionReader) })
+                            SmallFeatureCard(title = "Vault", icon = Icons.Default.Folder, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.HealthVault) })
+                            SmallFeatureCard(title = "SOS", icon = Icons.Default.Emergency, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.Emergency) })
                         }
                     }
 
-                    // Floating Button overlapping at the bottom
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .offset(y = 28.dp) // Half of button height (56/2 = 28)
-                    ) {
+                    Box(modifier = Modifier.align(Alignment.BottomCenter).offset(y = 28.dp)) {
                         SkinScanButton(onClick = { navController.navigate(NavRoutes.SkinDetectorStart) })
                     }
                 }
-                
-                // Add spacer to prevent overlap with bottom nav
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
 }
 
-@Composable
-fun SkinScanButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .height(56.dp)
-            .shadow(12.dp, RoundedCornerShape(28.dp)),
-        shape = RoundedCornerShape(28.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = colorResource(id = R.color.logo_blue)
-        ),
-        contentPadding = PaddingValues(horizontal = 24.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Default.QrCodeScanner,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = "Scan Skin",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-fun DashboardVitalCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, modifier: Modifier) {
-    Card(
-        modifier = modifier.height(70.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f)),
-        border = BorderStroke(1.dp, color.copy(alpha = 0.2f))
-    ) {
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
-            Text(value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(title, color = Color.Gray, fontSize = 9.sp)
-        }
-    }
-}
-
-@Composable
-fun CoughScanCard(navController: NavController) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(130.dp)
-            .clickable { navController.navigate(NavRoutes.CoughAnalyzerStart) },
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.logo_cyan).copy(alpha = 0.15f)
-        ),
-        border = BorderStroke(2.dp, Brush.linearGradient(
-            colors = listOf(colorResource(id = R.color.logo_cyan), colorResource(id = R.color.neon_pink))
-        ))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.GraphicEq,
-                contentDescription = null,
-                tint = colorResource(id = R.color.logo_cyan),
-                modifier = Modifier.size(36.dp)
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "COUGH TB ANALYZER",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.sp
-            )
-            Text(
-                text = "AI-powered TB, Cough & Respiratory Analysis",
-                color = Color.Gray,
-                fontSize = 10.sp
-            )
-        }
-    }
-}
-
-@Composable
-fun SmallFeatureCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Card(
-        modifier = modifier
-            .height(80.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.6f)
-        ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(title, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-        }
-    }
-}
-
-@Composable
-fun WatchConnectionCard(navController: NavController) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(90.dp)
-            .clickable { navController.navigate(NavRoutes.DeviceConnect) },
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.8f)
-        ),
-        border = BorderStroke(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.3f))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Watch,
-                    contentDescription = null,
-                    tint = colorResource(id = R.color.logo_cyan),
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Smart Watch",
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Track real-time vitals",
-                    color = Color.Gray,
-                    fontSize = 10.sp
-                )
-            }
-            
-            Icon(
-                imageVector = Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = Color.Gray
-            )
-        }
-    }
-}
-
-// --- DYNAMIC NAVIGATION BAR ---
 @Composable
 fun HelpixBottomNav(navController: NavController, userType: String = "PATIENT") {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -368,76 +144,30 @@ fun HelpixBottomNav(navController: NavController, userType: String = "PATIENT") 
         containerColor = colorResource(id = R.color.login_bg_bottom),
         contentColor = Color.White
     ) {
-        NavItem(
-            name = "Home",
-            icon = Icons.Filled.Home,
-            isSelected = currentRoute == NavRoutes.Dashboard,
-            onClick = {
-                if (currentRoute != NavRoutes.Dashboard) {
-                    navController.navigate(NavRoutes.Dashboard) {
-                        popUpTo(NavRoutes.Dashboard) { inclusive = true }
-                    }
-                }
+        NavItem("Home", Icons.Filled.Home, currentRoute == NavRoutes.Dashboard || currentRoute == NavRoutes.DoctorDashboard) {
+            val route = if (userType == "DOCTOR") NavRoutes.DoctorDashboard else NavRoutes.Dashboard
+            navController.navigate(route) { popUpTo(route) { inclusive = true } }
+        }
+        NavItem("Health", Icons.Filled.MonitorHeart, currentRoute == NavRoutes.Health) {
+            navController.navigate(NavRoutes.Health)
+        }
+        
+        // --- DOCTOR SCHEDULE REDIRECTION ---
+        val scheduleSelected = currentRoute == "doctor_schedule" || currentRoute == NavRoutes.Doctors
+        NavItem(if (userType == "DOCTOR") "Schedule" else "Doctors", Icons.Filled.MedicalServices, scheduleSelected) {
+            if (userType == "DOCTOR") {
+                navController.navigate("doctor_schedule")
+            } else {
+                navController.navigate(NavRoutes.Doctors)
             }
-        )
-
-        NavItem(
-            name = stringResource(id = R.string.health),
-            icon = Icons.Filled.MonitorHeart,
-            isSelected = currentRoute == NavRoutes.Health,
-            onClick = {
-                if (currentRoute != NavRoutes.Health) {
-                    navController.navigate(NavRoutes.Health)
-                }
-            }
-        )
-
-        // DYNAMIC ITEM: Doctors or Schedule
-        if (userType == "DOCTOR") {
-            NavItem(
-                name = "Schedule",
-                icon = Icons.Filled.EventNote,
-                isSelected = currentRoute == NavRoutes.DoctorDashboard,
-                onClick = {
-                    if (currentRoute != NavRoutes.DoctorDashboard) {
-                        navController.navigate(NavRoutes.DoctorDashboard)
-                    }
-                }
-            )
-        } else {
-            NavItem(
-                name = "Doctors",
-                icon = Icons.Filled.MedicalServices,
-                isSelected = currentRoute == NavRoutes.Doctors,
-                onClick = {
-                    if (currentRoute != NavRoutes.Doctors) {
-                        navController.navigate(NavRoutes.Doctors)
-                    }
-                }
-            )
         }
 
-        NavItem(
-            name = "Tools",
-            icon = Icons.Filled.GridView,
-            isSelected = currentRoute == NavRoutes.Tools,
-            onClick = {
-                if (currentRoute != NavRoutes.Tools) {
-                    navController.navigate(NavRoutes.Tools)
-                }
-            }
-        )
-
-        NavItem(
-            name = "Profile",
-            icon = Icons.Filled.Person,
-            isSelected = currentRoute == NavRoutes.Profile,
-            onClick = {
-                if (currentRoute != NavRoutes.Profile) {
-                    navController.navigate(NavRoutes.Profile)
-                }
-            }
-        )
+        NavItem("Tools", Icons.Filled.GridView, currentRoute == NavRoutes.Tools) {
+            navController.navigate(NavRoutes.Tools)
+        }
+        NavItem("Profile", Icons.Filled.Person, currentRoute == NavRoutes.Profile) {
+            navController.navigate(NavRoutes.Profile)
+        }
     }
 }
 
@@ -460,48 +190,22 @@ fun RowScope.NavItem(name: String, icon: androidx.compose.ui.graphics.vector.Ima
 
 @Composable
 fun TopBarSection(navController: NavController) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Column {
-            Text(
-                text = "HELPiX",
-                color = colorResource(id = R.color.logo_cyan),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "AI Health Scanner",
-                color = colorResource(id = R.color.text_secondary),
-                fontSize = 14.sp
-            )
+            Text(text = "HELPiX", color = colorResource(id = R.color.logo_cyan), fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(text = "AI Health Scanner", color = colorResource(id = R.color.text_secondary), fontSize = 14.sp)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            IconBtn(Icons.Outlined.Settings) {
-                navController.navigate(NavRoutes.AppSettings)
-            }
-            IconBtn(Icons.Outlined.Notifications) {
-                // Navigate to notifications
-            }
-            Box(modifier = Modifier.clickable { navController.navigate(NavRoutes.Profile) }) {
-                IconBtn(Icons.Filled.Person) {}
-            }
+            IconBtn(Icons.Outlined.Settings) { navController.navigate(NavRoutes.AppSettings) }
+            IconBtn(Icons.Outlined.Notifications) { }
+            IconBtn(Icons.Filled.Person) { navController.navigate(NavRoutes.Profile) }
         }
     }
 }
 
 @Composable
 fun IconBtn(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(44.dp)
-            .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
-            .background(Color.White.copy(alpha = 0.05f), CircleShape)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = Modifier.size(44.dp).border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape).background(Color.White.copy(alpha = 0.05f), CircleShape).clickable { onClick() }, contentAlignment = Alignment.Center) {
         Icon(icon, contentDescription = null, tint = Color.White)
     }
 }
@@ -511,11 +215,67 @@ fun GridBackground() {
     val color = Color.White.copy(alpha = 0.05f)
     Canvas(modifier = Modifier.fillMaxSize()) {
         val gridSize = 40.dp.toPx()
-        for (x in 0..size.width.toInt() step gridSize.toInt()) {
-            drawLine(color, start = Offset(x.toFloat(), 0f), end = Offset(x.toFloat(), size.height))
+        for (x in 0..size.width.toInt() step gridSize.toInt()) { drawLine(color, start = Offset(x.toFloat(), 0f), end = Offset(x.toFloat(), size.height)) }
+        for (y in 0..size.height.toInt() step gridSize.toInt()) { drawLine(color, start = Offset(0f, y.toFloat()), end = Offset(size.width, y.toFloat())) }
+    }
+}
+
+@Composable
+fun WatchConnectionCard(navController: NavController) {
+    Card(modifier = Modifier.fillMaxWidth().height(90.dp).clickable { navController.navigate(NavRoutes.DeviceConnect) }, shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.8f)), border = BorderStroke(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.3f))) {
+        Row(modifier = Modifier.fillMaxSize().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier.size(40.dp).background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) { Icon(Icons.Default.Watch, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(22.dp)) }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = "Smart Watch", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text(text = "Track real-time vitals", color = Color.Gray, fontSize = 10.sp)
+            }
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.Gray)
         }
-        for (y in 0..size.height.toInt() step gridSize.toInt()) {
-            drawLine(color, start = Offset(0f, y.toFloat()), end = Offset(size.width, y.toFloat()))
+    }
+}
+
+@Composable
+fun DashboardVitalCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, modifier: Modifier) {
+    Card(modifier = modifier.height(70.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f)), border = BorderStroke(1.dp, color.copy(alpha = 0.2f))) {
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
+            Text(value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(title, color = Color.Gray, fontSize = 9.sp)
+        }
+    }
+}
+
+@Composable
+fun CoughScanCard(navController: NavController) {
+    Card(modifier = Modifier.fillMaxWidth().height(130.dp).clickable { navController.navigate(NavRoutes.CoughAnalyzerStart) }, shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.logo_cyan).copy(alpha = 0.15f)), border = BorderStroke(2.dp, Brush.linearGradient(colors = listOf(colorResource(id = R.color.logo_cyan), colorResource(id = R.color.neon_pink))))) {
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Icon(Icons.Default.GraphicEq, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(36.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(text = "COUGH TB ANALYZER", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
+            Text(text = "AI-powered TB, Cough & Respiratory Analysis", color = Color.Gray, fontSize = 10.sp)
+        }
+    }
+}
+
+@Composable
+fun SmallFeatureCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Card(modifier = modifier.height(80.dp).clickable { onClick() }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.6f)), border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))) {
+        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(title, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        }
+    }
+}
+
+@Composable
+fun SkinScanButton(onClick: () -> Unit) {
+    Button(onClick = onClick, modifier = Modifier.height(56.dp).shadow(12.dp, RoundedCornerShape(28.dp)), shape = RoundedCornerShape(28.dp), colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.logo_blue)), contentPadding = PaddingValues(horizontal = 24.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(text = "Scan Skin", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

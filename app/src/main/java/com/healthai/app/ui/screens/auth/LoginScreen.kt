@@ -17,9 +17,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Lock
@@ -73,6 +75,7 @@ fun LoginScreen(navController: NavController) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val helpixRepository = remember { HelpixRepository(context) }
+    val scrollState = rememberScrollState()
 
     Box(
         modifier = Modifier
@@ -91,10 +94,13 @@ fun LoginScreen(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(24.dp)
+                .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
+            Spacer(modifier = Modifier.height(40.dp))
+            
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(80.dp)
@@ -362,13 +368,14 @@ fun LoginScreen(navController: NavController) {
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "Protected by 256-bit encryption • Your data is secure",
                 color = colorResource(id = R.color.text_grey).copy(alpha = 0.5f),
                 fontSize = 10.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
             )
         }
     }
