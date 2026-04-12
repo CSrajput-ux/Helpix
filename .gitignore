@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+scratch/
+test_*.py
+check_*.py
+verify_*.py
+android/
