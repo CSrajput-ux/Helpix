@@ -6,10 +6,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.google.firebase.auth.FirebaseAuth
 import com.healthai.app.ui.DeviceConnectScreen
 import com.healthai.app.ui.WatchScannerScreen
 import com.healthai.app.ui.screens.auth.DoctorLoginScreen
 import com.healthai.app.ui.screens.auth.DoctorRegisterScreen
+import com.healthai.app.ui.screens.auth.ForgotPasswordScreen
 import com.healthai.app.ui.screens.auth.LoginScreen
 import com.healthai.app.ui.screens.auth.PhoneLoginScreen
 import com.healthai.app.ui.screens.auth.RegisterScreen
@@ -20,6 +22,7 @@ import com.healthai.app.ui.screens.cough.CoughRecordingScreen
 import com.healthai.app.ui.screens.dashboard.DashboardScreen
 import com.healthai.app.ui.screens.diet.DietPlannerScreen
 import com.healthai.app.ui.screens.doctor.DoctorDashboardScreen
+import com.healthai.app.ui.screens.doctor.DoctorScheduleScreen
 import com.healthai.app.ui.screens.doctor.DoctorsScreen
 import com.healthai.app.ui.screens.DoctorDetailsScreen
 import com.healthai.app.ui.screens.emergency.EmergencyScreen
@@ -60,139 +63,71 @@ import com.healthai.app.ui.screens.vault.HealthVaultScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
+    val auth = FirebaseAuth.getInstance()
+    val currentUser = auth.currentUser
+    
+    val startDestination = if (currentUser == null) {
+        NavRoutes.Login
+    } else {
+        NavRoutes.Dashboard
+    }
+
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Dashboard // DIRECT LOGIN BYPASS
+        startDestination = startDestination
     ) {
-        composable(NavRoutes.Onboarding) {
-            OnboardingScreen(navController = navController)
-        }
-        composable(NavRoutes.Login) {
-            LoginScreen(navController = navController)
-        }
-        composable(NavRoutes.PhoneLogin) {
-            PhoneLoginScreen(navController = navController)
-        }
-        
-        composable(NavRoutes.Register) {
-            RegisterScreen(navController = navController)
-        }
-        composable(NavRoutes.DoctorLogin) {
-            DoctorLoginScreen(navController = navController)
-        }
-        composable(NavRoutes.DoctorRegister) {
-            DoctorRegisterScreen(navController = navController)
-        }
-        composable(NavRoutes.DoctorDashboard) {
-            DoctorDashboardScreen(navController = navController)
-        }
+        composable(NavRoutes.Onboarding) { OnboardingScreen(navController = navController) }
+        composable(NavRoutes.Login) { LoginScreen(navController = navController) }
+        composable(NavRoutes.ForgotPassword) { ForgotPasswordScreen(navController = navController) }
+        composable(NavRoutes.PhoneLogin) { PhoneLoginScreen(navController = navController) }
+        composable(NavRoutes.Register) { RegisterScreen(navController = navController) }
+        composable(NavRoutes.DoctorLogin) { DoctorLoginScreen(navController = navController) }
+        composable(NavRoutes.DoctorRegister) { DoctorRegisterScreen(navController = navController) }
+        composable(NavRoutes.DoctorDashboard) { DoctorDashboardScreen(navController = navController) }
 
-        composable(NavRoutes.Dashboard) {
-            DashboardScreen(navController = navController)
-        }
-        composable(NavRoutes.Scan) {
-            ScanScreen(navController = navController)
-        }
-        composable(NavRoutes.Results) {
-            ResultsScreen(navController = navController)
-        }
-        composable(NavRoutes.Profile) {
-            ProfileScreen(navController = navController)
-        }
-        composable(NavRoutes.Doctors) {
-            DoctorsScreen(navController = navController)
-        }
-        composable(NavRoutes.DoctorDetails) {
-            DoctorDetailsScreen(navController = navController)
-        }
-        composable(NavRoutes.Health) {
-            HealthScreen(navController = navController)
-        }
-        composable(NavRoutes.HealthHistory) {
-            HealthHistoryScreen()
-        }
-        composable(NavRoutes.MyAppointments) {
-            MyAppointmentsScreen(navController = navController)
-        }
-        composable(NavRoutes.DietPlanner) {
-            DietPlannerScreen(navController = navController)
-        }
-        composable(NavRoutes.AppSettings) {
-            AppSettingsScreen(navController = navController)
-        }
-        composable(NavRoutes.DeviceConnect) {
-            DeviceConnectScreen(navController = navController)
-        }
+        composable(NavRoutes.Dashboard) { DashboardScreen(navController = navController) }
+        composable(NavRoutes.Scan) { ScanScreen(navController = navController) }
+        composable(NavRoutes.Results) { ResultsScreen(navController = navController) }
+        composable(NavRoutes.Profile) { ProfileScreen(navController = navController) }
+        
+        composable(NavRoutes.Doctors) { DoctorsScreen(navController = navController) }
+        composable(NavRoutes.DoctorSchedule) { DoctorScheduleScreen(navController = navController) }
+        
+        composable(NavRoutes.DoctorDetails) { DoctorDetailsScreen(navController = navController) }
+        composable(NavRoutes.Health) { HealthScreen(navController = navController) }
+        composable(NavRoutes.HealthHistory) { HealthHistoryScreen() }
+        composable(NavRoutes.MyAppointments) { MyAppointmentsScreen(navController = navController) }
+        composable(NavRoutes.DietPlanner) { DietPlannerScreen(navController = navController) }
+        composable(NavRoutes.AppSettings) { AppSettingsScreen(navController = navController) }
+        composable(NavRoutes.DeviceConnect) { DeviceConnectScreen(navController = navController) }
         composable(NavRoutes.WatchScanner) {
-            WatchScannerScreen(navController = navController) { qrCode ->
-                // Handle the scanned QR code (e.g., connect to watch)
-                navController.popBackStack()
-            }
+            WatchScannerScreen(navController = navController) { qrCode -> navController.popBackStack() }
         }
-        composable(NavRoutes.Tools) {
-            ToolsScreen(navController = navController)
-        }
-        composable(NavRoutes.KidsMode) {
-            KidsModeScreen(navController = navController)
-        }
-        composable(NavRoutes.SeniorMode) {
-            SeniorModeScreen(navController = navController)
-        }
-        composable(NavRoutes.RuralMode) {
-            RuralModeScreen(navController = navController)
-        }
-        composable(NavRoutes.Emergency) {
-            EmergencyScreen(navController = navController)
-        }
+        composable(NavRoutes.Tools) { ToolsScreen(navController = navController) }
+        composable(NavRoutes.KidsMode) { KidsModeScreen(navController = navController) }
+        composable(NavRoutes.SeniorMode) { SeniorModeScreen(navController = navController) }
+        composable(NavRoutes.RuralMode) { RuralModeScreen(navController = navController) }
+        composable(NavRoutes.Emergency) { EmergencyScreen(navController = navController) }
         
         // Multi-Disease Scan Flow
-        composable(NavRoutes.MultiDiseaseScanStart) {
-            MultiDiseaseScanStartScreen(navController = navController)
-        }
-        composable(NavRoutes.FaceScan) {
-            FaceScanScreen(navController = navController)
-        }
-        composable(NavRoutes.VoiceScan) {
-            VoiceScanScreen(navController = navController)
-        }
-        composable(NavRoutes.VitalsScan) {
-            VitalsScanScreen(navController = navController)
-        }
-        composable(NavRoutes.Symptoms) {
-            SymptomsScreen(navController = navController)
-        }
-        composable(NavRoutes.ScanAnalysis) {
-            ScanAnalysisScreen(navController = navController)
-        }
-        composable(NavRoutes.MultiDiseaseResult) {
-            MultiDiseaseResultScreen(navController = navController)
-        }
+        composable(NavRoutes.MultiDiseaseScanStart) { MultiDiseaseScanStartScreen(navController = navController) }
+        composable(NavRoutes.FaceScan) { FaceScanScreen(navController = navController) }
+        composable(NavRoutes.VoiceScan) { VoiceScanScreen(navController = navController) }
+        composable(NavRoutes.VitalsScan) { VitalsScanScreen(navController = navController) }
+        composable(NavRoutes.Symptoms) { SymptomsScreen(navController = navController) }
+        composable(NavRoutes.ScanAnalysis) { ScanAnalysisScreen(navController = navController) }
+        composable(NavRoutes.MultiDiseaseResult) { MultiDiseaseResultScreen(navController = navController) }
 
         // Cough Analyzer Flow
-        composable(NavRoutes.CoughAnalyzerStart) {
-            CoughAnalyzerStartScreen(navController = navController)
-        }
-        composable(NavRoutes.CoughRecording) {
-            CoughRecordingScreen(navController = navController)
-        }
-        composable(NavRoutes.CoughAnalysis) {
-            CoughAnalysisScreen(navController = navController)
-        }
-        composable(NavRoutes.CoughResult) {
-            CoughResultScreen(navController = navController)
-        }
+        composable(NavRoutes.CoughAnalyzerStart) { CoughAnalyzerStartScreen(navController = navController) }
+        composable(NavRoutes.CoughRecording) { CoughRecordingScreen(navController = navController) }
+        composable(NavRoutes.CoughAnalysis) { CoughAnalysisScreen(navController = navController) }
+        composable(NavRoutes.CoughResult) { CoughResultScreen(navController = navController) }
 
         // Skin Detector Flow
-        composable(NavRoutes.SkinDetectorStart) {
-            SkinDetectorStartScreen(navController = navController)
-        }
-        composable(NavRoutes.SkinScanning) {
-            SkinScanningScreen(navController = navController)
-        }
-        composable(NavRoutes.SkinAnalysis) {
-            SkinAnalysisScreen(navController = navController)
-        }
-        // ✅ FIXED: Updated to accept disease and confidence parameters
+        composable(NavRoutes.SkinDetectorStart) { SkinDetectorStartScreen(navController = navController) }
+        composable(NavRoutes.SkinScanning) { SkinScanningScreen(navController = navController) }
+        composable(NavRoutes.SkinAnalysis) { SkinAnalysisScreen(navController = navController) }
         composable(
             route = "${NavRoutes.SkinResult}/{label}/{confidence}",
             arguments = listOf(
@@ -206,65 +141,33 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         // Symptom Doctor Flow
-        composable(NavRoutes.SymptomDoctorStart) {
-            SymptomDoctorStartScreen(navController = navController)
-        }
-        composable(NavRoutes.SymptomChat) {
-            SymptomChatScreen(navController = navController)
-        }
-        composable(NavRoutes.SymptomBodyMap) {
-            SymptomBodyMapScreen(navController = navController)
-        }
-        composable(NavRoutes.SymptomAnalysis) {
-            SymptomAnalysisScreen(navController = navController)
-        }
-        composable(NavRoutes.SymptomResult) {
-            SymptomResultScreen(navController = navController)
-        }
+        composable(NavRoutes.SymptomDoctorStart) { SymptomDoctorStartScreen(navController = navController) }
+        composable(NavRoutes.SymptomChat) { SymptomChatScreen(navController = navController) }
+        composable(NavRoutes.SymptomBodyMap) { SymptomBodyMapScreen(navController = navController) }
+        composable(NavRoutes.SymptomAnalysis) { SymptomAnalysisScreen(navController = navController) }
+        composable(NavRoutes.SymptomResult) { SymptomResultScreen(navController = navController) }
 
         // AI Chat Doctor
-        composable(NavRoutes.AiChat) {
-            AiChatScreen(navController = navController)
-        }
+        composable(NavRoutes.AiChat) { AiChatScreen(navController = navController) }
 
         // Nearby Hospitals
-        composable(NavRoutes.NearbyHospitals) {
-            NearbyHospitalsScreen(navController = navController)
-        }
+        composable(NavRoutes.NearbyHospitals) { NearbyHospitalsScreen(navController = navController) }
 
         // Medicine Reminders
-        composable(NavRoutes.MedicineReminders) {
-            MedicineRemindersScreen(navController = navController)
-        }
-        composable(NavRoutes.AddReminder) {
-            AddReminderScreen(navController = navController)
-        }
+        composable(NavRoutes.MedicineReminders) { MedicineRemindersScreen(navController = navController) }
+        composable(NavRoutes.AddReminder) { AddReminderScreen(navController = navController) }
 
         // Health Vault
-        composable(NavRoutes.HealthVault) {
-            HealthVaultScreen(navController = navController)
-        }
-        composable(NavRoutes.AddRecord) {
-            AddRecordScreen(navController = navController)
-        }
+        composable(NavRoutes.HealthVault) { HealthVaultScreen(navController = navController) }
+        composable(NavRoutes.AddRecord) { AddRecordScreen(navController = navController) }
 
         // Fitness Tracker
-        composable(NavRoutes.FitnessTracker) {
-            FitnessTrackerScreen(navController = navController)
-        }
+        composable(NavRoutes.FitnessTracker) { FitnessTrackerScreen(navController = navController) }
 
         // Prescription Reader
-        composable(NavRoutes.PrescriptionReader) {
-            PrescriptionReaderScreen(navController = navController)
-        }
-        composable(NavRoutes.PrescriptionScanning) {
-            PrescriptionScanningScreen(navController = navController)
-        }
-        composable(NavRoutes.PrescriptionAnalysis) {
-            PrescriptionAnalysisScreen(navController = navController)
-        }
-        composable(NavRoutes.PrescriptionResult) {
-            PrescriptionResultScreen(navController = navController)
-        }
+        composable(NavRoutes.PrescriptionReader) { PrescriptionReaderScreen(navController = navController) }
+        composable(NavRoutes.PrescriptionScanning) { PrescriptionScanningScreen(navController = navController) }
+        composable(NavRoutes.PrescriptionAnalysis) { PrescriptionAnalysisScreen(navController = navController) }
+        composable(NavRoutes.PrescriptionResult) { PrescriptionResultScreen(navController = navController) }
     }
 }
