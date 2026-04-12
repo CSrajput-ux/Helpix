@@ -118,8 +118,8 @@ object HelpixRetrofitClient {
 // ---------------------------------------------------------------------------
 class HelpixRepository(private val context: Context) {
 
-    // ✅ UPDATED for Android Emulator
-    private val BASE_URL = "http://10.0.2.2:8000"
+    // ✅ UPDATED for Physical Device
+    private val BASE_URL = "http://192.168.1.173:8000"
 
     private val api: HelpixApi by lazy {
         HelpixRetrofitClient.create(BASE_URL, context)

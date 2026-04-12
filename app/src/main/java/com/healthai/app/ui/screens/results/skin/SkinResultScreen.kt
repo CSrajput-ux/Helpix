@@ -1,6 +1,5 @@
 package com.healthai.app.ui.screens.results.skin
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,53 +11,52 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.healthai.app.R
 
 data class SimilarityResult(val name: String, val similarity: Float)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne", confidence: Float = 0.85f) {
+fun SkinResultScreen(navController: NavController, diseaseName: String, confidence: Float) {
 
     val flagText: String
     val flagColor: Color
 
+    // Removing "Uncertain" logic entirely from UI
     when {
-        confidence < 0.5f -> {
-            flagText = "Low Confidence: Please Consult a Doctor"
+        confidence < 0.3f -> {
+            flagText = "Low Confidence: Consultation Advised"
             flagColor = Color.Yellow
         }
-        diseaseName == "Fungal Infection" || diseaseName == "Psoriasis" -> {
-             flagText = "Medical Attention Recommended"
+        diseaseName.contains("Malignant", ignoreCase = true) || diseaseName.contains("Cancer", ignoreCase = true) -> {
+             flagText = "Urgent Medical Attention Recommended"
              flagColor = Color.Red
         }
         else -> {
-            flagText = "Preliminary Analysis Complete"
+            flagText = "AI Analysis Complete"
             flagColor = Color.Green
         }
     }
 
     val similarityResults = listOf(
         SimilarityResult(diseaseName, confidence),
-        SimilarityResult("Other Conditions", 1f - confidence)
+        SimilarityResult("Other Potential Markers", if (1f - confidence < 0) 0f else 1f - confidence)
     )
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Skin Analysis Report") },
+                title = { Text("Skin Analysis Report", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221), titleContentColor = Color.White, navigationIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221))
             )
         },
         containerColor = Color(0xFF0B1221)
@@ -70,7 +68,6 @@ fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne",
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // User's photo placeholder
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,7 +80,6 @@ fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne",
             }
             Spacer(modifier = Modifier.height(16.dp))
             
-            // Triage Flag
             Card(
                 colors = CardDefaults.cardColors(containerColor = flagColor), 
                 modifier = Modifier.fillMaxWidth(),
@@ -93,7 +89,7 @@ fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne",
                     text = flagText, 
                     color = Color.Black, 
                     fontWeight = FontWeight.Bold, 
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
             }
@@ -103,7 +99,7 @@ fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne",
             Text("AI Analysis Results", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "The AI detected patterns consistent with $diseaseName. This analysis is based on color, texture, and visual markers.", 
+                text = "The AI detected patterns most consistent with: $diseaseName", 
                 color = Color.Gray, 
                 fontSize = 14.sp, 
                 modifier = Modifier.fillMaxWidth()
@@ -111,7 +107,6 @@ fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne",
             
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Similarity Sliders
             similarityResults.forEach {
                 SimilarityItem(it)
                 Spacer(modifier = Modifier.height(12.dp))
@@ -120,7 +115,7 @@ fun SkinResultScreen(navController: NavController, diseaseName: String = "Acne",
             Spacer(modifier = Modifier.weight(1f))
             
             Text(
-                text = "DISCLAIMER: This AI analysis is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.",
+                text = "DISCLAIMER: This AI analysis is for informational purposes only. Consult a doctor for a professional diagnosis.",
                 color = Color.Red.copy(alpha = 0.7f),
                 fontSize = 10.sp,
                 textAlign = TextAlign.Center,
