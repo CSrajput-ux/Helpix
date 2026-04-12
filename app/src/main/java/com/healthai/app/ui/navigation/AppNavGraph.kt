@@ -11,6 +11,7 @@ import com.healthai.app.ui.DeviceConnectScreen
 import com.healthai.app.ui.WatchScannerScreen
 import com.healthai.app.ui.screens.auth.DoctorLoginScreen
 import com.healthai.app.ui.screens.auth.DoctorRegisterScreen
+import com.healthai.app.ui.screens.auth.ForgotPasswordScreen
 import com.healthai.app.ui.screens.auth.LoginScreen
 import com.healthai.app.ui.screens.auth.PhoneLoginScreen
 import com.healthai.app.ui.screens.auth.RegisterScreen
@@ -77,6 +78,7 @@ fun AppNavGraph(navController: NavHostController) {
     ) {
         composable(NavRoutes.Onboarding) { OnboardingScreen(navController = navController) }
         composable(NavRoutes.Login) { LoginScreen(navController = navController) }
+        composable(NavRoutes.ForgotPassword) { ForgotPasswordScreen(navController = navController) }
         composable(NavRoutes.PhoneLogin) { PhoneLoginScreen(navController = navController) }
         composable(NavRoutes.Register) { RegisterScreen(navController = navController) }
         composable(NavRoutes.DoctorLogin) { DoctorLoginScreen(navController = navController) }
@@ -88,12 +90,8 @@ fun AppNavGraph(navController: NavHostController) {
         composable(NavRoutes.Results) { ResultsScreen(navController = navController) }
         composable(NavRoutes.Profile) { ProfileScreen(navController = navController) }
         
-        // --- DOCTOR / SCHEDULE NAVIGATION ---
-        composable(NavRoutes.Doctors) {
-            // This route will dynamically show either Doctor List or Doctor Schedule based on who is logged in
-            // But for clarity, we can handle it in the NavGraph or the screen itself.
-            DoctorScheduleScreen(navController = navController) 
-        }
+        composable(NavRoutes.Doctors) { DoctorsScreen(navController = navController) }
+        composable(NavRoutes.DoctorSchedule) { DoctorScheduleScreen(navController = navController) }
         
         composable(NavRoutes.DoctorDetails) { DoctorDetailsScreen(navController = navController) }
         composable(NavRoutes.Health) { HealthScreen(navController = navController) }

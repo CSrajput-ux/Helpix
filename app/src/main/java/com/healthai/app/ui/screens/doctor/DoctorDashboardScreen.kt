@@ -98,7 +98,9 @@ fun DoctorDashboardScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SmallFeatureCard(title = "Schedule", icon = Icons.Default.EventNote, modifier = Modifier.weight(1f), onClick = { })
+                            SmallFeatureCard(title = "Schedule", icon = Icons.Default.EventNote, modifier = Modifier.weight(1f), onClick = { 
+                                navController.navigate("doctor_schedule")
+                            })
                             SmallFeatureCard(title = "Patients", icon = Icons.Default.Groups, modifier = Modifier.weight(1f), onClick = { })
                             SmallFeatureCard(title = "Vault", icon = Icons.Default.Folder, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.HealthVault) })
                             SmallFeatureCard(title = "SOS", icon = Icons.Default.Emergency, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.Emergency) })
@@ -106,7 +108,9 @@ fun DoctorDashboardScreen(
                     }
 
                     Box(modifier = Modifier.align(Alignment.BottomCenter).offset(y = 28.dp)) {
-                        DoctorScanButton(onClick = { })
+                        DoctorScanButton(onClick = { 
+                            navController.navigate(NavRoutes.SkinDetectorStart)
+                        })
                     }
                 }
                 Spacer(modifier = Modifier.height(32.dp))
@@ -181,7 +185,7 @@ fun DoctorScanButton(onClick: () -> Unit) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.width(12.dp))
-            Text("Scan QR Code", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Text("Scan Skin", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

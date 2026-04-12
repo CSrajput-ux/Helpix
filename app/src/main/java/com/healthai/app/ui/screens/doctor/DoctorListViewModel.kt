@@ -22,7 +22,19 @@ class DoctorListViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                _doctors.value = userRepository.getDoctors()
+                val remoteDoctors = userRepository.getDoctors()
+                if (remoteDoctors.isEmpty()) {
+                    // Database empty hai, isliye testing ke liye sample data add kar rahe hain
+                    _doctors.value = listOf(
+                        User(id = "1", name = "Dr. Lavkush Jadoun", email = "lav@example.com", userType = "DOCTOR", specialization = "Cardiologist"),
+                        User(id = "2", name = "Dr. Sharma", email = "sharma@example.com", userType = "DOCTOR", specialization = "Dermatologist"),
+                        User(id = "3", name = "Dr. Verma", email = "verma@example.com", userType = "DOCTOR", specialization = "Neurologist"),
+                        User(id = "4", name = "Dr. Khan", email = "khan@example.com", userType = "DOCTOR", specialization = "Pulmonologist"),
+                        User(id = "5", name = "Dr. Gupta", email = "gupta@example.com", userType = "DOCTOR", specialization = "Cardiologist")
+                    )
+                } else {
+                    _doctors.value = remoteDoctors
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

@@ -3,6 +3,7 @@ package com.healthai.app.ui.navigation
 object NavRoutes {
     const val Onboarding = "onboarding_screen"
     const val Login = "login_screen"
+    const val ForgotPassword = "forgot_password_screen"
     const val PhoneLogin = "phone_login_screen"
     const val Register = "register_screen"
     const val Dashboard = "dashboard_screen"
@@ -21,6 +22,7 @@ object NavRoutes {
     const val DoctorLogin = "doctor_login_screen"
     const val DoctorRegister = "doctor_register_screen"
     const val DoctorDashboard = "doctor_dashboard_screen"
+    const val DoctorSchedule = "doctor_schedule_screen"
     const val MyAppointments = "my_appointments_screen"
     const val AppSettings = "app_settings_screen"
     const val DeviceConnect = "device_connect_screen"

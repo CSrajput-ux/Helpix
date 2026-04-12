@@ -3,16 +3,11 @@ package com.healthai.app.ml
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.support.common.FileUtil
-import org.tensorflow.lite.support.common.ops.NormalizeOp
-import org.tensorflow.lite.support.image.ImageProcessor
-import org.tensorflow.lite.support.image.TensorImage
-import org.tensorflow.lite.support.image.ops.ResizeOp
-import org.tensorflow.lite.support.image.ops.ResizeOp.ResizeMethod
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.nio.MappedByteBuffer
+import java.io.FileInputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.channels.FileChannel
 
 class SkinClassifier(private val context: Context) {
 
@@ -24,17 +19,35 @@ class SkinClassifier(private val context: Context) {
     )
 
     companion object {
-
         private const val TAG = "SkinClassifier"
-        private const val MODEL_PATH = "skin_model.tflite"
-        private const val INPUT_SIZE = 224
-
+        private const val MODEL_PATH = "model.tflite"
+        private const val INPUT_SIZE = 180
+        private const val PIXEL_SIZE = 3 // RGB
+        
         private val LABELS = listOf(
-            "Acne",
+            "Herpes HPV and other STDs",
+            "Warts and Viral Infections",
+            "Lupus and Connective Tissue diseases",
+            "Systemic Disease",
+            "Scabies and Bites",
+            "Vasculitis",
+            "Vascular Tumors",
+            "Urticaria Hives",
+            "Hair Loss Photos",
+            "Seborrheic Keratoses",
+            "Nail Fungus",
+            "Melanoma and Skin Cancer",
+            "Exanthems and Drug Eruptions",
+            "Pigmentation Disorders",
+            "Poison Ivy and Contact Dermatitis",
+            "Tinea and Fungal Infections",
+            "Cellulitis and Bacterial Infections",
+            "Psoriasis and Lichen Planus",
             "Eczema",
-            "Psoriasis",
-            "Fungal Infection",
-            "Normal Skin"
+            "Malignant Lesions",
+            "Bullous Disease",
+            "Atopic Dermatitis",
+            "Acne and Rosacea"
         )
     }
 
@@ -43,113 +56,84 @@ class SkinClassifier(private val context: Context) {
     }
 
     private fun loadModel() {
-
         try {
-
-            val model: MappedByteBuffer =
-                FileUtil.loadMappedFile(context, MODEL_PATH)
-
-            val options = Interpreter.Options()
-
-            options.setNumThreads(4)
-
-            interpreter = Interpreter(model, options)
-
-            Log.d(TAG, "Model loaded successfully")
-
+            val assetFileDescriptor = context.assets.openFd(MODEL_PATH)
+            val inputStream = FileInputStream(assetFileDescriptor.fileDescriptor)
+            val fileChannel = inputStream.channel
+            val startOffset = assetFileDescriptor.startOffset
+            val declaredLength = assetFileDescriptor.declaredLength
+            val modelBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+            
+            interpreter = Interpreter(modelBuffer)
+            Log.d(TAG, "Model loaded successfully from $MODEL_PATH")
         } catch (e: Exception) {
-
             Log.e(TAG, "Model loading error: ${e.message}")
-
         }
     }
 
     fun classifySkin(bitmap: Bitmap): Recognition {
-
-        val currentInterpreter =
-            interpreter ?: return Recognition("Initialization Error", 0f)
+        val currentInterpreter = interpreter ?: return Recognition("Initialization Error", 0f)
 
         try {
+            // Resize and Preprocess
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, true)
+            val inputBuffer = convertBitmapToByteBuffer(scaledBitmap)
 
-            val tensorImage = preprocessImage(bitmap)
+            // Output buffer for 23 classes
+            val output = Array(1) { FloatArray(LABELS.size) }
 
-            val outputBuffer =
-                TensorBuffer.createFixedSize(
-                    intArrayOf(1, LABELS.size),
-                    DataType.FLOAT32
-                )
+            currentInterpreter.run(inputBuffer, output)
 
-            currentInterpreter.run(
-                tensorImage.buffer,
-                outputBuffer.buffer
-            )
-
-            return getTopResult(outputBuffer.floatArray)
+            return getTopResult(output[0])
 
         } catch (e: Exception) {
-
             Log.e(TAG, "Inference error: ${e.message}")
-
             return Recognition("Inference Error", 0f)
         }
     }
 
-    private fun preprocessImage(bitmap: Bitmap): TensorImage {
+    private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
+        val byteBuffer = ByteBuffer.allocateDirect(4 * INPUT_SIZE * INPUT_SIZE * PIXEL_SIZE)
+        byteBuffer.order(ByteOrder.nativeOrder())
+        val intValues = IntArray(INPUT_SIZE * INPUT_SIZE)
+        bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
 
-        val imageProcessor =
-            ImageProcessor.Builder()
-                .add(
-                    ResizeOp(
-                        INPUT_SIZE,
-                        INPUT_SIZE,
-                        ResizeMethod.BILINEAR
-                    )
-                )
-                .add(
-                    NormalizeOp(0f, 255f)
-                )
-                .build()
-
-        val tensorImage =
-            TensorImage(DataType.FLOAT32)
-
-        tensorImage.load(bitmap)
-
-        return imageProcessor.process(tensorImage)
+        var pixel = 0
+        for (i in 0 until INPUT_SIZE) {
+            for (j in 0 until INPUT_SIZE) {
+                val value = intValues[pixel++]
+                // Normalize to [0, 1] by dividing by 255.0f
+                byteBuffer.putFloat(((value shr 16) and 0xFF) / 255.0f)
+                byteBuffer.putFloat(((value shr 8) and 0xFF) / 255.0f)
+                byteBuffer.putFloat((value and 0xFF) / 255.0f)
+            }
+        }
+        return byteBuffer
     }
 
     private fun getTopResult(confidences: FloatArray): Recognition {
-
         var maxIdx = 0
         var maxConf = -1f
 
         for (i in confidences.indices) {
-
             if (confidences[i] > maxConf) {
-
                 maxConf = confidences[i]
-
                 maxIdx = i
             }
         }
 
-        return Recognition(
-            label =
-                if (maxIdx < LABELS.size)
-                    LABELS[maxIdx]
-                else
-                    "Unknown",
-
-            confidence = maxConf
-        )
+        return if (maxConf < 0.6f) {
+            Recognition("Not sure, try again", maxConf)
+        } else {
+            Recognition(
+                label = if (maxIdx < LABELS.size) LABELS[maxIdx] else "Unknown",
+                confidence = maxConf
+            )
+        }
     }
 
     fun close() {
-
         interpreter?.close()
-
         interpreter = null
-
-        Log.d(TAG, "Classifier closed")
     }
 }

@@ -113,12 +113,10 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SmallFeatureCard(
-                                title = "Doctors",
-                                icon = Icons.Default.PersonSearch,
-                                modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(NavRoutes.Doctors) }
-                            )
+                            SmallFeatureCard(title = if (userType == "DOCTOR") "Schedule" else "Doctors", icon = if (userType == "DOCTOR") Icons.Default.EventNote else Icons.Default.PersonSearch, modifier = Modifier.weight(1f), onClick = { 
+                                if (userType == "DOCTOR") navController.navigate(NavRoutes.DoctorSchedule)
+                                else navController.navigate(NavRoutes.Doctors)
+                            })
                             SmallFeatureCard(title = "Reader", icon = Icons.Default.Description, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.PrescriptionReader) })
                             SmallFeatureCard(title = "Vault", icon = Icons.Default.Folder, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.HealthVault) })
                             SmallFeatureCard(title = "SOS", icon = Icons.Default.Emergency, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.Emergency) })
@@ -152,11 +150,11 @@ fun HelpixBottomNav(navController: NavController, userType: String = "PATIENT") 
             navController.navigate(NavRoutes.Health)
         }
         
-        // --- DOCTOR SCHEDULE REDIRECTION ---
-        val scheduleSelected = currentRoute == "doctor_schedule" || currentRoute == NavRoutes.Doctors
-        NavItem(if (userType == "DOCTOR") "Schedule" else "Doctors", Icons.Filled.MedicalServices, scheduleSelected) {
+        // --- DOCTOR SCHEDULE REDIRECTION (FIXED ROUTE) ---
+        val isScheduleSelected = currentRoute == NavRoutes.DoctorSchedule || currentRoute == NavRoutes.Doctors
+        NavItem(if (userType == "DOCTOR") "Schedule" else "Doctors", Icons.Filled.MedicalServices, isScheduleSelected) {
             if (userType == "DOCTOR") {
-                navController.navigate("doctor_schedule")
+                navController.navigate(NavRoutes.DoctorSchedule)
             } else {
                 navController.navigate(NavRoutes.Doctors)
             }
