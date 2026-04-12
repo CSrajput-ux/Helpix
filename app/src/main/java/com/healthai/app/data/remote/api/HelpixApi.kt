@@ -98,7 +98,7 @@ data class HealthScoreResponse(
 )
 
 // ---------------------------------------------------------------------------
-// Data Classes (Appointments)
+// Data Classes (Appointments & Schedule)
 // ---------------------------------------------------------------------------
 
 data class AppointmentRequest(
@@ -119,6 +119,22 @@ data class AppointmentResponse(
 
 data class AppointmentStatusUpdate(
     val status: String // "CONFIRMED" | "CANCELLED" | "COMPLETED"
+)
+
+data class AvailabilityRequest(
+    val day_of_week: Int, // 0-6
+    val start_time: String, // HH:mm
+    val end_time: String, // HH:mm
+    val slot_duration_mins: Int = 30
+)
+
+data class AvailabilityResponse(
+    val availability_id: String,
+    val doctor_id: String,
+    val day_of_week: Int,
+    val start_time: String,
+    val end_time: String,
+    val is_active: Boolean
 )
 
 // ---------------------------------------------------------------------------
@@ -245,7 +261,7 @@ interface HelpixApi {
     @GET("health-score/history")
     suspend fun getHealthScoreHistory(@Query("days") days: Int = 7): Response<List<HealthScoreResponse>>
 
-    // ---- Appointments ----
+    // ---- Appointments & Availability ----
     @POST("appointments")
     suspend fun bookAppointment(@Body body: AppointmentRequest): Response<AppointmentResponse>
 
@@ -257,6 +273,12 @@ interface HelpixApi {
         @Path("appointment_id") id: String,
         @Body body: AppointmentStatusUpdate
     ): Response<AppointmentResponse>
+
+    @POST("doctor/availability")
+    suspend fun setAvailability(@Body body: AvailabilityRequest): Response<AvailabilityResponse>
+
+    @GET("doctor/availability")
+    suspend fun getAvailability(): Response<List<AvailabilityResponse>>
 
     // ---- Medicine Reminders ----
     @POST("reminders")
