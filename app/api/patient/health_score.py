@@ -21,10 +21,12 @@ Score Algorithm (0–100):
 
 import uuid
 from datetime import datetime, timezone, timedelta
-from typing import List, Optional
+from typing import List
 
 from fastapi import APIRouter, Depends, status
 from pydantic import BaseModel
+
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/health-score", tags=["Health Score"])
 
@@ -117,8 +119,6 @@ async def _compute_score(user_id: str) -> dict:
                     bp_pts = 15
             except Exception:
                 pass
-        else:
-            bp_pts = 0
 
     total = hr_pts + spo2_pts + steps_pts + bp_pts
     return {
@@ -137,18 +137,16 @@ async def _compute_score(user_id: str) -> dict:
 # ---------------------------------------------------------------------------
 @router.get("/today", response_model=HealthScoreResponse)
 async def get_today_score(
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Return today's health score. Computes on-the-fly from latest vitals."""
     col = get_score_collection()
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-    # Check if already computed today
     existing = await col.find_one({"user_id": current_user["sub"], "date": today_str})
     if existing:
         return HealthScoreResponse(**{k: v for k, v in existing.items() if k != "_id"})
 
-    # Compute fresh
     result = await _compute_score(current_user["sub"])
     score_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
@@ -169,7 +167,7 @@ async def get_today_score(
 # ---------------------------------------------------------------------------
 @router.post("/compute", response_model=HealthScoreResponse, status_code=status.HTTP_200_OK)
 async def recompute_score(
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Recompute and overwrite today's health score from latest vitals."""
     col = get_score_collection()
@@ -194,12 +192,12 @@ async def recompute_score(
 
 
 # ---------------------------------------------------------------------------
-# GET /health-score/history  – Last 7 days
+# GET /health-score/history  – Last N days
 # ---------------------------------------------------------------------------
 @router.get("/history", response_model=List[HealthScoreResponse])
 async def get_score_history(
     days: int = 7,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Return last N days of health scores for the trend chart."""
     col = get_score_collection()

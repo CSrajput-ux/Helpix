@@ -1,8 +1,9 @@
 """
-app/api/prescription.py
-------------------------
+app/api/patient/prescription.py
+--------------------------------
 Prescription AI routes:
   POST /process-prescription – Accept an image, simulate LayoutLMv3, return JSON
+  GET  /prescriptions        – List user's prescription history
 
 Simulation Note
 ---------------
@@ -17,11 +18,9 @@ To integrate the real model:
 import uuid
 import random
 from datetime import datetime, timezone
-from typing import Optional
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from PIL import Image
-import io
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from typing import Optional
 
 from app.core.db import get_prescriptions_collection
 from app.core.security import get_current_user
@@ -51,36 +50,12 @@ async def process_prescription(
     # Run inference → extract NER labels → parse entities
     ```
     """
-    # Basic file type validation
-    allowed_types = {"image/jpeg", "image/png", "image/jpg", "application/pdf"}
-    if file.content_type not in allowed_types:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail=f"Unsupported file type '{file.content_type}'. Allowed: JPG, PNG, PDF.",
-        )
+    from app.core.file_safety import validate_file_safety
+    contents = await validate_file_safety(file, max_size_mb=20, allow_pdf=True, allow_image=True, allow_audio=False)
 
-    # Read the file
-    contents = await file.read()
-
-    # Validate image can be opened (skip for PDFs)
-    if file.content_type != "application/pdf":
-        try:
-            img = Image.open(io.BytesIO(contents))
-            img.verify()
-        except Exception:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid or corrupted image file.",
-            )
-
-    # -----------------------------------------------------------------------
-    # SIMULATION: Replace this block with real LayoutLMv3 inference
-    # -----------------------------------------------------------------------
     simulated_medicines = _simulate_layoutlmv3_extraction(file.filename)
     confidence = round(random.uniform(0.82, 0.97), 4)
-    # -----------------------------------------------------------------------
 
-    # Store the result in MongoDB
     prescriptions = get_prescriptions_collection()
     prescription_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
@@ -171,6 +146,5 @@ def _simulate_layoutlmv3_extraction(filename: str) -> list[MedicineEntry]:
         ),
     ]
 
-    # Return 1–3 medicines randomly to simulate variability
     count = random.randint(1, 3)
     return random.sample(sample_medicines, count)

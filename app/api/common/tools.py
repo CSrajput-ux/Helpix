@@ -10,8 +10,10 @@ Smart Tools Zone endpoints:
   POST /tools/cough-analyze    – Cough TB / Respiratory Analysis
   POST /tools/skin-scan        – Skin condition scan (AI)
   GET  /tools/diet-plan        – Personalized diet plan
+  GET  /tools/diet-history     – User's diet plan history
   POST /tools/fitness/log      – Log a workout
   GET  /tools/fitness/history  – Fitness history
+  GET  /tools/stats            – Smart Tools Zone dashboard stats
 
 All AI endpoints use simulated responses. Replace with real ML models in production.
 """
@@ -22,9 +24,14 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
+
+from app.core.security import get_current_user
+from app.models.schemas import DiseasePredictionDto, ScanResultDto
+import app.core.db as _db_module
 
 router = APIRouter(prefix="/tools", tags=["Smart Tools Zone"])
+root_router = APIRouter(tags=["AI Tools (Direct)"])
 
 
 # ===========================================================================
@@ -32,126 +39,140 @@ router = APIRouter(prefix="/tools", tags=["Smart Tools Zone"])
 # ===========================================================================
 
 class SymptomCheckRequest(BaseModel):
-    symptoms: List[str]              # e.g. ["fever", "cough", "headache"]
-    age: Optional[int] = None
-    gender: Optional[str] = None     # "male" | "female"
-    duration_days: Optional[int] = None
+    symptoms: List[str] = Field(
+        ...,
+        min_length=1, max_length=20,
+        description="1–20 symptom strings",
+    )
+    age:           Optional[int]   = Field(None, ge=0, le=120)
+    gender:        Optional[str]   = Field(None, pattern=r"^(Male|Female|Other|Prefer not to say)$")
+    duration_days: Optional[int]   = Field(None, ge=0, le=365)
+
+    @field_validator("symptoms", mode="before")
+    @classmethod
+    def validate_symptom_items(cls, v):
+        from pydantic import ValidationError
+        if not isinstance(v, list):
+            raise ValueError("symptoms must be a list")
+        for item in v:
+            if not isinstance(item, str):
+                raise ValueError("each symptom must be a string")
+            if len(item.strip()) < 2:
+                raise ValueError("each symptom must be at least 2 characters")
+            if len(item) > 150:
+                raise ValueError("each symptom must be at most 150 characters")
+        return v
 
 
 class DiagnosisResult(BaseModel):
-    condition: str
-    probability: float               # 0.0 – 1.0
-    severity: str                    # "mild" | "moderate" | "severe"
+    condition:      str
+    probability:    float = Field(..., ge=0.0, le=1.0)
+    severity:       str
     recommendation: str
 
 
 class SymptomCheckResponse(BaseModel):
-    check_id: str
+    check_id:           str
     possible_conditions: List[DiagnosisResult]
-    overall_risk: str                # "low" | "medium" | "high"
-    should_see_doctor: bool
-    analyzed_at: datetime
+    overall_risk:       str
+    should_see_doctor:  bool
+    analyzed_at:        datetime
 
 
 class ChatMessage(BaseModel):
-    message: str
-    session_id: Optional[str] = None
+    message:    str = Field(..., min_length=1, max_length=2000)
+    session_id: Optional[str] = Field(None, min_length=36, max_length=36,
+                                       pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
 
 
 class ChatResponse(BaseModel):
-    session_id: str
-    reply: str
+    session_id:  str
+    reply:       str
     suggestions: List[str]
-    timestamp: datetime
+    timestamp:   datetime
 
 
 class SOSRequest(BaseModel):
-    latitude: float
-    longitude: float
-    emergency_type: str = "MEDICAL"  # MEDICAL | ACCIDENT | CARDIAC
-    message: Optional[str] = None
+    latitude:       float = Field(..., ge=-90.0,  le=90.0)
+    longitude:      float = Field(..., ge=-180.0, le=180.0)
+    emergency_type: str   = Field(
+        "MEDICAL",
+        pattern=r"^(MEDICAL|ACCIDENT|CARDIAC)$",
+        description="MEDICAL | ACCIDENT | CARDIAC",
+    )
+    message: Optional[str] = Field(None, min_length=2, max_length=500)
 
 
 class SOSResponse(BaseModel):
-    sos_id: str
-    status: str
-    nearest_hospital: str
+    sos_id:                  str
+    status:                  str
+    nearest_hospital:        str
     estimated_response_mins: int
-    triggered_at: datetime
+    triggered_at:            datetime
 
 
 class HospitalResult(BaseModel):
-    hospital_id: str
-    name: str
-    address: str
-    distance_km: float
-    phone: str
+    hospital_id:        str
+    name:               str
+    address:            str
+    distance_km:        float = Field(..., ge=0.0)
+    phone:              str
     emergency_available: bool
-    rating: float
+    rating:             float = Field(..., ge=0.0, le=5.0)
 
 
 class CoughAnalysisResponse(BaseModel):
-    analysis_id: str
-    tb_risk: str                     # "low" | "medium" | "high"
-    tb_probability: float
-    respiratory_condition: str       # "Normal" | "Possible Infection" | "TB Suspected"
-    recommendation: str
-    confidence: float
-    analyzed_at: datetime
+    analysis_id:           str
+    tb_risk:               str
+    tb_probability:        float = Field(..., ge=0.0, le=1.0)
+    respiratory_condition: str
+    recommendation:        str
+    confidence:            float = Field(..., ge=0.0, le=1.0)
+    analyzed_at:           datetime
 
 
 class SkinScanResponse(BaseModel):
-    scan_id: str
-    detected_condition: str          # e.g. "Eczema", "Acne", "Normal"
-    severity: str
-    confidence: float
-    recommendation: str
-    scanned_at: datetime
+    scan_id:            str
+    detected_condition: str
+    severity:           str
+    confidence:         float = Field(..., ge=0.0, le=1.0)
+    recommendation:     str
+    scanned_at:         datetime
 
 
 class FitnessLogRequest(BaseModel):
-    activity_type: str               # "Walking" | "Running" | "Yoga" | "Cycling"
-    duration_mins: int
-    calories_burned: Optional[int] = None
-    distance_km: Optional[float] = None
-    notes: Optional[str] = None
+    activity_type:   str = Field(
+        ...,
+        pattern=r"^(Walking|Running|Cycling|Swimming|Yoga|Gym|Other)$",
+        description="Walking | Running | Cycling | Swimming | Yoga | Gym | Other",
+    )
+    duration_mins:   int           = Field(..., ge=1, le=1440)     # 1 min – 24 h
+    calories_burned: Optional[int] = Field(None, ge=0, le=10_000)
+    distance_km:     Optional[float] = Field(None, ge=0.0, le=1000.0)
+    notes:           Optional[str] = Field(None, min_length=2, max_length=500)
 
 
 class FitnessLogResponse(BaseModel):
-    log_id: str
-    user_id: str
-    activity_type: str
-    duration_mins: int
+    log_id:          str
+    user_id:         str
+    activity_type:   str
+    duration_mins:   int
     calories_burned: Optional[int]
-    distance_km: Optional[float]
-    notes: Optional[str]
-    logged_at: datetime
+    distance_km:     Optional[float]
+    notes:           Optional[str]
+    logged_at:       datetime
 
 
 class DietPlanResponse(BaseModel):
-    goal: str
-    plan: dict
+    goal:         str
+    plan:         dict
     generated_at: datetime
 
 
 class ToolStatsResponse(BaseModel):
     active_tools_count: int
-    scans_done_count: int
-    ai_readiness_pct: int
-
-
-# ===========================================================================
-# Helpers
-# ===========================================================================
-
-def _get_current_user():
-    from app.core.security import get_current_user
-    return get_current_user
-
-
-def _get_db_collection(name: str):
-    from app.core.db import db
-    return db[name]
+    scans_done_count:   int
+    ai_readiness_pct:   int
 
 
 # ===========================================================================
@@ -160,7 +181,7 @@ def _get_db_collection(name: str):
 @router.post("/symptom-check", response_model=SymptomCheckResponse)
 async def check_symptoms(
     body: SymptomCheckRequest,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     AI Symptom Doctor — analyzes symptoms and returns possible conditions.
@@ -192,7 +213,6 @@ async def check_symptoms(
     see_doctor = risk in ("medium", "high")
 
     check_id = str(uuid.uuid4())
-    col = _get_db_collection("symptom_checks")
     doc = {
         "check_id": check_id,
         "user_id": current_user["sub"],
@@ -200,7 +220,7 @@ async def check_symptoms(
         "overall_risk": risk,
         "analyzed_at": datetime.now(timezone.utc),
     }
-    await col.insert_one(doc)
+    await _db_module.db["symptom_checks"].insert_one(doc)
 
     return SymptomCheckResponse(
         check_id=check_id,
@@ -217,7 +237,7 @@ async def check_symptoms(
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_doctor(
     body: ChatMessage,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     24/7 AI Chat Doctor.
@@ -233,14 +253,13 @@ async def chat_with_doctor(
     }
 
     user_msg = body.message.lower()
-    reply, suggestions = response_map.get("default")
+    reply, suggestions = response_map["default"]
     for key, (r, s) in response_map.items():
         if key in user_msg:
             reply, suggestions = r, s
             break
 
-    col = _get_db_collection("chat_sessions")
-    await col.insert_one({
+    await _db_module.db["chat_sessions"].insert_one({
         "session_id": session_id,
         "user_id": current_user["sub"],
         "message": body.message,
@@ -262,13 +281,12 @@ async def chat_with_doctor(
 @router.post("/sos", response_model=SOSResponse)
 async def trigger_sos(
     body: SOSRequest,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Emergency SOS — logs GPS location and triggers emergency alert.
     In production: send push notification to emergency contacts + nearest hospital.
     """
-    col = _get_db_collection("sos_events")
     sos_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
 
@@ -282,7 +300,7 @@ async def trigger_sos(
         "status": "ACTIVE",
         "triggered_at": now,
     }
-    await col.insert_one(doc)
+    await _db_module.db["sos_events"].insert_one(doc)
 
     return SOSResponse(
         sos_id=sos_id,
@@ -301,7 +319,7 @@ async def get_nearby_hospitals(
     latitude: float = 28.6139,
     longitude: float = 77.2090,
     radius_km: float = 10.0,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Find nearby hospitals by GPS coordinates.
@@ -321,16 +339,15 @@ async def get_nearby_hospitals(
 @router.post("/cough-analyze", response_model=CoughAnalysisResponse)
 async def analyze_cough(
     audio_file: UploadFile = File(..., description="Cough audio file (WAV/MP3)"),
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Cough TB & Respiratory Analyzer.
     Accepts cough audio and returns TB risk assessment.
     Simulated. Production: use a trained CNN/ResNet on mel-spectrograms of cough audio.
     """
-    contents = await audio_file.read()
-    if len(contents) == 0:
-        raise HTTPException(status_code=400, detail="Audio file is empty.")
+    from app.core.file_safety import validate_file_safety
+    await validate_file_safety(audio_file, max_size_mb=10, allow_pdf=False, allow_image=False, allow_audio=True)
 
     tb_prob = random.uniform(0.02, 0.25)
     risk = "high" if tb_prob > 0.20 else "medium" if tb_prob > 0.10 else "low"
@@ -341,9 +358,8 @@ async def analyze_cough(
     }
 
     analysis_id = str(uuid.uuid4())
-    col = _get_db_collection("cough_analyses")
     now = datetime.now(timezone.utc)
-    await col.insert_one({
+    await _db_module.db["cough_analyses"].insert_one({
         "analysis_id": analysis_id,
         "user_id": current_user["sub"],
         "tb_risk": risk,
@@ -369,18 +385,15 @@ async def analyze_cough(
 async def scan_skin(
     image: UploadFile = File(..., description="Skin area image (JPG/PNG)"),
     body_area: Optional[str] = Form(default="unknown", description="e.g. 'arm', 'face', 'leg'"),
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
-    Skin Condition Scanner (Scan Skin button on Home screen).
-    Uses the ML logic extracted from skin-detection-acc-98.ipynb.
-    If the model fails to load or libraries are missing, falls back to simulated data.
+    Skin Condition Scanner.
+    Uses ML logic if available; falls back to simulated data if model is not loaded.
     """
-    contents = await image.read()
-    if len(contents) == 0:
-        raise HTTPException(status_code=400, detail="Image file is empty.")
+    from app.core.file_safety import validate_file_safety
+    contents = await validate_file_safety(image, max_size_mb=10, allow_pdf=False, allow_image=True, allow_audio=False)
 
-    # 1. Try actual ML prediction
     try:
         from app.services.skin_scanner import predict_skin_disease
         prediction, error = predict_skin_disease(contents)
@@ -394,9 +407,8 @@ async def scan_skin(
         confidence = prediction["confidence"]
         recommendation = f"AI Detected {detected}. Please consult a dermatologist."
     else:
-        # Fallback to simulated logic if setup is incomplete
         import logging
-        logging.warning(f"Skin scan ML fallback triggered: {error}")
+        logging.getLogger(__name__).warning("Skin scan ML fallback triggered: %s", error)
         conditions = [
             ("Normal Skin", "none", "No condition detected. Skin looks healthy."),
             ("Acne", "mild", "Use gentle cleanser and avoid squeezing. Consult dermatologist if severe."),
@@ -409,8 +421,7 @@ async def scan_skin(
     scan_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
 
-    col = _get_db_collection("skin_scans")
-    await col.insert_one({
+    await _db_module.db["skin_scans"].insert_one({
         "scan_id": scan_id,
         "user_id": current_user["sub"],
         "detected_condition": detected,
@@ -434,8 +445,8 @@ async def scan_skin(
 # ===========================================================================
 @router.get("/diet-plan", response_model=DietPlanResponse)
 async def get_diet_plan(
-    goal: str = "balanced",   # "weight_loss" | "muscle_gain" | "balanced" | "diabetic"
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    goal: str = "balanced",
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Personalized meal plan based on health goal. Saves results to database.
@@ -474,25 +485,22 @@ async def get_diet_plan(
     plan_data = plans.get(goal, plans["balanced"])
     now = datetime.now(timezone.utc)
 
-    col = _get_db_collection("diet_plans")
-    doc = {
+    await _db_module.db["diet_plans"].insert_one({
         "user_id": current_user["sub"],
         "goal": goal,
         "plan": plan_data,
         "generated_at": now,
-    }
-    await col.insert_one(doc)
+    })
 
     return DietPlanResponse(goal=goal, plan=plan_data, generated_at=now)
 
 
 @router.get("/diet-history", response_model=List[DietPlanResponse])
 async def get_diet_history(
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Retrieve user's diet plan history."""
-    col = _get_db_collection("diet_plans")
-    cursor = col.find({"user_id": current_user["sub"]}).sort("generated_at", -1)
+    cursor = _db_module.db["diet_plans"].find({"user_id": current_user["sub"]}).sort("generated_at", -1)
     results = []
     async for doc in cursor:
         results.append(DietPlanResponse(goal=doc["goal"], plan=doc["plan"], generated_at=doc["generated_at"]))
@@ -505,14 +513,12 @@ async def get_diet_history(
 @router.post("/fitness/log", response_model=FitnessLogResponse, status_code=status.HTTP_201_CREATED)
 async def log_fitness(
     body: FitnessLogRequest,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Log a workout session."""
-    col = _get_db_collection("fitness_logs")
     log_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
 
-    # Auto-calculate calories if not provided
     calories = body.calories_burned
     if calories is None:
         cal_map = {"Walking": 4, "Running": 8, "Yoga": 3, "Cycling": 6}
@@ -529,18 +535,17 @@ async def log_fitness(
         "notes": body.notes,
         "logged_at": now,
     }
-    await col.insert_one(doc)
+    await _db_module.db["fitness_logs"].insert_one(doc)
     return FitnessLogResponse(**{k: v for k, v in doc.items() if k != "_id"})
 
 
 @router.get("/fitness/history", response_model=List[FitnessLogResponse])
 async def get_fitness_history(
     limit: int = 20,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Get recent fitness workout history."""
-    col = _get_db_collection("fitness_logs")
-    cursor = col.find({"user_id": current_user["sub"]}).sort("logged_at", -1).limit(limit)
+    cursor = _db_module.db["fitness_logs"].find({"user_id": current_user["sub"]}).sort("logged_at", -1).limit(limit)
     results = []
     async for doc in cursor:
         results.append(FitnessLogResponse(**{k: v for k, v in doc.items() if k != "_id"}))
@@ -552,17 +557,14 @@ async def get_fitness_history(
 # ===========================================================================
 @router.get("/stats", response_model=ToolStatsResponse)
 async def get_tool_stats(
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Get statistics for the Smart Tools Zone dashboard."""
     uid = current_user["sub"]
 
-    # Count scans
-    skin_count = await _get_db_collection("skin_scans").count_documents({"user_id": uid})
-    cough_count = await _get_db_collection("cough_analyses").count_documents({"user_id": uid})
+    skin_count = await _db_module.db["skin_scans"].count_documents({"user_id": uid})
+    cough_count = await _db_module.db["cough_analyses"].count_documents({"user_id": uid})
 
-    # Count active tools (unique tool types used)
-    # Mapping tool names to their collections
     active_tools = set()
     collections_to_check = {
         "symptom_checks",
@@ -574,31 +576,94 @@ async def get_tool_stats(
         "fitness_logs",
     }
 
-    # Also check reminders and vault (outside tools.py collections but part of "Zone")
-    from app.core.db import db
-    from app.core.db import get_fs_bucket
-
     for col_name in collections_to_check:
-        count = await db[col_name].count_documents({"user_id": uid})
+        count = await _db_module.db[col_name].count_documents({"user_id": uid})
         if count > 0:
             active_tools.add(col_name)
 
-    # Medicine Reminders
-    rem_count = await db["medicine_reminders"].count_documents({"user_id": uid})
-    if rem_count > 0: active_tools.add("medicine_reminders")
+    rem_count = await _db_module.db["medicine_reminders"].count_documents({"user_id": uid})
+    if rem_count > 0:
+        active_tools.add("medicine_reminders")
 
-    # Vault files (using GridFS)
-    fs = get_fs_bucket()
+    fs = _db_module.get_fs_bucket()
     vault_cursor = fs.find({"metadata.uploaded_by": uid}).limit(1)
     has_vault = False
     async for _ in vault_cursor:
         has_vault = True
         break
-    if has_vault: active_tools.add("vault")
+    if has_vault:
+        active_tools.add("vault")
 
-    # Final counts
     return ToolStatsResponse(
         active_tools_count=len(active_tools),
         scans_done_count=(skin_count + cough_count),
         ai_readiness_pct=100 if len(active_tools) >= 3 else 50 if len(active_tools) > 0 else 0
     )
+
+
+# ===========================================================================
+# 11. DIRECT SCAN ANALYZE (/scans/analyze)
+# ===========================================================================
+@root_router.post("/scans/analyze", response_model=ScanResultDto)
+@router.post("/scans/analyze", response_model=ScanResultDto)
+async def analyze_scan(
+    image: UploadFile = File(...),
+    type: str = Form("skin"),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Direct route for /scans/analyze called by Android app.
+    Supports scan types: skin, cough, face, vitals, general.
+    """
+    from app.core.file_safety import validate_file_safety
+    await validate_file_safety(image, max_size_mb=15, allow_pdf=False, allow_image=True, allow_audio=True)
+
+    scan_id = str(uuid.uuid4())
+    now_ms = int(datetime.now(timezone.utc).timestamp() * 1000)
+
+    if type == "skin":
+        disease_name = "Acne Vulgaris / Mild Dermatitis"
+        confidence = 0.92
+        severity = "LOW"
+        advice = "Keep the affected area clean and dry. Apply gentle moisturizer."
+    elif type in ("cough", "respiratory", "tb"):
+        disease_name = "Mild Upper Respiratory Tract Irritation"
+        confidence = 0.88
+        severity = "LOW"
+        advice = "Drink warm fluids and steam inhale twice daily."
+    else:
+        disease_name = "Healthy / No Anomalies Detected"
+        confidence = 0.95
+        severity = "NORMAL"
+        advice = "No immediate medical concerns detected. Maintain regular health habits."
+
+    prediction = DiseasePredictionDto(
+        disease_name=disease_name,
+        confidence=confidence,
+        severity_level=severity,
+        medical_advice=advice,
+    )
+
+    return ScanResultDto(
+        scanId=scan_id,
+        timestamp=now_ms,
+        prediction=prediction,
+    )
+
+
+# ===========================================================================
+# 12. DIRECT AI DOCTOR CHAT (/chat/ask)
+# ===========================================================================
+@root_router.post("/chat/ask")
+@router.post("/chat/ask")
+async def ask_ai_doctor_direct(
+    body: dict,
+    current_user: dict = Depends(get_current_user),
+):
+    """Direct route for /chat/ask called by AiChatViewModel.kt."""
+    prompt = body.get("prompt") or body.get("message") or ""
+    session_id = str(uuid.uuid4())
+    msg_obj = ChatMessage(message=prompt, session_id=session_id)
+    res = await chat_with_doctor(msg_obj, current_user)
+    return {"reply": res.reply, "session_id": res.session_id}
+

@@ -17,6 +17,7 @@ from fastapi.responses import StreamingResponse
 from typing import List, Optional
 
 from app.core.db import get_fs_bucket, get_users_collection
+from app.core.file_safety import sanitise_filename
 from app.core.security import get_current_user
 from app.models.schemas import VaultFileResponse
 
@@ -48,26 +49,16 @@ async def upload_file(
     - Max file size: 20 MB
     - Allowed types: PDF, JPG, PNG, WebP
     """
-    if file.content_type not in ALLOWED_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail=f"File type '{file.content_type}' not allowed. Use PDF, JPG, PNG, WebP.",
-        )
-
-    contents = await file.read()
-
-    if len(contents) > MAX_FILE_SIZE_BYTES:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File too large. Maximum allowed size is {MAX_FILE_SIZE_MB} MB.",
-        )
+    from app.core.file_safety import validate_file_safety, sanitise_filename
+    contents = await validate_file_safety(file, max_size_mb=20, allow_pdf=True, allow_image=True, allow_audio=False)
+    safe_name = sanitise_filename(file.filename)
 
     fs = get_fs_bucket()
     now = datetime.now(timezone.utc)
 
     # Store file in GridFS with custom metadata
     file_id = await fs.upload_from_stream(
-        file.filename,
+        safe_name,
         io.BytesIO(contents),
         metadata={
             "uploaded_by": current_user["sub"],
@@ -79,7 +70,7 @@ async def upload_file(
 
     return VaultFileResponse(
         file_id=str(file_id),
-        filename=file.filename,
+        filename=safe_name,
         content_type=file.content_type,
         size_bytes=len(contents),
         uploaded_at=now,
@@ -154,10 +145,11 @@ async def download_file(file_id: str, current_user: dict = Depends(get_current_u
         while chunk := await stream.readchunk():
             yield chunk
 
+    safe_name = sanitise_filename(grid_out.filename)
     return StreamingResponse(
         file_generator(),
         media_type=content_type,
-        headers={"Content-Disposition": f'attachment; filename="{grid_out.filename}"'},
+        headers={"Content-Disposition": f'attachment; filename="{safe_name}"'},
     )
 
 

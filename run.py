@@ -1,14 +1,19 @@
-"""
-app/main.py is the entrypoint but uvicorn needs to find it.
-This file lets you run: python run.py
-"""
+"""Direct backend entry point: run with ``python run.py``."""
+
+import os
+
 import uvicorn
 
+from app.core.config import settings
+
+
 if __name__ == "__main__":
+    is_development = settings.APP_ENV == "development"
     uvicorn.run(
         "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True,       # Auto-reload on code changes during development
-        log_level="info",
+        host=os.getenv("HOST", "127.0.0.1"),
+        port=int(os.getenv("PORT", "8000")),
+        reload=is_development,
+        workers=1 if is_development else int(os.getenv("WEB_CONCURRENCY", "1")),
+        log_level="debug" if is_development else "info",
     )

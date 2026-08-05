@@ -1,109 +1,219 @@
 """
 app/main.py
 -----------
-FastAPI application entry point.
+Helpix AI – FastAPI application entry point.
 
-Features:
-  - CORS configured for Android app connectivity
-  - Startup / Shutdown events for MongoDB lifecycle
-  - Swagger UI auto-docs at /docs
-  - ReDoc at /redoc
+Startup sequence:
+  1. Logging is configured before anything else.
+  2. Settings are validated (crashes fast if secrets are missing in production).
+  3. MongoDB is connected and indexes are created.
+  4. All routers are registered with rate-limiting dependencies.
 """
 
+import logging
+import logging.config
+import os
+import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.core.db import connect_db, close_db
+from app.core.config import settings
+from app.core.db import connect_db, close_db, is_db_healthy
+from app.core.rate_limit import public_rate_limit, user_rate_limit
 from app.api.common import auth, appointments, tools, notifications
 from app.api.patient import vitals, prescription, vault, health_score, medicine_reminder
 from app.api.doctor import management as doctor_management
+from app.api.doctor import wallet as doctor_wallet
 
 
-# ---------------------------------------------------------------------------
-# Lifespan context (replaces deprecated @app.on_event)
-# ---------------------------------------------------------------------------
+# ── Logging setup ─────────────────────────────────────────────────────────────
+
+logging.config.dictConfig({
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
+    },
+    "root": {
+        "level": "DEBUG" if settings.APP_ENV == "development" else "INFO",
+        "handlers": ["console"],
+    },
+})
+
+logger = logging.getLogger(__name__)
+
+
+# ── Lifespan ──────────────────────────────────────────────────────────────────
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
+    logger.info("═══════════════════════════════════════")
+    logger.info("  Helpix AI Backend v%s starting up   ", settings.APP_VERSION)
+    logger.info("  Environment : %s", settings.APP_ENV)
+    logger.info("═══════════════════════════════════════")
+
+    # FIX #4: Ensure upload directories exist at startup
+    os.makedirs(os.path.join(settings.UPLOAD_DIR, "profiles"), exist_ok=True)
+    os.makedirs(os.path.join(settings.UPLOAD_DIR, "prescriptions"), exist_ok=True)
+
     await connect_db()
     yield
-    # Shutdown
     await close_db()
+    logger.info("Helpix AI Backend shut down cleanly.")
 
 
-# ---------------------------------------------------------------------------
-# FastAPI Application
-# ---------------------------------------------------------------------------
+# ── Application ───────────────────────────────────────────────────────────────
+
 app = FastAPI(
     title="Helpix AI – Healthcare Backend",
     description=(
-        "A secure, scalable FastAPI backend for the Helpix AI healthcare Android app.\n\n"
-        "**Features**: JWT Auth, AES Encryption, Smartwatch Vitals Sync, "
-        "Prescription AI (LayoutLMv3), Health Vault (GridFS), Doctor-Patient Linking, "
-        "Appointments, Health Score, Medicine Reminders, Symptom AI, SOS, Skin Scanner, "
-        "Cough TB Analyzer, Diet Planner, Fitness Tracker."
+        "Secure, scalable FastAPI backend for the Helpix AI healthcare app.\n\n"
+        "**Stack**: FastAPI · MongoDB (Motor) · JWT · AES-Fernet · GridFS\n\n"
+        "**Features**: Auth · Vitals Sync · Prescription AI · Health Vault · "
+        "Doctor–Patient Linking · Appointments · Health Score · "
+        "Medicine Reminders · Symptom AI · SOS · Skin Scanner · "
+        "Cough TB Analyzer · Diet Planner · Fitness Tracker"
     ),
-    version="2.0.0",
-    contact={
-        "name": "Helpix AI Team",
-        "url": "https://helpix.ai",
-    },
-    license_info={
-        "name": "MIT",
-    },
+    version=settings.APP_VERSION,
+    contact={"name": "Helpix AI Team", "url": "https://helpix.ai"},
+    license_info={"name": "MIT"},
     lifespan=lifespan,
+    docs_url="/docs" if settings.APP_ENV == "development" else None,
+    redoc_url="/redoc" if settings.APP_ENV == "development" else None,
 )
 
+# FIX #4: Serve uploaded files (profile images, etc.) at /static/...
+# Creates the directory first to avoid mount errors on fresh installs
+os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+app.mount("/static", StaticFiles(directory=settings.UPLOAD_DIR), name="static")
 
-# ---------------------------------------------------------------------------
-# CORS Middleware
-# IMPORTANT: Required for Android to connect to this server.
-# ---------------------------------------------------------------------------
+
+# ── Middleware ────────────────────────────────────────────────────────────────
+
+# Request ID middleware — adds X-Request-ID to every response for tracing
+@app.middleware("http")
+async def add_request_id(request: Request, call_next):
+    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+# Security headers on every response
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"]        = "DENY"
+    response.headers["X-XSS-Protection"]       = "1; mode=block"
+    response.headers["Referrer-Policy"]        = "strict-origin-when-cross-origin"
+    return response
+
+# CORS — uses ALLOWED_ORIGINS from .env (set "*" in dev, explicit domains in prod)
+origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",")]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# ---------------------------------------------------------------------------
-# Include Routers
-# ---------------------------------------------------------------------------
-# Auth & Core (Common/Patient/Doctor)
+# ── Error handlers ───────────────────────────────────────────────────────────
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    """Pass-through for intentional HTTPExceptions; never leak internal detail."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=getattr(exc, "headers", None) or {},
+    )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+    Return structured 422 Unprocessable Entity without stack traces.
+    Logs are written server-side for debugging.
+    """
+    logger.debug("Validation error on %s %s: %s", request.method, request.url.path, exc.errors())
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "detail": "Request validation failed.",
+            "errors": [
+                {
+                    "field": " → ".join(str(loc) for loc in err["loc"]),
+                    "message": err["msg"],
+                }
+                for err in exc.errors()
+            ],
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch-all: log the full traceback server-side, return a generic 500."""
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An unexpected error occurred. Please try again later."},
+    )
+
+
+# ── Routers ───────────────────────────────────────────────────────────────────
+
 app.include_router(auth.router)
-app.include_router(vitals.router)
-app.include_router(prescription.router)
-app.include_router(vault.router)
-app.include_router(doctor_management.router)
 
-# Common & Features
-app.include_router(appointments.router)
-app.include_router(notifications.router)
-app.include_router(health_score.router)
-app.include_router(medicine_reminder.router)
-app.include_router(tools.router)
+_user_rl = {"dependencies": [Depends(user_rate_limit)]}
+
+app.include_router(vitals.router,              **_user_rl)
+app.include_router(prescription.router,        **_user_rl)
+app.include_router(vault.router,               **_user_rl)
+app.include_router(appointments.router,        **_user_rl)
+app.include_router(notifications.router,       **_user_rl)
+app.include_router(health_score.router,        **_user_rl)
+app.include_router(medicine_reminder.router,   **_user_rl)
+app.include_router(tools.router,               **_user_rl)
+app.include_router(tools.root_router,          **_user_rl)
+app.include_router(doctor_management.router,   **_user_rl)
+app.include_router(doctor_wallet.router,       **_user_rl)
 
 
-# ---------------------------------------------------------------------------
-# Root health check
-# ---------------------------------------------------------------------------
-@app.get("/", tags=["Health Check"])
+# ── Health endpoints ──────────────────────────────────────────────────────────
+
+@app.get("/", tags=["Health"], dependencies=[Depends(public_rate_limit)])
 async def root():
-    """Health check endpoint."""
+    """API liveness check."""
     return {
         "status": "online",
         "service": "Helpix AI Backend",
-        "version": "2.0.0",
-        "docs": "/docs",
-        "total_endpoints": len([r for r in app.routes if hasattr(r, "methods")]),
+        "version": settings.APP_VERSION,
     }
 
 
-@app.get("/health", tags=["Health Check"])
+@app.get("/health", tags=["Health"], dependencies=[Depends(public_rate_limit)])
 async def health():
-    """Detailed health status."""
-    return {"status": "healthy", "database": "connected"}
+    """Detailed health check for load balancers / uptime monitors."""
+    if not await is_db_healthy():
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "unhealthy", "database": "unavailable"},
+        )
+    return {"status": "healthy", "database": "connected", "version": settings.APP_VERSION}

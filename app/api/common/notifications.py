@@ -19,7 +19,9 @@ from datetime import datetime, timezone
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+from app.core.security import get_current_user
 
 router = APIRouter(prefix="/notifications", tags=["Health Notifications"])
 
@@ -28,30 +30,34 @@ router = APIRouter(prefix="/notifications", tags=["Health Notifications"])
 # Schemas
 # ---------------------------------------------------------------------------
 
-class NotificationType(str):
-    MEDICINE_REMINDER   = "MEDICINE_REMINDER"
-    MEDICAL_EMERGENCY   = "MEDICAL_EMERGENCY"
-    DISEASE_AREA_WARNING= "DISEASE_AREA_WARNING"
-    GENERAL             = "GENERAL"
+_UUID4 = r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 
 
 class CreateNotificationRequest(BaseModel):
-    notification_type: str   # See NotificationType
-    title: str
-    message: str
-    target_user_id: Optional[str] = None   # None = send to calling user
-    severity: str = "INFO"                  # INFO | WARNING | CRITICAL
+    notification_type: str = Field(
+        ...,
+        pattern=r"^(MEDICINE_REMINDER|MEDICAL_EMERGENCY|DISEASE_AREA_WARNING|GENERAL)$",
+        description="MEDICINE_REMINDER | MEDICAL_EMERGENCY | DISEASE_AREA_WARNING | GENERAL",
+    )
+    title:          str = Field(..., min_length=2, max_length=200)
+    message:        str = Field(..., min_length=2, max_length=2000)
+    target_user_id: Optional[str] = Field(None, pattern=_UUID4)
+    severity:       str = Field(
+        "INFO",
+        pattern=r"^(INFO|WARNING|CRITICAL)$",
+        description="INFO | WARNING | CRITICAL",
+    )
 
 
 class NotificationResponse(BaseModel):
-    notification_id: str
-    user_id: str
+    notification_id:   str
+    user_id:           str
     notification_type: str
-    title: str
-    message: str
-    severity: str
-    is_read: bool
-    created_at: datetime
+    title:             str
+    message:           str
+    severity:          str
+    is_read:           bool
+    created_at:        datetime
 
 
 # ---------------------------------------------------------------------------
@@ -83,7 +89,7 @@ def _doc_to_response(doc: dict) -> NotificationResponse:
 async def list_notifications(
     unread_only: bool = Query(default=False),
     limit: int = Query(default=30, ge=1, le=100),
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """Fetch all notifications for the authenticated user."""
     col = get_notif_collection()
@@ -104,7 +110,7 @@ async def list_notifications(
 @router.post("", response_model=NotificationResponse, status_code=status.HTTP_201_CREATED)
 async def create_notification(
     body: CreateNotificationRequest,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Create a health notification.
@@ -136,7 +142,7 @@ async def create_notification(
 @router.patch("/{notification_id}/read", response_model=NotificationResponse)
 async def mark_as_read(
     notification_id: str,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     col = get_notif_collection()
     doc = await col.find_one({"notification_id": notification_id})
@@ -159,7 +165,7 @@ async def mark_as_read(
 @router.delete("/{notification_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_notification(
     notification_id: str,
-    current_user: dict = Depends(__import__("app.core.security", fromlist=["get_current_user"]).get_current_user),
+    current_user: dict = Depends(get_current_user),
 ):
     col = get_notif_collection()
     doc = await col.find_one({"notification_id": notification_id})

@@ -12,7 +12,7 @@ Doctor-Patient management and observation:
 
 import uuid
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
@@ -37,6 +37,8 @@ from app.models.schemas import (
     PatientSummary,
     DoctorSummary,
     VitalsResponse,
+    AvailabilityRequest,
+    AvailabilityResponse,
 )
 
 router = APIRouter(tags=["Doctor Management"])
@@ -88,24 +90,32 @@ async def follow_patient(
 # ---------------------------------------------------------------------------
 @router.get("/doctor/patients", response_model=DoctorPatientsResponse)
 async def get_my_patients(current_user: dict = Depends(require_doctor)):
-    """Return all patients linked to the authenticated doctor."""
+    """Return all patients linked to the authenticated doctor (FIX #10: batch query instead of N+1)."""
     links = get_doctor_links_collection()
     users = get_users_collection()
 
-    cursor = links.find({"doctor_id": current_user["sub"]})
-    patients: List[PatientSummary] = []
+    # Step 1: collect all patient_ids + linked_at in a single cursor pass
+    patient_ids: List[str] = []
+    linked_at_map: dict = {}
+    async for link in links.find({"doctor_id": current_user["sub"]}):
+        pid = link["patient_id"]
+        patient_ids.append(pid)
+        linked_at_map[pid] = link["linked_at"]
 
-    async for link in cursor:
-        patient = await users.find_one({"user_id": link["patient_id"]})
-        if patient:
-            patients.append(
-                PatientSummary(
-                    patient_id=patient["user_id"],
-                    full_name=patient["full_name"],
-                    email=patient["email"],
-                    linked_at=link["linked_at"],
-                )
+    if not patient_ids:
+        return DoctorPatientsResponse(doctor_id=current_user["sub"], patients=[])
+
+    # Step 2: single $in query — no N+1
+    patients: List[PatientSummary] = []
+    async for user in users.find({"user_id": {"$in": patient_ids}, "role": "PATIENT"}):
+        patients.append(
+            PatientSummary(
+                patient_id=user["user_id"],
+                full_name=user["full_name"],
+                email=user["email"],
+                linked_at=linked_at_map.get(user["user_id"], datetime.now(timezone.utc)),
             )
+        )
 
     return DoctorPatientsResponse(doctor_id=current_user["sub"], patients=patients)
 
@@ -126,6 +136,8 @@ async def list_doctors(current_user: dict = Depends(get_current_user)):
                 full_name=doc["full_name"],
                 specialization=doc.get("specialization"),
                 clinic_address=doc.get("clinic_address"),
+                consultation_fee=doc.get("consultation_fee", 500.0),
+                experience_years=doc.get("experience_years"),
             )
         )
     return results
@@ -272,3 +284,74 @@ def _doc_to_response(doc: dict) -> VitalsResponse:
         device_id=doc.get("device_id"),
         timestamp=doc["timestamp"],
     )
+
+
+# ---------------------------------------------------------------------------
+# POST /doctor/availability
+# ---------------------------------------------------------------------------
+@router.post("/doctor/availability", response_model=AvailabilityResponse, status_code=status.HTTP_201_CREATED)
+async def create_availability(
+    body: AvailabilityRequest,
+    current_user: dict = Depends(require_doctor),
+):
+    """Set or update doctor's availability slot for appointments."""
+    users = get_users_collection()
+    doctor_id = current_user["sub"]
+
+    availability_id = str(uuid.uuid4())
+    doc = {
+        "availability_id": availability_id,
+        "doctor_id": doctor_id,
+        "day_of_week": body.day_of_week,
+        "start_time": body.start_time,
+        "end_time": body.end_time,
+        "slot_duration_mins": body.slot_duration_mins,
+        "is_active": True,
+        "created_at": datetime.now(timezone.utc),
+    }
+
+    await users.update_one(
+        {"user_id": doctor_id},
+        {"$push": {"availability": doc}}
+    )
+
+    return AvailabilityResponse(
+        availability_id=availability_id,
+        doctor_id=doctor_id,
+        day_of_week=body.day_of_week,
+        start_time=body.start_time,
+        end_time=body.end_time,
+        is_active=True,
+    )
+
+
+# ---------------------------------------------------------------------------
+# GET /doctor/availability
+# ---------------------------------------------------------------------------
+@router.get("/doctor/availability", response_model=List[AvailabilityResponse])
+async def get_availability(
+    doctor_id: Optional[str] = Query(None, description="Doctor UUID"),
+    current_user: dict = Depends(get_current_user),
+):
+    """List doctor's availability slots."""
+    users = get_users_collection()
+    target_id = doctor_id or current_user["sub"]
+
+    doctor = await users.find_one({"user_id": target_id, "role": "DOCTOR"})
+    if not doctor:
+        return []
+
+    slots = doctor.get("availability", [])
+    results = []
+    for s in slots:
+        results.append(
+            AvailabilityResponse(
+                availability_id=s.get("availability_id", str(uuid.uuid4())),
+                doctor_id=target_id,
+                day_of_week=s.get("day_of_week", 0),
+                start_time=s.get("start_time", "09:00"),
+                end_time=s.get("end_time", "17:00"),
+                is_active=s.get("is_active", True),
+            )
+        )
+    return results
