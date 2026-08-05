@@ -136,10 +136,13 @@ class Settings(BaseSettings):
                     "ENCRYPTION_KEY must be set in production. "
                     "Generate one: python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
                 )
-            if not self.ALLOWED_ORIGINS or self.ALLOWED_ORIGINS.strip() == "*":
-                raise ValueError(
-                    "ALLOWED_ORIGINS must contain explicit HTTPS origins in production."
-                )
+           # if not self.ALLOWED_ORIGINS or self.ALLOWED_ORIGINS.strip() == "*":
+                 #raise ValueError(
+                  #  "ALLOWED_ORIGINS must contain explicit HTTPS origins in production."
+               # )
+                if not self.ALLOWED_ORIGINS:
+                   raise ValueError("ALLOWED_ORIGINS is required in production.")
+                  
             if self.MONGO_URL.startswith("mongodb://localhost"):
                 raise ValueError("MONGO_URL must not point to localhost in production.")
 
