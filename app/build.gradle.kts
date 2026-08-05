@@ -56,13 +56,13 @@ android {
 
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8000/\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://helpix.onrender.com/\"")
             manifestPlaceholders["cleartextTrafficPermitted"] = "true"
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            buildConfigField("String", "API_BASE_URL", "\"${productionApiUrl.orEmpty()}\"")
+            buildConfigField("String", "API_BASE_URL", "\"https://helpix.onrender.com/\"")
             manifestPlaceholders["cleartextTrafficPermitted"] = "false"
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(
