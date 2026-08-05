@@ -1,0 +1,7 @@
+- [ ] Create `GuestProfileView` in `ProfileScreen.kt` with the card-based layout
+- [ ] Implement "Welcome to HELPiX" header card with Sign In button
+- [ ] Implement "Switch Hub" card and "Spread the Word" promo card
+- [ ] Create a `ProfileSection` and `ProfileItemCard` for organized lists
+- [ ] Integrate the existing Auth logic into a toggleable view or BottomSheet
+- [ ] Update `ProfileContent` (logged-in state) to use the same modern card style
+- [ ] Final build and visual verification

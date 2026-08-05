@@ -38,11 +38,8 @@ fun HealthChart(modifier: Modifier = Modifier) {
             }
         },
         update = { chart ->
-            // Dummy Data for Preview
-            val entries = listOf(
-                Entry(1f, 70f), Entry(2f, 72f), Entry(3f, 75f),
-                Entry(4f, 80f), Entry(5f, 76f), Entry(6f, 74f)
-            )
+            // Real entries should be passed from state
+            val entries = emptyList<Entry>()
             val dataSet = LineDataSet(entries, "Heart Rate").apply {
                 color = pinkColor
                 valueTextColor = cyanColor

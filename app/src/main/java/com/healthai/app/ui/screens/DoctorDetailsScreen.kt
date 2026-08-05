@@ -1,5 +1,6 @@
 package com.healthai.app.ui.screens
 
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -111,6 +112,34 @@ fun DoctorDetailsScreen(navController: NavController) {
                 Text("Available Time Slots", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                 Spacer(modifier = Modifier.height(16.dp))
                 TimeSlotGrid(selectedTimeSlot) { selectedTimeSlot = it }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // 5.1 Consultation Fee
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text("Consultation Fee", color = Color.Gray, fontSize = 12.sp)
+                            Text("₹500.00", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text("Best Price", color = colorResource(id = R.color.logo_cyan), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
                 
                 Spacer(modifier = Modifier.height(100.dp))
             }
@@ -132,8 +161,13 @@ fun DoctorDetailsScreen(navController: NavController) {
                         if (selectedTimeSlot.isEmpty()) {
                             Toast.makeText(context, "Please select a time slot", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, "Appointment Booked for ${selectedDate.format(DateTimeFormatter.ofPattern("dd MMM"))} at $selectedTimeSlot", Toast.LENGTH_LONG).show()
-                            navController.popBackStack()
+                            val docName = Uri.encode("Dr. Albert Flores")
+                            val spec = Uri.encode("Senior Surgeon")
+                            val fee = "500.0"
+                            val date = Uri.encode(selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")))
+                            val time = Uri.encode(selectedTimeSlot)
+                            
+                            navController.navigate("booking_summary_screen/$docName/$spec/$fee/$date/$time")
                         }
                     },
                     modifier = Modifier

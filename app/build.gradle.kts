@@ -1,3 +1,21 @@
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.isFile) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
+}
+
+fun releaseProperty(name: String): String? =
+    providers.gradleProperty(name).orNull ?: localProperties.getProperty(name)
+
+val productionApiUrl = releaseProperty("productionApiUrl")
+val googleMapsApiKey = releaseProperty("googleMapsApiKey")
+val releaseStoreFile = releaseProperty("releaseStoreFile")
+val releaseStorePassword = releaseProperty("releaseStorePassword")
+val releaseKeyAlias = releaseProperty("releaseKeyAlias")
+val releaseKeyPassword = releaseProperty("releaseKeyPassword")
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -19,14 +37,34 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey.orEmpty()
         vectorDrawables {
             useSupportLibrary = true
         }
     }
 
+    signingConfigs {
+        create("release") {
+            if (!releaseStoreFile.isNullOrBlank()) {
+                storeFile = rootProject.file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
+        getByName("debug") {
+            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8000/\"")
+            manifestPlaceholders["cleartextTrafficPermitted"] = "true"
+        }
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            buildConfigField("String", "API_BASE_URL", "\"${productionApiUrl.orEmpty()}\"")
+            manifestPlaceholders["cleartextTrafficPermitted"] = "false"
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -42,6 +80,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -54,6 +93,39 @@ android {
     
     androidResources {
         noCompress += "tflite"
+    }
+
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+tasks.register("validateReleaseConfiguration") {
+    inputs.properties(
+        mapOf(
+            "productionApiUrl" to productionApiUrl.orEmpty(),
+            "googleMapsApiKey" to googleMapsApiKey.orEmpty(),
+            "releaseStoreFile" to releaseStoreFile.orEmpty(),
+            "releaseStorePassword" to releaseStorePassword.orEmpty(),
+            "releaseKeyAlias" to releaseKeyAlias.orEmpty(),
+            "releaseKeyPassword" to releaseKeyPassword.orEmpty(),
+        )
+    )
+    doLast {
+        val missing = inputs.properties
+            .filterValues { it.toString().isBlank() }
+            .keys
+            .sorted()
+        check(missing.isEmpty()) {
+            "Release configuration is incomplete. Set: ${missing.joinToString(", ")}"
+        }
+    }
+}
+
+tasks.configureEach {
+    if (name == "preReleaseBuild") {
+        dependsOn("validateReleaseConfiguration")
     }
 }
 
@@ -124,9 +196,10 @@ dependencies {
     // Charts
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
-    // Google Maps, Places, and Location
+    // Google Maps, Places, Location, and Authentication
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
+    implementation(libs.play.services.auth)
     implementation(libs.google.places)
     
     // Image Loading

@@ -24,13 +24,7 @@ data class DiseaseClusterResult(val name: String, val risk: String, val color: C
 @Composable
 fun MultiDiseaseResultScreen(navController: NavController) {
 
-    // Dummy data for preview
-    val results = listOf(
-        DiseaseClusterResult("Heart Health", "Potential Risk", Color.Yellow),
-        DiseaseClusterResult("Lung Health", "Looks Good", Color.Green),
-        DiseaseClusterResult("Skin Conditions", "Observation Found", Color.Yellow),
-        DiseaseClusterResult("Diabetes Risk", "Low Risk", Color.Green)
-    )
+    val results = emptyList<DiseaseClusterResult>()
 
     Scaffold(
         topBar = {
@@ -57,7 +51,7 @@ fun MultiDiseaseResultScreen(navController: NavController) {
                 // Overall Risk Score Gauge (Placeholder)
                 Text("Overall Risk Score", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Medium", color = Color.Yellow, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                Text("Not Calculated", color = Color.Gray, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // AI Explanation

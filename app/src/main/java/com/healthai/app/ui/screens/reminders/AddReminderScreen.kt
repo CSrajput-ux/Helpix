@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -17,19 +17,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.healthai.app.data.local.AppDatabase
-import com.healthai.app.data.local.Reminder
+import com.healthai.app.data.local.database.HelpixDatabase
+import com.healthai.app.data.local.entity.Reminder
 import com.healthai.app.utils.ReminderScheduler
 import kotlinx.coroutines.launch
-import java.util.*
 import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddReminderScreen(navController: NavController) {
 
     val context = LocalContext.current
-    val db = remember { AppDatabase.getDatabase(context) }
+    val db = remember { HelpixDatabase.getDatabase(context) }
     val coroutineScope = rememberCoroutineScope()
 
     var medicineName by remember { mutableStateOf("") }

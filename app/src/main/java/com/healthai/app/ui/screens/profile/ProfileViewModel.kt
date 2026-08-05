@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.healthai.app.data.remote.api.HelpixRepository
+import com.healthai.app.data.remote.api.SignupRequest
 import com.healthai.app.data.remote.api.UpdateProfileRequest
 import com.healthai.app.data.remote.api.UserProfile
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,11 +25,48 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _user = MutableStateFlow<UserProfile?>(null)
     val user = _user.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(value = false)
     val isLoading = _isLoading.asStateFlow()
 
     init {
         fetchUser()
+    }
+
+    fun login(email: String, psw: String, onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val response = repository.login(email, psw)
+                if (response.isSuccessful) {
+                    fetchUser()
+                    onResult(true, "Login Successful")
+                } else {
+                    onResult(false, "Login Failed: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onResult(false, "Error: ${e.localizedMessage}")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun signup(req: SignupRequest, onResult: (Boolean, String) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val response = repository.signup(req)
+                if (response.isSuccessful) {
+                    login(req.email, req.password, onResult)
+                } else {
+                    onResult(false, "Signup Failed: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                onResult(false, "Error: ${e.localizedMessage}")
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     fun fetchUser() {
@@ -88,7 +126,7 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
             inputStream.close()
             outputStream.close()
             file
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -100,7 +138,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         gender: String?, 
         emergencyContact: String?, 
         location: String?,
-        allergies: String?
+        allergies: String?,
+        specialization: String? = null,
+        licenseNumber: String? = null,
+        clinicAddress: String? = null,
     ) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -112,7 +153,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     gender = gender,
                     emergency_contact = emergencyContact,
                     location = location,
-                    allergies = allergies
+                    allergies = allergies,
+                    specialization = specialization,
+                    license_number = licenseNumber,
+                    clinic_address = clinicAddress
                 )
                 val response = repository.updateProfile(request)
                 if (response.isSuccessful) {

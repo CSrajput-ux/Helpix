@@ -3,64 +3,77 @@ package com.healthai.app.di
 import android.app.Application
 import androidx.room.Room
 import com.healthai.app.data.local.dao.HealthMetricDao
+import com.healthai.app.data.local.dao.ReminderDao
 import com.healthai.app.data.local.dao.UserDao
-import com.healthai.app.data.local.database.HealthDatabase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.healthai.app.data.remote.api.HealthApiService
+import com.healthai.app.data.local.database.HelpixDatabase
+import com.healthai.app.data.remote.api.HelpixApi
+import com.healthai.app.data.remote.api.HelpixRetrofitClient
+import com.healthai.app.data.remote.api.TokenStore
+import com.healthai.app.data.repository.AppointmentRepository
+import com.healthai.app.data.repository.UserRepository
+import com.healthai.app.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    private const val BASE_URL = "http://192.168.1.173:8000/"
+    // ── Room Database ──────────────────────────────────────────────────────────
 
     @Provides
     @Singleton
-    fun provideHealthDatabase(app: Application): HealthDatabase {
+    fun provideHelpixDatabase(app: Application): HelpixDatabase {
         return Room.databaseBuilder(
             app,
-            HealthDatabase::class.java,
-            "health_db"
-        )
-        .fallbackToDestructiveMigration()
-        .build()
+            HelpixDatabase::class.java,
+            "helpix_database"
+        ).build()
     }
 
     @Provides
     @Singleton
-    fun provideHealthMetricDao(db: HealthDatabase): HealthMetricDao {
-        return db.healthMetricDao()
+    fun provideHealthMetricDao(db: HelpixDatabase): HealthMetricDao = db.healthMetricDao()
+
+    @Provides
+    @Singleton
+    fun provideUserDao(db: HelpixDatabase): UserDao = db.userDao()
+
+    @Provides
+    @Singleton
+    fun provideReminderDao(db: HelpixDatabase): ReminderDao = db.reminderDao()
+
+    // ── Retrofit / Remote API ──────────────────────────────────────────────────
+
+    /**
+     * Single HelpixApi instance with auth + token-refresh + retry interceptors.
+     * FIX #6: Uses the TokenStore in-memory cache — no runBlocking on network thread.
+     */
+    @Provides
+    @Singleton
+    fun provideHelpixApi(app: Application): HelpixApi {
+        return HelpixRetrofitClient.create(BASE_URL, app)
     }
 
-    @Provides
-    @Singleton
-    fun provideUserDao(db: HealthDatabase): UserDao {
-        return db.userDao()
-    }
+    // ── Repositories (FIX #2 & #2b: injected via Hilt, not newed-up) ──────────
 
+    /**
+     * FIX #2: UserRepository now takes HelpixApi — routes through backend,
+     * not Firebase Firestore.
+     */
     @Provides
     @Singleton
-    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+    fun provideUserRepository(api: HelpixApi): UserRepository = UserRepository(api)
 
+    /**
+     * FIX #2b: AppointmentRepository now takes HelpixApi — routes through
+     * backend, not Firebase Firestore.
+     */
     @Provides
     @Singleton
-    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
-
-    @Provides
-    @Singleton
-    fun provideHealthApiService(): HealthApiService {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(HealthApiService::class.java)
-    }
+    fun provideAppointmentRepository(api: HelpixApi): AppointmentRepository =
+        AppointmentRepository(api)
 }

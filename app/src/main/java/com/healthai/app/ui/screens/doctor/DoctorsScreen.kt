@@ -24,7 +24,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
 import com.healthai.app.domain.model.User
@@ -34,7 +34,7 @@ import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
 @Composable
 fun DoctorsScreen(
     navController: NavController,
-    viewModel: DoctorListViewModel = viewModel()
+    viewModel: DoctorListViewModel = hiltViewModel()
 ) {
     val doctors by viewModel.doctors.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

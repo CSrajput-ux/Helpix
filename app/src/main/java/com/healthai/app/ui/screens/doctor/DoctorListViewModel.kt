@@ -4,13 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.healthai.app.data.repository.UserRepository
 import com.healthai.app.domain.model.User
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DoctorListViewModel : ViewModel() {
-
-    private val userRepository = UserRepository()
+@HiltViewModel
+class DoctorListViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _doctors = MutableStateFlow<List<User>>(emptyList())
     val doctors = _doctors.asStateFlow()
@@ -22,18 +25,17 @@ class DoctorListViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val remoteDoctors = userRepository.getDoctors()
-                if (remoteDoctors.isEmpty()) {
-                    // Database empty hai, isliye testing ke liye sample data add kar rahe hain
-                    _doctors.value = listOf(
-                        User(id = "1", name = "Dr. Lavkush Jadoun", email = "lav@example.com", userType = "DOCTOR", specialization = "Cardiologist"),
-                        User(id = "2", name = "Dr. Sharma", email = "sharma@example.com", userType = "DOCTOR", specialization = "Dermatologist"),
-                        User(id = "3", name = "Dr. Verma", email = "verma@example.com", userType = "DOCTOR", specialization = "Neurologist"),
-                        User(id = "4", name = "Dr. Khan", email = "khan@example.com", userType = "DOCTOR", specialization = "Pulmonologist"),
-                        User(id = "5", name = "Dr. Gupta", email = "gupta@example.com", userType = "DOCTOR", specialization = "Cardiologist")
-                    )
-                } else {
-                    _doctors.value = remoteDoctors
+                val response = userRepository.getDoctors()
+                if (response.isSuccessful) {
+                    _doctors.value = response.body()?.map {
+                        User(
+                            id = it.user_id,
+                            name = it.full_name,
+                            specialization = it.specialization,
+                            clinicAddress = it.clinic_address,
+                            userType = "DOCTOR"
+                        )
+                    } ?: emptyList()
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

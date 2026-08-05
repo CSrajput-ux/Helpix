@@ -100,9 +100,9 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.height(20.dp))
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            DashboardVitalCard("Heart", "${healthState.heartRate}", Icons.Default.Favorite, Color(0xFFFF4081), Modifier.weight(1f))
-                            DashboardVitalCard("Temp", if (healthState.temperature > 0) "${healthState.temperature}" else "--", Icons.Default.Thermostat, Color(0xFFFFAB00), Modifier.weight(1f))
-                            DashboardVitalCard("BP", healthState.bloodPressure, Icons.Default.Bloodtype, Color(0xFF2979FF), Modifier.weight(1f))
+                            DashboardVitalCard("Heart", "${healthState.heartRate}", Icons.Default.Favorite, Color(0xFF10B981), Modifier.weight(1f))
+                            DashboardVitalCard("Temp", if (healthState.temperature > 0) "${healthState.temperature}" else "--", Icons.Default.Thermostat, Color(0xFF3B82F6), Modifier.weight(1f))
+                            DashboardVitalCard("BP", healthState.bloodPressure, Icons.Default.Bloodtype, Color(0xFF0EB0C6), Modifier.weight(1f))
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -134,34 +134,64 @@ fun DashboardScreen(
 }
 
 @Composable
-fun HelpixBottomNav(navController: NavController, userType: String = "PATIENT") {
+fun HelpixBottomNav(navController: NavController, userType: String? = null) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    
+    // Internal user type state if not provided
+    var resolvedUserType by remember { mutableStateOf(userType ?: "PATIENT") }
+
+    if (userType == null) {
+        LaunchedEffect(Unit) {
+            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            if (uid != null) {
+                com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                    .addOnSuccessListener { document ->
+                        resolvedUserType = document.getString("userType") ?: "PATIENT"
+                    }
+            }
+        }
+    } else {
+        resolvedUserType = userType
+    }
 
     NavigationBar(
         containerColor = colorResource(id = R.color.login_bg_bottom),
         contentColor = Color.White
     ) {
         NavItem("Home", Icons.Filled.Home, currentRoute == NavRoutes.Dashboard || currentRoute == NavRoutes.DoctorDashboard) {
-            val route = if (userType == "DOCTOR") NavRoutes.DoctorDashboard else NavRoutes.Dashboard
+            val route = if (resolvedUserType == "DOCTOR") NavRoutes.DoctorDashboard else NavRoutes.Dashboard
             navController.navigate(route) { popUpTo(route) { inclusive = true } }
         }
-        NavItem("Health", Icons.Filled.MonitorHeart, currentRoute == NavRoutes.Health) {
-            navController.navigate(NavRoutes.Health)
+        
+        if (resolvedUserType == "DOCTOR") {
+            NavItem("Bookings", Icons.Filled.EventNote, currentRoute == NavRoutes.DoctorBookings) {
+                navController.navigate(NavRoutes.DoctorBookings)
+            }
+        } else {
+            NavItem("Health", Icons.Filled.MonitorHeart, currentRoute == NavRoutes.Health) {
+                navController.navigate(NavRoutes.Health)
+            }
         }
         
         // --- DOCTOR SCHEDULE REDIRECTION (FIXED ROUTE) ---
         val isScheduleSelected = currentRoute == NavRoutes.DoctorSchedule || currentRoute == NavRoutes.Doctors
-        NavItem(if (userType == "DOCTOR") "Schedule" else "Doctors", Icons.Filled.MedicalServices, isScheduleSelected) {
-            if (userType == "DOCTOR") {
+        NavItem(if (resolvedUserType == "DOCTOR") "Schedule" else "Doctors", Icons.Filled.MedicalServices, isScheduleSelected) {
+            if (resolvedUserType == "DOCTOR") {
                 navController.navigate(NavRoutes.DoctorSchedule)
             } else {
                 navController.navigate(NavRoutes.Doctors)
             }
         }
 
-        NavItem("Tools", Icons.Filled.GridView, currentRoute == NavRoutes.Tools) {
-            navController.navigate(NavRoutes.Tools)
+        if (resolvedUserType == "DOCTOR") {
+            NavItem("Vault", Icons.Filled.AccountBalanceWallet, currentRoute == NavRoutes.DoctorVault) {
+                navController.navigate(NavRoutes.DoctorVault)
+            }
+        } else {
+            NavItem("Tools", Icons.Filled.GridView, currentRoute == NavRoutes.Tools) {
+                navController.navigate(NavRoutes.Tools)
+            }
         }
         NavItem("Profile", Icons.Filled.Person, currentRoute == NavRoutes.Profile) {
             navController.navigate(NavRoutes.Profile)
@@ -246,7 +276,7 @@ fun DashboardVitalCard(title: String, value: String, icon: androidx.compose.ui.g
 
 @Composable
 fun CoughScanCard(navController: NavController) {
-    Card(modifier = Modifier.fillMaxWidth().height(130.dp).clickable { navController.navigate(NavRoutes.CoughAnalyzerStart) }, shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.logo_cyan).copy(alpha = 0.15f)), border = BorderStroke(2.dp, Brush.linearGradient(colors = listOf(colorResource(id = R.color.logo_cyan), colorResource(id = R.color.neon_pink))))) {
+    Card(modifier = Modifier.fillMaxWidth().height(130.dp).clickable { navController.navigate(NavRoutes.CoughAnalyzerStart) }, shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.logo_cyan).copy(alpha = 0.15f)), border = BorderStroke(2.dp, Brush.linearGradient(colors = listOf(colorResource(id = R.color.logo_cyan), colorResource(id = R.color.logo_blue))))) {
         Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Icon(Icons.Default.GraphicEq, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(36.dp))
             Spacer(modifier = Modifier.height(6.dp))

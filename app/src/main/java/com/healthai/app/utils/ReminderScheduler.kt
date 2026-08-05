@@ -4,7 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.healthai.app.data.local.Reminder
+import com.healthai.app.data.local.entity.Reminder
 import com.healthai.app.receiver.ReminderReceiver
 import java.util.*
 

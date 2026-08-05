@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.R // Assume a placeholder image is in drawables
 
 data class ExtractedMedicine(val name: String, val dosage: String, val duration: String)
@@ -26,12 +27,8 @@ data class ExtractedMedicine(val name: String, val dosage: String, val duration:
 @Composable
 fun PrescriptionResultScreen(navController: NavController) {
 
-    // Dummy data for preview
     val extractedMedicines = remember {
-        mutableStateListOf(
-            ExtractedMedicine("Paracetamol", "1-0-1", "5 Days"),
-            ExtractedMedicine("Azithromycin", "1-1-1", "3 Days")
-        )
+        mutableStateListOf<ExtractedMedicine>()
     }
 
     Scaffold(
@@ -75,7 +72,7 @@ fun PrescriptionResultScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Button(onClick = { /* TODO: Navigate to Medicine Reminders with this data */ }) {
+            Button(onClick = { navController.navigate(NavRoutes.MedicineReminders) }) {
                 Text("Set Reminders for these Medicines")
             }
         }

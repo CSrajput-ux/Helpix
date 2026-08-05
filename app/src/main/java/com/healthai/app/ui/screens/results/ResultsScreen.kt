@@ -43,7 +43,6 @@ val StatusYellow = Color(0xFFFFAB00) // Monitor
 val StatusRed = Color(0xFFFF1744)   // Action
 
 val BarCyan = Color(0xFF00E5FF) // Probability Bar
-val BarBlue = Color(0xFF2979FF) // Confidence Bar
 val ChartGreen = Color(0xFF00E676) // Confidence Column in Chart
 val ChartCyan = Color(0xFF00B0FF)  // Probability Column in Chart
 
@@ -121,32 +120,21 @@ fun ResultsScreen(navController: NavController) {
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StatusBox("4", "Clear", StatusGreen, Icons.Default.CheckCircle, Modifier.weight(1f))
-                        StatusBox("1", "Monitor", StatusYellow, Icons.Default.Warning, Modifier.weight(1f))
-                        StatusBox("1", "Action", StatusRed, Icons.Default.TrendingUp, Modifier.weight(1f))
+                        StatusBox("--", "Clear", StatusGreen, Icons.Default.CheckCircle, Modifier.weight(1f))
+                        StatusBox("--", "Monitor", StatusYellow, Icons.Default.Warning, Modifier.weight(1f))
+                        StatusBox("--", "Action", StatusRed, Icons.Default.TrendingUp, Modifier.weight(1f))
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- DISEASE CARDS GRID ---
-            // Row 1
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                DiseaseCard("TB Detection", 8, 92, "Clear", StatusGreen, Modifier.weight(1f))
-                DiseaseCard("Pneumonia", 15, 88, "Monitor", StatusYellow, Modifier.weight(1f))
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            // Row 2
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                DiseaseCard("Malaria Risk", 12, 85, "Monitor", StatusYellow, Modifier.weight(1f))
-                DiseaseCard("Typhoid Risk", 10, 90, "Clear", StatusGreen, Modifier.weight(1f))
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            // Row 3
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                DiseaseCard("Skin Infection", 25, 80, "Review", StatusYellow, Modifier.weight(1f))
-                DiseaseCard("Fever Category", 72, 95, "Action Needed", StatusRed, Modifier.weight(1f))
+            // --- DISEASE CARDS GRID (Empty State) ---
+            Box(
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No diagnostic data available", color = TextGray, fontSize = 14.sp)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -256,55 +244,6 @@ fun StatusBox(count: String, label: String, color: Color, icon: androidx.compose
 }
 
 @Composable
-fun DiseaseCard(name: String, prob: Int, conf: Int, status: String, color: Color, modifier: Modifier) {
-    Column(
-        modifier = modifier
-            .background(CardBg, RoundedCornerShape(12.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp))
-            .padding(12.dp)
-    ) {
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-            Text(name, color = color, fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1)
-            Box(
-                modifier = Modifier
-                    .background(color.copy(alpha = 0.2f), RoundedCornerShape(4.dp))
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
-            ) {
-                Text(status, color = color, fontSize = 10.sp)
-            }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        Text("Detection Probability ${prob}%", color = TextGray, fontSize = 10.sp)
-        LinearProgressIndicator(
-            progress = prob / 100f,
-            color = BarCyan,
-            trackColor = Color(0xFF1E293B),
-            strokeCap = StrokeCap.Round,
-            modifier = Modifier.fillMaxWidth().height(4.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Text("AI Confidence ${conf}%", color = TextGray, fontSize = 10.sp)
-        LinearProgressIndicator(
-            progress = conf / 100f,
-            color = BarBlue,
-            trackColor = Color(0xFF1E293B),
-            strokeCap = StrokeCap.Round,
-            modifier = Modifier.fillMaxWidth().height(4.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // Fixed: CircleShape is now imported correctly
-            Box(modifier = Modifier.size(6.dp).background(color, CircleShape))
-            Spacer(modifier = Modifier.width(4.dp))
-            Text("Urgency: ${if (status == "Action Needed") "High" else if(status == "Monitor") "Medium" else "Low"}", color = Color.Gray, fontSize = 10.sp)
-        }
-    }
-}
-
-@Composable
 fun ActionCard(title: String, subtitle: String, color: Color) {
     Row(
         modifier = Modifier
@@ -365,9 +304,8 @@ fun RadarChartHexagon() {
             drawLine(webColor, center, Offset(x, y), strokeWidth = 1.dp.toPx())
         }
 
-        // Draw Data Shape (Dummy Data matching screenshot)
-        // Order: TB, Pneumonia, Malaria, Typhoid, Skin, Fever
-        val values = listOf(0.1f, 0.3f, 0.2f, 0.1f, 0.4f, 0.8f) 
+        // ORDER: No data to display
+        val values = listOf(0f, 0f, 0f, 0f, 0f, 0f) 
         val dataPath = Path()
         
         for (j in 0 until 6) {
@@ -397,48 +335,47 @@ fun RadarChartHexagon() {
 
 @Composable
 fun BarChartGrouped() {
-    val data = listOf(
-        Pair(95f, 10f), // TB
-        Pair(90f, 15f), // Pneumonia
-        Pair(85f, 12f), // Malaria
-        Pair(92f, 10f), // Typhoid
-        Pair(80f, 25f), // Skin
-        Pair(98f, 72f)  // Fever
-    )
-    val labels = listOf("TB", "Pneu", "Mal", "Typh", "Skin", "Fev")
+    val data = emptyList<Pair<Float, Float>>()
+    val labels = emptyList<String>()
     
     Row(
         modifier = Modifier.fillMaxWidth().height(150.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.Bottom
     ) {
-        data.forEachIndexed { index, (conf, prob) ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier.fillMaxHeight().weight(1f)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+        if (data.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("No data", color = TextGray, fontSize = 10.sp)
+            }
+        } else {
+            data.forEachIndexed { index, (conf, prob) ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier.fillMaxHeight().weight(1f)
                 ) {
-                    // Confidence Bar (Green)
-                    Box(
-                        modifier = Modifier
-                            .width(8.dp)
-                            .fillMaxHeight(conf / 100f)
-                            .background(ChartGreen, RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
-                    )
-                    // Probability Bar (Cyan)
-                    Box(
-                        modifier = Modifier
-                            .width(8.dp)
-                            .fillMaxHeight(prob / 100f)
-                            .background(ChartCyan, RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
-                    )
+                    Row(
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        // Confidence Bar (Green)
+                        Box(
+                            modifier = Modifier
+                                .width(8.dp)
+                                .fillMaxHeight(conf / 100f)
+                                .background(ChartGreen, RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
+                        )
+                        // Probability Bar (Cyan)
+                        Box(
+                            modifier = Modifier
+                                .width(8.dp)
+                                .fillMaxHeight(prob / 100f)
+                                .background(ChartCyan, RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp))
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(labels[index], color = TextGray, fontSize = 10.sp, maxLines = 1)
                 }
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(labels[index], color = TextGray, fontSize = 10.sp, maxLines = 1)
             }
         }
     }

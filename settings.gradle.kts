@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FuturisticAIHealthcareApp"
+rootProject.name = "Helpix"
 include(":app")

@@ -5,6 +5,7 @@
 build/
 app/build/
 local.properties
+keystore.properties
 .DS_Store
 archive/
 

@@ -1,0 +1,6 @@
+- `[x]` Rename `DoctorWallet` to `DoctorVault` in `NavRoutes.kt`
+- `[x]` Update `DoctorDashboardScreen.kt` grid item (Profile -> Vault)
+- `[x]` Create/Update `DoctorVaultScreen.kt` with comprehensive financial UI
+- `[x]` Implement Vault logic in `DoctorDashboardViewModel.kt`
+- `[x]` Update `AppNavGraph.kt` routes
+- `[x]` Verify build and navigation

@@ -1,7 +1,6 @@
 package com.healthai.app
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -28,7 +28,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
+        ActivityResultContracts.RequestMultiplePermissions(),
     ) { permissions ->
         val allGranted = permissions.entries.all { it.value }
         if (!allGranted) {
@@ -44,9 +44,8 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val themeManager = remember { ThemeManager(this) }
-            val currentTheme = themeManager.getTheme()
             
-            val isDarkTheme = when(currentTheme) {
+            val isDarkTheme = when(themeManager.getTheme()) {
                 ThemeManager.THEME_LIGHT -> false
                 ThemeManager.THEME_DARK -> true
                 else -> isSystemInDarkTheme()
@@ -55,7 +54,7 @@ class MainActivity : AppCompatActivity() {
             HelpixTheme(darkTheme = isDarkTheme) { 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
                     AppNavGraph(navController = navController)
@@ -90,8 +89,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setLocale() {
-        val languageManager = LanguageManager(this)
-        val lang = languageManager.getLanguage()
+        val lang = LanguageManager(this).getLanguage()
         val appLocale: LocaleListCompat = LocaleListCompat.forLanguageTags(lang)
         AppCompatDelegate.setApplicationLocales(appLocale)
     }

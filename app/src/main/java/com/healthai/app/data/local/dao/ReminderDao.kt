@@ -1,9 +1,10 @@
-package com.healthai.app.data.local
+package com.healthai.app.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.healthai.app.data.local.entity.Reminder
 import kotlinx.coroutines.flow.Flow
 
 @Dao

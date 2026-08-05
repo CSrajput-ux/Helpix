@@ -6,23 +6,36 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.healthai.app.R
 import com.healthai.app.ui.DeviceConnectScreen
 import com.healthai.app.ui.WatchScannerScreen
-import com.healthai.app.ui.screens.auth.DoctorLoginScreen
-import com.healthai.app.ui.screens.auth.DoctorRegisterScreen
 import com.healthai.app.ui.screens.auth.ForgotPasswordScreen
-import com.healthai.app.ui.screens.auth.LoginScreen
 import com.healthai.app.ui.screens.auth.PhoneLoginScreen
-import com.healthai.app.ui.screens.auth.RegisterScreen
 import com.healthai.app.ui.screens.chat.AiChatScreen
 import com.healthai.app.ui.screens.cough.CoughAnalysisScreen
 import com.healthai.app.ui.screens.cough.CoughAnalyzerStartScreen
 import com.healthai.app.ui.screens.cough.CoughRecordingScreen
 import com.healthai.app.ui.screens.dashboard.DashboardScreen
 import com.healthai.app.ui.screens.diet.DietPlannerScreen
+import com.healthai.app.ui.screens.doctor.DoctorBookingsScreen
 import com.healthai.app.ui.screens.doctor.DoctorDashboardScreen
+import com.healthai.app.ui.screens.doctor.DoctorDashboardViewModel
+import com.healthai.app.ui.screens.doctor.DoctorPatientsScreen
+import com.healthai.app.ui.screens.doctor.DoctorProfileManagementScreen
 import com.healthai.app.ui.screens.doctor.DoctorScheduleScreen
+import com.healthai.app.ui.screens.doctor.DoctorVaultScreen
 import com.healthai.app.ui.screens.doctor.DoctorsScreen
 import com.healthai.app.ui.screens.DoctorDetailsScreen
 import com.healthai.app.ui.screens.emergency.EmergencyScreen
@@ -32,12 +45,17 @@ import com.healthai.app.ui.screens.health.HealthScreen
 import com.healthai.app.ui.screens.hospitals.NearbyHospitalsScreen
 import com.healthai.app.ui.screens.kids.KidsModeScreen
 import com.healthai.app.ui.screens.onboarding.OnboardingScreen
+import com.healthai.app.ui.screens.patient.BookingSummaryScreen
 import com.healthai.app.ui.screens.patient.MyAppointmentsScreen
+import com.healthai.app.ui.screens.patient.PaymentProcessScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionAnalysisScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionReaderScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionResultScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionScanningScreen
+import com.healthai.app.ui.screens.profile.AboutHelpixScreen
+import com.healthai.app.ui.screens.profile.HelpCenterScreen
 import com.healthai.app.ui.screens.profile.ProfileScreen
+import com.healthai.app.ui.screens.profile.VaccinationsScreen
 import com.healthai.app.ui.screens.reminders.AddReminderScreen
 import com.healthai.app.ui.screens.reminders.MedicineRemindersScreen
 import com.healthai.app.ui.screens.results.ResultsScreen
@@ -63,45 +81,121 @@ import com.healthai.app.ui.screens.vault.HealthVaultScreen
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
-    val auth = FirebaseAuth.getInstance()
-    val currentUser = auth.currentUser
-    
-    val startDestination = if (currentUser == null) {
-        NavRoutes.Login
-    } else {
-        NavRoutes.Dashboard
+    var startDestination by remember { mutableStateOf<String?>(null) }
+    var userType by remember { mutableStateOf("PATIENT") }
+
+    LaunchedEffect(Unit) {
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+        if (uid != null) {
+            com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).get()
+                .addOnSuccessListener { document ->
+                    userType = document.getString("userType") ?: "PATIENT"
+                    startDestination = if (userType == "DOCTOR") NavRoutes.DoctorDashboard else NavRoutes.Dashboard
+                }
+                .addOnFailureListener {
+                    startDestination = NavRoutes.Dashboard
+                }
+        } else {
+            startDestination = NavRoutes.Dashboard
+        }
+    }
+
+    val destination = startDestination
+    if (destination == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(color = colorResource(id = R.color.logo_cyan))
+        }
+        return
     }
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = destination
     ) {
         composable(NavRoutes.Onboarding) { OnboardingScreen(navController = navController) }
-        composable(NavRoutes.Login) { LoginScreen(navController = navController) }
         composable(NavRoutes.ForgotPassword) { ForgotPasswordScreen(navController = navController) }
         composable(NavRoutes.PhoneLogin) { PhoneLoginScreen(navController = navController) }
-        composable(NavRoutes.Register) { RegisterScreen(navController = navController) }
-        composable(NavRoutes.DoctorLogin) { DoctorLoginScreen(navController = navController) }
-        composable(NavRoutes.DoctorRegister) { DoctorRegisterScreen(navController = navController) }
-        composable(NavRoutes.DoctorDashboard) { DoctorDashboardScreen(navController = navController) }
+        composable(NavRoutes.DoctorDashboard) {
+            DoctorDashboardScreen(navController = navController)
+        }
+        composable(NavRoutes.DoctorBookings) {
+            val parentEntry = remember(it) {
+                try { navController.getBackStackEntry(NavRoutes.DoctorDashboard) }
+                catch (_: Exception) { null }
+            }
+            val viewModel: DoctorDashboardViewModel = if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+            DoctorBookingsScreen(navController = navController, viewModel = viewModel)
+        }
+        composable(NavRoutes.DoctorSchedule) {
+            val parentEntry = remember(it) {
+                try { navController.getBackStackEntry(NavRoutes.DoctorDashboard) }
+                catch (_: Exception) { null }
+            }
+            val viewModel: DoctorDashboardViewModel = if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+            DoctorScheduleScreen(navController = navController, viewModel = viewModel)
+        }
+        composable(NavRoutes.DoctorPatients) { DoctorPatientsScreen(navController = navController) }
+        composable(NavRoutes.DoctorProfileManagement) {
+            val parentEntry = remember(it) {
+                try { navController.getBackStackEntry(NavRoutes.DoctorDashboard) }
+                catch (_: Exception) { null }
+            }
+            val viewModel: DoctorDashboardViewModel = if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+            DoctorProfileManagementScreen(navController = navController, viewModel = viewModel)
+        }
+        composable(NavRoutes.DoctorVault) {
+            val parentEntry = remember(it) {
+                try { navController.getBackStackEntry(NavRoutes.DoctorDashboard) }
+                catch (_: Exception) { null }
+            }
+            val viewModel: DoctorDashboardViewModel = if (parentEntry != null) hiltViewModel(parentEntry) else hiltViewModel()
+            DoctorVaultScreen(navController = navController, viewModel = viewModel)
+        }
 
         composable(NavRoutes.Dashboard) { DashboardScreen(navController = navController) }
         composable(NavRoutes.Scan) { ScanScreen(navController = navController) }
         composable(NavRoutes.Results) { ResultsScreen(navController = navController) }
         composable(NavRoutes.Profile) { ProfileScreen(navController = navController) }
+        composable(NavRoutes.Vaccinations) { VaccinationsScreen(navController = navController) }
+        composable(NavRoutes.HelpCenter) { HelpCenterScreen(navController = navController) }
+        composable(NavRoutes.AboutHelpix) { AboutHelpixScreen(navController = navController) }
         
         composable(NavRoutes.Doctors) { DoctorsScreen(navController = navController) }
-        composable(NavRoutes.DoctorSchedule) { DoctorScheduleScreen(navController = navController) }
         
         composable(NavRoutes.DoctorDetails) { DoctorDetailsScreen(navController = navController) }
         composable(NavRoutes.Health) { HealthScreen(navController = navController) }
         composable(NavRoutes.HealthHistory) { HealthHistoryScreen() }
         composable(NavRoutes.MyAppointments) { MyAppointmentsScreen(navController = navController) }
+        
+        composable(
+            route = NavRoutes.BookingSummary,
+            arguments = listOf(
+                navArgument("docName") { type = NavType.StringType },
+                navArgument("specialization") { type = NavType.StringType },
+                navArgument("fee") { type = NavType.StringType },
+                navArgument("date") { type = NavType.StringType },
+                navArgument("time") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val docName = backStackEntry.arguments?.getString("docName") ?: ""
+            val specialization = backStackEntry.arguments?.getString("specialization") ?: ""
+            val fee = backStackEntry.arguments?.getString("fee")?.toDoubleOrNull() ?: 0.0
+            val date = backStackEntry.arguments?.getString("date") ?: ""
+            val time = backStackEntry.arguments?.getString("time") ?: ""
+            
+            BookingSummaryScreen(navController, docName, specialization, fee, date, time)
+        }
+        
+        composable(NavRoutes.PaymentProcess) { PaymentProcessScreen(navController = navController) }
+        
         composable(NavRoutes.DietPlanner) { DietPlannerScreen(navController = navController) }
         composable(NavRoutes.AppSettings) { AppSettingsScreen(navController = navController) }
         composable(NavRoutes.DeviceConnect) { DeviceConnectScreen(navController = navController) }
         composable(NavRoutes.WatchScanner) {
-            WatchScannerScreen(navController = navController) { qrCode -> navController.popBackStack() }
+            WatchScannerScreen(navController = navController) { _ -> navController.popBackStack() }
         }
         composable(NavRoutes.Tools) { ToolsScreen(navController = navController) }
         composable(NavRoutes.KidsMode) { KidsModeScreen(navController = navController) }

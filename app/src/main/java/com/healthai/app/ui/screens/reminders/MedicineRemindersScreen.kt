@@ -28,8 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.healthai.app.data.local.AppDatabase
-import com.healthai.app.data.local.Reminder
+import com.healthai.app.data.local.database.HelpixDatabase
+import com.healthai.app.data.local.entity.Reminder
 import com.healthai.app.ui.navigation.NavRoutes
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -41,7 +41,7 @@ import java.util.*
 fun MedicineRemindersScreen(navController: NavController) {
 
     val context = LocalContext.current
-    val db = remember { AppDatabase.getDatabase(context) }
+    val db = remember { HelpixDatabase.getDatabase(context) }
     val reminders by db.reminderDao().getAllReminders().collectAsState(initial = emptyList())
 
     Scaffold(
@@ -170,7 +170,7 @@ fun HorizontalCalendarView() {
 }
 
 @Composable
-fun ReminderListItem(reminder: Reminder, db: AppDatabase) {
+fun ReminderListItem(reminder: Reminder, db: HelpixDatabase) {
     val coroutineScope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
 

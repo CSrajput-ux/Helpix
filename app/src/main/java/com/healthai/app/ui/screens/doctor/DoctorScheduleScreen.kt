@@ -2,33 +2,31 @@ package com.healthai.app.ui.screens.doctor
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
 import com.healthai.app.domain.model.Appointment
@@ -40,7 +38,7 @@ import java.util.*
 @Composable
 fun DoctorScheduleScreen(
     navController: NavController,
-    viewModel: DoctorDashboardViewModel = viewModel()
+    viewModel: DoctorDashboardViewModel = hiltViewModel()
 ) {
     val appointments by viewModel.appointments.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -61,69 +59,75 @@ fun DoctorScheduleScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddSlotDialog = true },
-                containerColor = colorResource(id = R.color.logo_cyan),
-                contentColor = Color.Black,
-                shape = CircleShape,
+                containerColor = MedicalEmerald,
+                contentColor = DocDeepSlate,
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.padding(bottom = 80.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Schedule Slot")
             }
-        }
+        },
+        containerColor = DocDeepSlate
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            colorResource(id = R.color.login_bg_top),
-                            colorResource(id = R.color.login_bg_bottom)
-                        )
-                    )
-                )
         ) {
+            DocScheduleGridBackground()
+
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
+                // Custom Top Bar
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier.background(DocCardBg, CircleShape)
+                    ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
-                    Text(
-                        text = "My Schedule",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(
+                            text = "Clinic Agenda",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedDate),
+                            color = DocTextGrey,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
 
-                DateSelector(
+                // Aesthetic Date Selector
+                DocDateSelector(
                     days = daysInMonth,
                     selectedDate = selectedDate,
                     onDateSelected = { selectedDate = it }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        ScheduleFilterChip("All", true)
-                        ScheduleFilterChip("Pending", false)
-                        ScheduleFilterChip("Confirmed", false)
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
+                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    Text(
+                        text = if (isSameDay(selectedDate, calendar.time)) "Today's Schedule" 
+                               else "Appointments for ${SimpleDateFormat("MMM d", Locale.getDefault()).format(selectedDate)}",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
 
                     if (isLoading) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = colorResource(id = R.color.logo_cyan))
+                            CircularProgressIndicator(color = MedicalEmerald)
                         }
                     } else {
                         val filteredAppointments = appointments.filter { 
@@ -131,28 +135,27 @@ fun DoctorScheduleScreen(
                         }
 
                         LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
                             contentPadding = PaddingValues(bottom = 32.dp)
                         ) {
-                            item {
-                                Text(
-                                    if (isSameDay(selectedDate, calendar.time)) "Today's Agenda" else "Agenda for ${SimpleDateFormat("MMM d", Locale.getDefault()).format(selectedDate)}",
-                                    color = colorResource(id = R.color.logo_cyan),
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                            }
-                            
                             if (filteredAppointments.isEmpty()) {
                                 item {
-                                    Box(modifier = Modifier.fillMaxWidth().padding(top = 40.dp), contentAlignment = Alignment.Center) {
-                                        Text("No appointments for this day", color = Color.Gray, fontSize = 14.sp)
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 60.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Icon(Icons.Default.AccessTime, contentDescription = null, tint = DocTextGrey, modifier = Modifier.size(48.dp))
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            Text("No appointments found", color = DocTextGrey, fontSize = 14.sp)
+                                        }
                                     }
                                 }
                             } else {
                                 items(filteredAppointments) { appointment ->
-                                    DoctorScheduleCard(appointment)
+                                    AestheticScheduleCard(appointment)
                                 }
                             }
                         }
@@ -170,84 +173,11 @@ fun DoctorScheduleScreen(
     }
 }
 
-@Composable
-fun DateSelector(
-    days: List<Date>,
-    selectedDate: Date,
-    onDateSelected: (Date) -> Unit
-) {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(days) { date ->
-            val isSelected = isSameDay(date, selectedDate)
-            val dayName = SimpleDateFormat("EEE", Locale.getDefault()).format(date)
-            val dayNumber = SimpleDateFormat("d", Locale.getDefault()).format(date)
-            
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .width(60.dp)
-                    .clip(RoundedCornerShape(30.dp))
-                    .background(
-                        if (isSelected) colorResource(id = R.color.logo_cyan) 
-                        else Color.White.copy(alpha = 0.05f)
-                    )
-                    .clickable { onDateSelected(date) }
-                    .padding(vertical = 12.dp)
-            ) {
-                Text(
-                    text = dayName,
-                    color = if (isSelected) Color.Black else Color.Gray,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = dayNumber,
-                    color = if (isSelected) Color.Black else Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
-
-private fun getDaysOfMonth(): List<Date> {
-    val calendar = Calendar.getInstance()
-    calendar.set(Calendar.DAY_OF_MONTH, 1)
-    val month = calendar.get(Calendar.MONTH)
-    val days = mutableListOf<Date>()
-    while (calendar.get(Calendar.MONTH) == month) {
-        days.add(calendar.time)
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
-    }
-    repeat(14) {
-        days.add(calendar.time)
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
-    }
-    return days
-}
-
-private fun isSameDay(date1: Date?, date2: Date?): Boolean {
-    if (date1 == null || date2 == null) return false
-    val cal1 = Calendar.getInstance().apply { time = date1 }
-    val cal2 = Calendar.getInstance().apply { time = date2 }
-    return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
-           cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
     val currentTime = Calendar.getInstance()
     
-    // Start Time State
     val startState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY),
         initialMinute = currentTime.get(Calendar.MINUTE),
@@ -255,7 +185,6 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
     )
     var showStartTimePicker by remember { mutableStateOf(false) }
     
-    // End Time State
     val endState = rememberTimePickerState(
         initialHour = currentTime.get(Calendar.HOUR_OF_DAY) + 1,
         initialMinute = currentTime.get(Calendar.MINUTE),
@@ -272,29 +201,28 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = Color(0xFF1E293B),
+        containerColor = DocCardBg,
         title = { Text("Add Available Slot", color = Color.White, fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                Text("Choose your free hours for today.", color = Color.Gray, fontSize = 14.sp)
+                Text("Choose your free hours for today.", color = DocTextGrey, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(20.dp))
                 
-                // Start Time Trigger
                 OutlinedCard(
                     onClick = { showStartTimePicker = true },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFF0F172A)),
-                    border = BorderStroke(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.5f))
+                    colors = CardDefaults.outlinedCardColors(containerColor = DocDeepSlate),
+                    border = BorderStroke(1.dp, MedicalEmerald.copy(alpha = 0.5f))
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.AccessTime, contentDescription = null, tint = colorResource(id = R.color.logo_cyan))
+                        Icon(Icons.Default.AccessTime, contentDescription = null, tint = MedicalEmerald)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text("Start Time", color = Color.Gray, fontSize = 10.sp)
+                            Text("Start Time", color = DocTextGrey, fontSize = 10.sp)
                             Text(formatTime(startState), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
@@ -302,22 +230,21 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // End Time Trigger
                 OutlinedCard(
                     onClick = { showEndTimePicker = true },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFF0F172A)),
-                    border = BorderStroke(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.5f))
+                    colors = CardDefaults.outlinedCardColors(containerColor = DocDeepSlate),
+                    border = BorderStroke(1.dp, MedicalEmerald.copy(alpha = 0.5f))
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.AccessTime, contentDescription = null, tint = colorResource(id = R.color.logo_cyan))
+                        Icon(Icons.Default.AccessTime, contentDescription = null, tint = MedicalEmerald)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text("End Time", color = Color.Gray, fontSize = 10.sp)
+                            Text("End Time", color = DocTextGrey, fontSize = 10.sp)
                             Text(formatTime(endState), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
@@ -327,13 +254,13 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
         confirmButton = {
             Button(
                 onClick = { onConfirm(formatTime(startState), formatTime(endState)) },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.logo_cyan))
+                colors = ButtonDefaults.buttonColors(containerColor = MedicalEmerald)
             ) {
-                Text("Add Slot", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("Add Slot", color = DocDeepSlate, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Gray) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = DocTextGrey) }
         }
     )
 
@@ -365,85 +292,171 @@ fun TimePickerDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("OK", color = colorResource(id = R.color.logo_cyan)) }
+            TextButton(onClick = onConfirm) { Text("OK", color = MedicalEmerald) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = Color.Gray) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = DocTextGrey) }
         },
         text = { content() },
-        containerColor = Color(0xFF1E293B)
+        containerColor = DocCardBg
     )
 }
 
 @Composable
-fun ScheduleFilterChip(label: String, isSelected: Boolean) {
-    Surface(
-        color = if (isSelected) colorResource(id = R.color.logo_cyan) else Color.White.copy(alpha = 0.05f),
-        shape = RoundedCornerShape(20.dp),
-        border = if (isSelected) null else BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            color = if (isSelected) Color.Black else Color.White,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold
-        )
+fun DocScheduleGridBackground() {
+    val color = Color.White.copy(alpha = 0.03f)
+    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+        val gridSize = 40.dp.toPx()
+        for (x in 0..size.width.toInt() step gridSize.toInt()) {
+            drawLine(color, start = androidx.compose.ui.geometry.Offset(x.toFloat(), 0f), end = androidx.compose.ui.geometry.Offset(x.toFloat(), size.height))
+        }
+        for (y in 0..size.height.toInt() step gridSize.toInt()) {
+            drawLine(color, start = androidx.compose.ui.geometry.Offset(0f, y.toFloat()), end = androidx.compose.ui.geometry.Offset(size.width, y.toFloat()))
+        }
     }
 }
 
 @Composable
-fun DoctorScheduleCard(appointment: Appointment) {
-    val formattedDate = appointment.appointmentDate?.let { SimpleDateFormat("EEE, MMM d, yyyy", Locale.getDefault()).format(it) } ?: ""
+fun DocDateSelector(
+    days: List<Date>,
+    selectedDate: Date,
+    onDateSelected: (Date) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        items(days) { date ->
+            val isSelected = isSameDay(date, selectedDate)
+            val isToday = isSameDay(date, Calendar.getInstance().time)
+            
+            val dayName = SimpleDateFormat("EEE", Locale.getDefault()).format(date)
+            val dayNumber = SimpleDateFormat("d", Locale.getDefault()).format(date)
+            
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .width(65.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        when {
+                            isSelected -> MedicalEmerald
+                            isToday -> MedicalEmerald.copy(alpha = 0.1f)
+                            else -> DocCardBg
+                        }
+                    )
+                    .border(
+                        1.dp, 
+                        if (isSelected) MedicalEmerald else if (isToday) MedicalEmerald.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.05f),
+                        RoundedCornerShape(20.dp)
+                    )
+                    .clickable { onDateSelected(date) }
+                    .padding(vertical = 14.dp)
+            ) {
+                Text(
+                    text = dayName,
+                    color = if (isSelected) DocDeepSlate else DocTextGrey,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = dayNumber,
+                    color = if (isSelected) DocDeepSlate else Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AestheticScheduleCard(appointment: Appointment) {
     val formattedTime = appointment.appointmentDate?.let { SimpleDateFormat("h:mm a", Locale.getDefault()).format(it) } ?: ""
     
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = colorResource(id = R.color.helpix_bg_top).copy(alpha = 0.6f)
-        ),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = DocCardBg),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
     ) {
         Row(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(formattedTime, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
-                Text("Today", color = colorResource(id = R.color.logo_cyan), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .background(ProfessionalIndigo.copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = formattedTime.split(" ")[0],
+                    color = ProfessionalIndigo,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
             }
-            Spacer(modifier = Modifier.width(20.dp))
-            Box(modifier = Modifier.width(1.dp).height(40.dp).background(Color.White.copy(alpha = 0.1f)))
-            Spacer(modifier = Modifier.width(20.dp))
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
             Column(modifier = Modifier.weight(1f)) {
-                Text("Patient: ${appointment.patientId}", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                Text(formattedDate, color = Color.Gray, fontSize = 12.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Surface(
-                    color = when(appointment.status) {
-                        "COMPLETED" -> Color(0xFF00E676).copy(alpha = 0.1f)
-                        "SCHEDULED" -> Color(0xFF2979FF).copy(alpha = 0.1f)
-                        else -> Color(0xFFFFAB00).copy(alpha = 0.1f)
-                    },
-                    shape = RoundedCornerShape(8.dp)
-                ) {
+                Text(
+                    text = "Patient ID: ${appointment.patientId.takeLast(6).uppercase()}",
+                    color = Color.White,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .background(
+                                when(appointment.status) {
+                                    "COMPLETED" -> Color(0xFF00E676)
+                                    "SCHEDULED" -> ProfessionalIndigo
+                                    else -> Color(0xFFFFAB00)
+                                },
+                                CircleShape
+                            )
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = appointment.status,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = when(appointment.status) {
-                            "COMPLETED" -> Color(0xFF00E676)
-                            "SCHEDULED" -> Color(0xFF2979FF)
-                            else -> Color(0xFFFFAB00)
-                        },
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
+                        color = DocTextGrey,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
             }
-            IconButton(onClick = { }) {
-                Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(16.dp))
+            
+            IconButton(
+                onClick = { },
+                modifier = Modifier.background(DocDeepSlate, CircleShape).size(32.dp)
+            ) {
+                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
             }
         }
     }
+}
+
+private fun getDaysOfMonth(): List<Date> {
+    val calendar = Calendar.getInstance()
+    // Start from today
+    val days = mutableListOf<Date>()
+    repeat(30) {
+        days.add(calendar.time)
+        calendar.add(Calendar.DAY_OF_MONTH, 1)
+    }
+    return days
+}
+
+private fun isSameDay(date1: Date?, date2: Date?): Boolean {
+    if (date1 == null || date2 == null) return false
+    val cal1 = Calendar.getInstance().apply { time = date1 }
+    val cal2 = Calendar.getInstance().apply { time = date2 }
+    return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+           cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
 }

@@ -15,5 +15,7 @@ data class User(
     val userType: String = "PATIENT", // Can be "PATIENT" or "DOCTOR"
     val specialization: String? = null,
     val licenseNumber: String? = null,
-    val clinicAddress: String? = null
+    val clinicAddress: String? = null,
+    val consultationFee: Double = 500.0, // Default fee
+    val experienceYears: Int? = null
 )

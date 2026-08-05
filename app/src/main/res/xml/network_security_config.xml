@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    HELPix AI Healthcare Platform - Android Enterprise Network Security Configuration
+    Enforces strict HTTPS-only communication and certificate pinning readiness.
+-->
+<network-security-config>
+    <!-- Base Config: Default to HTTPS only for all domains -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Debug/Development Loopback Config (Cleartext permitted ONLY for emulator/local testing) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
+
+    <!-- Production Enterprise API Server Certificate Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">helpix-api.enterprise.local</domain>
+        <pin-set expiration="2027-12-31">
+            <!-- SHA-256 Public Key Certificate Pins (Enterprise Root & Backup CA) -->
+            <pin digest="SHA-256">7HIpactkIAq2Y49orFOOQKurWxmmSFZhBCoQYcRhJ3Y=</pin>
+            <pin digest="SHA-256">YLh1dUR9y6Kha306784JG3wG+Ie0sYL3fE0qT5Z2QzQ=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>

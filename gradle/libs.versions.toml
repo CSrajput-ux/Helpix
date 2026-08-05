@@ -27,6 +27,7 @@ biometric = "1.2.0-alpha05"
 healthConnect = "1.1.0-alpha11"
 playServicesMaps = "19.0.0"
 playServicesLocation = "21.3.0"
+playServicesAuth = "21.2.0"
 places = "4.1.0"
 datastore = "1.1.2"
 okhttp = "4.12.0"
@@ -89,6 +90,7 @@ androidx-biometric = { group = "androidx.biometric", name = "biometric", version
 androidx-health-connect = { group = "androidx.health.connect", name = "connect-client", version.ref = "healthConnect" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 google-places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 

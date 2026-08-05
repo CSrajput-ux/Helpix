@@ -1,79 +1,112 @@
 package com.healthai.app.data.repository
 
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import com.healthai.app.domain.model.User
-import com.healthai.app.domain.model.VitalsLog
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
+import com.healthai.app.data.remote.api.HelpixApi
+import com.healthai.app.data.remote.api.MedicalRecordRequest
+import com.healthai.app.data.remote.api.MedicalRecordResponse
+import com.healthai.app.data.remote.api.UpdateProfileRequest
+import com.healthai.app.data.remote.api.UserProfile
+import com.healthai.app.data.remote.api.VitalsResponse
+import com.healthai.app.data.remote.api.WalletResponse
+import com.healthai.app.data.remote.api.WalletTransactionResponse
+import com.healthai.app.data.remote.api.WithdrawalRequest
+import retrofit2.Response
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class UserRepository {
+/**
+ * FIX #2: UserRepository now routes all user and vitals operations through the
+ * FastAPI backend (HelpixApi / Retrofit) instead of directly using Firebase Firestore.
+ *
+ * Firebase Firestore was causing a split-data problem:
+ *   - Registration / profile changes → Firestore (bypassed backend)
+ *   - Vitals sync → backend (correct path)
+ *   - Appointments → Firestore (bypassed backend)
+ * All data now flows through one authoritative source: the Helpix FastAPI backend.
+ */
+@Singleton
+class UserRepository @Inject constructor(
+    private val api: HelpixApi
+) {
 
-    private val firestore = FirebaseFirestore.getInstance()
-    private val auth = FirebaseAuth.getInstance()
+    /** Fetch the authenticated user's profile from the backend. */
+    suspend fun getProfile(): Response<UserProfile> = api.getProfile()
 
-    suspend fun createUser(user: User) {
-        firestore.collection("users").document(user.id).set(user).await()
+    /** Update profile fields on the backend. */
+    suspend fun updateProfile(
+        fullName: String? = null,
+        age: Int? = null,
+        bloodGroup: String? = null,
+        gender: String? = null,
+        emergencyContact: String? = null,
+        location: String? = null,
+        allergies: String? = null,
+        specialization: String? = null,
+        licenseNumber: String? = null,
+        clinicAddress: String? = null,
+        consultationFee: Double? = null,
+        experienceYears: Int? = null,
+        role: String? = null
+    ): Response<UserProfile> {
+        return api.updateProfile(
+            UpdateProfileRequest(
+                full_name = fullName,
+                age = age,
+                blood_group = bloodGroup,
+                gender = gender,
+                emergency_contact = emergencyContact,
+                location = location,
+                allergies = allergies,
+                specialization = specialization,
+                license_number = licenseNumber,
+                clinic_address = clinicAddress,
+                consultation_fee = consultationFee,
+                experience_years = experienceYears,
+                role = role
+            )
+        )
     }
 
-    suspend fun addVitalsLog(vitalsLog: VitalsLog) {
-        val userId = auth.currentUser?.uid ?: return
-        firestore.collection("users").document(userId).collection("vitals").add(vitalsLog).await()
+    /** Retrieve vitals history for the authenticated patient. */
+    suspend fun getVitalsHistory(): Response<List<com.healthai.app.domain.model.VitalsLog>> =
+        api.getVitalsHistory()
+
+    /** Get latest vitals reading (e.g. for dashboard). */
+    suspend fun getLatestVitals(): Response<VitalsResponse> = api.getLatestVitals()
+
+    /** Fetch the list of all registered doctors. */
+    suspend fun getDoctors() = api.getDoctors()
+
+    /** Get a specific doctor's profile (from the doctors list, filtered by id). */
+    suspend fun getDoctorById(doctorId: String) = api.getDoctors().let { response ->
+        if (response.isSuccessful) {
+            response.body()?.firstOrNull { it.user_id == doctorId }
+        } else null
     }
 
-    suspend fun getVitalsHistory(): List<VitalsLog> {
-        val userId = auth.currentUser?.uid ?: return emptyList()
-        val snapshot = firestore.collection("users").document(userId).collection("vitals")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(100)
-            .get()
-            .await()
-        return snapshot.toObjects(VitalsLog::class.java)
+    /** Create a medical record for the current user. */
+    suspend fun createMedicalRecord(
+        recordType: String,
+        history: String,
+        notes: String? = null
+    ): Response<MedicalRecordResponse> {
+        return api.createMedicalRecord(
+            MedicalRecordRequest(
+                record_type = recordType,
+                medical_history = history,
+                notes = notes
+            )
+        )
     }
 
-    suspend fun getDoctors(): List<User> {
-        val snapshot = firestore.collection("users")
-            .whereEqualTo("userType", "DOCTOR")
-            .get()
-            .await()
-        return snapshot.toObjects(User::class.java)
-    }
+    /** Retrieve all medical records for the current user. */
+    suspend fun getMedicalRecords(): Response<List<MedicalRecordResponse>> =
+        api.getMedicalRecords()
 
-    suspend fun getDoctorById(doctorId: String): User? {
-        val snapshot = firestore.collection("users").document(doctorId).get().await()
-        return snapshot.toObject(User::class.java)
-    }
+    // ---- Financial Vault Methods ----
 
-    suspend fun getUserById(userId: String): User? {
-        val snapshot = firestore.collection("users").document(userId).get().await()
-        return snapshot.toObject(User::class.java)
-    }
+    suspend fun getWalletSummary(): Response<WalletResponse> = api.getWalletSummary()
 
-    fun getLatestVitalsStream(): Flow<VitalsLog?> = callbackFlow {
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            trySend(null)
-            close()
-            return@callbackFlow
-        }
-
-        val listenerRegistration = firestore.collection("users").document(userId).collection("vitals")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(1)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && !snapshot.isEmpty) {
-                    trySend(snapshot.documents[0].toObject(VitalsLog::class.java))
-                } else {
-                    trySend(null)
-                }
-            }
-        awaitClose { listenerRegistration.remove() }
+    suspend fun requestWithdrawal(amount: Double, bankAccountId: String? = null): Response<WalletTransactionResponse> {
+        return api.requestWithdrawal(WithdrawalRequest(amount, bankAccountId))
     }
 }

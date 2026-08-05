@@ -73,7 +73,7 @@ class HealthViewModel @Inject constructor(
                         steps = steps.toInt(),
                         heartRate = hr,
                         isWatchConnected = true,
-                        healthScore = 87 
+                        healthScore = 0 // Needs calculation from real data
                     )
                 } else {
                     _uiState.value = _uiState.value.copy(currentDate = nowStr)

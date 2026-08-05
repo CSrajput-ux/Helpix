@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.healthai.app.data.remote.api.HealthApiService
+import com.healthai.app.data.remote.api.HelpixApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AiChatViewModel @Inject constructor(
-    private val api: HealthApiService
+    private val api: HelpixApi
 ) : ViewModel() {
 
     private val _messages = mutableStateListOf(

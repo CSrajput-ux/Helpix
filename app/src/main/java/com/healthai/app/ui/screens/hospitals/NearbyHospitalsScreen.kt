@@ -52,15 +52,6 @@ fun NearbyHospitalsScreen(navController: NavController) {
     var locationError by remember { mutableStateOf<String?>(null) }
     var hospitalList by remember { mutableStateOf<List<Hospital>>(emptyList()) }
 
-    // Dummy data that will be "simulated" as sorted once location is fetched
-    val baseHospitals = listOf(
-        Hospital("Apollo Hospital", "Calculating...", "Private", "Multi-specialty", true),
-        Hospital("Fortis Healthcare", "Calculating...", "Private", "Emergency Care", true),
-        Hospital("Max Super Speciality", "Calculating...", "Private", "Cardiology", true),
-        Hospital("AIIMS", "Calculating...", "Government", "General Medicine", true),
-        Hospital("City Clinic", "Calculating...", "Private", "Pediatrics", false)
-    )
-
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = { permissions ->
@@ -69,10 +60,8 @@ fun NearbyHospitalsScreen(navController: NavController) {
             ) {
                 fetchLocationAndHospitals(context, fusedLocationClient) {
                     isLoading = false
-                    // In a real app with Places API, we'd fetch real hospitals here.
-                    // For now, we simulate "Near you" by showing base list.
-                    hospitalList = baseHospitals.map { it.copy(distance = "${(1..5).random()}.${(0..9).random()} km") }
-                        .sortedBy { it.distance }
+                    // Real data should be fetched from Google Places API or similar
+                    hospitalList = emptyList()
                 }
             } else {
                 locationError = "Location permission denied"

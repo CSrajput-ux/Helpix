@@ -20,8 +20,7 @@ data class PossibleCause(val name: String, val matchPercentage: Int, val explana
 @Composable
 fun SymptomResultScreen(navController: NavController) {
 
-    // Dummy data for preview
-    val triageLevel = "Yellow"
+    val triageLevel = ""
     val triageText: String
     val triageColor: Color
 
@@ -34,17 +33,17 @@ fun SymptomResultScreen(navController: NavController) {
             triageText = "Salah di jaati hai ki aap 24 ghante ke andar doctor se milein."
             triageColor = Color.Yellow
         }
-        else -> {
+        "Green" -> {
             triageText = "Aap ghar par in lakshano ki dekhbhal kar sakte hain."
             triageColor = Color.Green
         }
+        else -> {
+            triageText = "No symptoms analyzed yet."
+            triageColor = Color.Gray
+        }
     }
 
-    val causes = listOf(
-        PossibleCause("Viral Fever", 80, "Aapke bataye gaye lakshan - bukhar, sirdard, aur thakaan - aam taur par Viral Fever mein dekhe jaate hain."),
-        PossibleCause("Migraine", 55, "Tez sirdard Migraine ka sanket ho sakta hai, khas kar agar roshni se takleef ho."),
-        PossibleCause("Dehydration", 40, "Pani ki kami se bhi sirdard aur thakaan ho sakti hai.")
-    )
+    val causes = emptyList<PossibleCause>()
 
     Scaffold(
         topBar = {

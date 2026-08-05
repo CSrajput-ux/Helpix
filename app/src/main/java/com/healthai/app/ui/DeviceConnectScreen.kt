@@ -40,21 +40,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.healthai.app.data.repository.UserRepository
+import com.healthai.app.data.repository.HealthRepository
 import com.healthai.app.domain.model.VitalsLog
 import com.healthai.app.services.BleDevice
 import com.healthai.app.services.BluetoothService
 import com.healthai.app.services.ConnectionManager
 import com.healthai.app.ui.navigation.NavRoutes
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 //--- DATA & VIEW MODELS ---//
 
@@ -67,7 +68,11 @@ sealed class ConnectionState {
     data class Error(val message: String) : ConnectionState()
 }
 
-class DeviceConnectViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class DeviceConnectViewModel @Inject constructor(
+    application: Application,
+    private val healthRepository: HealthRepository
+) : AndroidViewModel(application) {
     private val _state = MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
     val state = _state.asStateFlow()
 
@@ -76,7 +81,6 @@ class DeviceConnectViewModel(application: Application) : AndroidViewModel(applic
 
     val bluetoothService = BluetoothService(application)
     private val connectionManager = ConnectionManager(application)
-    private val userRepository = UserRepository()
     private var vitalsJob: Job? = null
 
     init {
@@ -130,20 +134,14 @@ class DeviceConnectViewModel(application: Application) : AndroidViewModel(applic
 
     private fun startVitalsListener() {
         vitalsJob = viewModelScope.launch {
-            userRepository.getLatestVitalsStream().collect { vitalsLog ->
-                _vitals.value = vitalsLog
+            healthRepository.getLatestMetrics().collect { metric ->
+                _vitals.value = VitalsLog(
+                    heartRate = metric.heartRate,
+                    steps = metric.steps,
+                    spo2 = metric.bloodOxygen
+                )
             }
         }
-    }
-}
-
-class DeviceConnectViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(DeviceConnectViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return DeviceConnectViewModel(application) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
@@ -152,10 +150,7 @@ class DeviceConnectViewModelFactory(private val application: Application) : View
 @Composable
 fun DeviceConnectScreen(navController: NavController) {
     val context = LocalContext.current
-    val application = context.applicationContext as Application
-    val viewModel: DeviceConnectViewModel = viewModel(
-        factory = DeviceConnectViewModelFactory(application)
-    )
+    val viewModel: DeviceConnectViewModel = hiltViewModel()
     val state by viewModel.state.collectAsState()
     val vitals by viewModel.vitals.collectAsState()
 
@@ -180,13 +175,13 @@ fun DeviceConnectScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0B1221)),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         when (val currentState = state) {
             is ConnectionState.Disconnected -> {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
-                    Icon(Icons.Default.Refresh, contentDescription = null, tint = Color(0xFF00E5FF), modifier = Modifier.size(64.dp))
+                    Icon(Icons.Default.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(64.dp))
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     Text(
@@ -230,14 +225,14 @@ fun DeviceConnectScreen(navController: NavController) {
                                 viewModel.startScan() 
                             }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(56.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Refresh, contentDescription = null, tint = Color.Black)
+                            Icon(Icons.Default.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text("Search via Bluetooth", color = Color.Black, fontWeight = FontWeight.Bold)
+                            Text("Search via Bluetooth", color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Bold)
                         }
                     }
                     
@@ -247,7 +242,7 @@ fun DeviceConnectScreen(navController: NavController) {
                     OutlinedButton(
                         onClick = { navController.navigate(NavRoutes.WatchScanner) },
                         border = ButtonDefaults.outlinedButtonBorder.copy(width = 2.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF00E5FF)),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(56.dp)
                     ) {
@@ -267,10 +262,9 @@ fun DeviceConnectScreen(navController: NavController) {
                     viewModel.connectToDevice(bleDevice)
                 }
             }
-            // ... rest of the code remains same
             is ConnectionState.Connecting -> {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = Color(0xFF00E5FF))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Pairing with ${currentState.device.name}...",
@@ -287,7 +281,7 @@ fun DeviceConnectScreen(navController: NavController) {
                 } ?: run {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
-                            CircularProgressIndicator(color = Color(0xFF00E5FF))
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             Spacer(modifier = Modifier.height(16.dp))
                             Text("Waiting for data from ${currentState.device.name}...", color = Color.White, textAlign = TextAlign.Center)
                         }
@@ -296,7 +290,7 @@ fun DeviceConnectScreen(navController: NavController) {
             }
             is ConnectionState.Error -> {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
-                    Text("Oops!", color = Color(0xFFFF5252), fontSize = 32.sp, fontWeight = FontWeight.Bold)
+                    Text("Oops!", color = MaterialTheme.colorScheme.error, fontSize = 32.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(currentState.message, color = Color.White, textAlign = TextAlign.Center)
                     Spacer(modifier = Modifier.height(24.dp))
@@ -304,9 +298,9 @@ fun DeviceConnectScreen(navController: NavController) {
                         onClick = { 
                             viewModel.startScan() 
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E5FF))
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                     ) {
-                        Text("Try Again", color = Color.Black)
+                        Text("Try Again", color = MaterialTheme.colorScheme.onPrimary)
                     }
                 }
             }

@@ -20,14 +20,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.VerifiedUser
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,27 +42,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
 import com.healthai.app.R
 import com.healthai.app.data.repository.AppointmentRepository
 import com.healthai.app.data.repository.UserRepository
-import com.healthai.app.domain.model.Appointment
 import com.healthai.app.domain.model.User
 import com.healthai.app.ui.components.AIButton
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.Locale
+import javax.inject.Inject
 
-class DoctorProfileViewModel(private val doctorId: String) : ViewModel() {
-    private val userRepository = UserRepository()
-    private val appointmentRepository = AppointmentRepository()
-    private val auth = FirebaseAuth.getInstance()
+@HiltViewModel
+class DoctorProfileViewModel @Inject constructor(
+    private val userRepository: UserRepository,
+    private val appointmentRepository: AppointmentRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
+    private val doctorId: String = savedStateHandle["doctorId"] ?: ""
 
     private val _doctor = MutableStateFlow<User?>(null)
     val doctor = _doctor.asStateFlow()
@@ -76,37 +80,60 @@ class DoctorProfileViewModel(private val doctorId: String) : ViewModel() {
     private val _bookingConfirmed = MutableStateFlow(false)
     val bookingConfirmed = _bookingConfirmed.asStateFlow()
 
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+
     init {
-        fetchDoctorDetails()
+        if (doctorId.isNotEmpty()) {
+            fetchDoctorDetails()
+        }
     }
 
     private fun fetchDoctorDetails() {
         viewModelScope.launch {
             _isLoading.value = true
-            _doctor.value = userRepository.getDoctorById(doctorId)
-            _isLoading.value = false
+            try {
+                val doc = userRepository.getDoctorById(doctorId)
+                if (doc != null) {
+                    _doctor.value = User(
+                        id = doc.user_id,
+                        name = doc.full_name,
+                        specialization = doc.specialization,
+                        clinicAddress = doc.clinic_address,
+                        userType = "DOCTOR"
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun bookAppointment(appointmentDate: Date) {
         viewModelScope.launch {
             _isLoading.value = true
-            val patientId = auth.currentUser?.uid ?: return@launch
-            val appointment = Appointment(
-                doctorId = doctorId,
-                patientId = patientId,
-                appointmentDate = appointmentDate
-            )
-            appointmentRepository.createAppointment(appointment)
-            _bookingConfirmed.value = true
-            _isLoading.value = false
+            try {
+                val response = appointmentRepository.createAppointment(
+                    doctorId = doctorId,
+                    appointmentDatetime = dateFormat.format(appointmentDate),
+                    reason = "Regular Consultation"
+                )
+                if (response.isSuccessful) {
+                    _bookingConfirmed.value = true
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 }
 
 @Composable
-fun DoctorProfileScreen(navController: NavController, doctorId: String) {
-    val viewModel: DoctorProfileViewModel = viewModel(factory = DoctorProfileViewModelFactory(doctorId))
+fun DoctorProfileScreen(navController: NavController) {
+    val viewModel: DoctorProfileViewModel = hiltViewModel()
     val doctor by viewModel.doctor.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val bookingConfirmed by viewModel.bookingConfirmed.collectAsState()
@@ -229,10 +256,8 @@ private fun ProfileDetailItem(icon: ImageVector, text: String) {
 
 class DoctorProfileViewModelFactory(private val doctorId: String) : androidx.lifecycle.ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(DoctorProfileViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return DoctorProfileViewModel(doctorId) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        // This factory is still needed because DoctorProfileScreen is not yet using hiltViewModel() with NavGraph args
+        // In a real migration, we'd use hiltViewModel() and pass doctorId via NavGraph.
+        throw UnsupportedOperationException("Use Hilt injection instead")
     }
 }

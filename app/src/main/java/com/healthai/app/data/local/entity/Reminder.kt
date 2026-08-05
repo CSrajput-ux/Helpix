@@ -1,4 +1,4 @@
-package com.healthai.app.data.local
+package com.healthai.app.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -9,9 +9,9 @@ data class Reminder(
     val id: Int = 0,
     val medicineName: String,
     val dosage: String,
-    val time: String, // We'll store time as String for simplicity for now
+    val time: String,
     val schedule: String,
-    val startDate: String, // Dates as String, can be improved with type converters
+    val startDate: String,
     val endDate: String,
     var isTaken: Boolean = false
 )

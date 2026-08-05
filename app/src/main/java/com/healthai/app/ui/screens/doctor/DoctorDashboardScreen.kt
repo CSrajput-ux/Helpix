@@ -26,95 +26,210 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
+
+// Professional Doctor Hub Palette
+val DocDeepSlate = Color(0xFF020617)
+val MedicalEmerald = Color(0xFF10B981)
+val ProfessionalIndigo = Color(0xFF6366F1)
+val DocCardBg = Color(0xFF1E293B)
+val DocTextGrey = Color(0xFF94A3B8)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoctorDashboardScreen(
     navController: NavController,
-    viewModel: DoctorDashboardViewModel = viewModel()
+    viewModel: DoctorDashboardViewModel = hiltViewModel()
 ) {
+    val doctorProfile by viewModel.doctorProfile.collectAsState()
+    val appointments by viewModel.appointments.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    
+    // Refresh dashboard whenever this screen comes into focus
+    LaunchedEffect(Unit) {
+        viewModel.loadDashboard()
+    }
+    val todayAppointmentsCount = remember(appointments) {
+        val today = java.util.Calendar.getInstance()
+        appointments.count { appt ->
+            val apptCal = java.util.Calendar.getInstance().apply { time = appt.appointmentDate ?: java.util.Date(0) }
+            apptCal.get(java.util.Calendar.YEAR) == today.get(java.util.Calendar.YEAR) &&
+            apptCal.get(java.util.Calendar.DAY_OF_YEAR) == today.get(java.util.Calendar.DAY_OF_YEAR)
+        }
+    }
+
     Scaffold(
         bottomBar = {
             HelpixBottomNav(navController = navController, userType = "DOCTOR")
-        }
+        },
+        containerColor = DocDeepSlate
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            colorResource(id = R.color.login_bg_top),
-                            colorResource(id = R.color.login_bg_bottom)
-                        )
-                    )
-                )
         ) {
-            GridBackground()
+            DocGridBackground()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp)
-            ) {
-                DoctorTopBarSection(navController)
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .border(1.dp, colorResource(id = R.color.card_border_glow).copy(alpha = 0.3f), RoundedCornerShape(24.dp))
-                        .background(
-                            colorResource(id = R.color.helpix_bg_top).copy(alpha = 0.5f),
-                            RoundedCornerShape(24.dp)
-                        )
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize().padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        DoctorOverviewCard()
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            DashboardVitalCard("Patients", "42", Icons.Default.People, Color(0xFF2979FF), Modifier.weight(1f))
-                            DashboardVitalCard("Today", "8", Icons.Default.Today, Color(0xFFFFAB00), Modifier.weight(1f))
-                            DashboardVitalCard("Revenue", "₹12k", Icons.Default.Payments, Color(0xFFFF4081), Modifier.weight(1f))
-                        }
-
-                        Spacer(modifier = Modifier.height(24.dp))
-                        QueueManagerCard(navController)
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        Text(text = "Medical Services", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SmallFeatureCard(title = "Schedule", icon = Icons.Default.EventNote, modifier = Modifier.weight(1f), onClick = { 
-                                navController.navigate("doctor_schedule")
-                            })
-                            SmallFeatureCard(title = "Patients", icon = Icons.Default.Groups, modifier = Modifier.weight(1f), onClick = { })
-                            SmallFeatureCard(title = "Vault", icon = Icons.Default.Folder, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.HealthVault) })
-                            SmallFeatureCard(title = "SOS", icon = Icons.Default.Emergency, modifier = Modifier.weight(1f), onClick = { navController.navigate(NavRoutes.Emergency) })
-                        }
-                    }
-
-                    Box(modifier = Modifier.align(Alignment.BottomCenter).offset(y = 28.dp)) {
-                        DoctorScanButton(onClick = { 
-                            navController.navigate(NavRoutes.SkinDetectorStart)
-                        })
-                    }
+            if (isLoading && doctorProfile == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = MedicalEmerald)
                 }
-                Spacer(modifier = Modifier.height(32.dp))
+            } else if (doctorProfile?.userType != "DOCTOR" && doctorProfile?.licenseNumber.isNullOrBlank()) {
+                // Verification Screen for non-doctors (only show if role is not doctor AND no license number is set)
+                DoctorVerificationPlaceholder(navController)
+            } else {
+                // Actual Dashboard
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp)
+                ) {
+                    DoctorTopBarSection(navController)
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 1. Practice Overview Card (Redesigned)
+                    PracticeOverviewCard(navController, doctorProfile)
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 2. Wallet & Metrics Row
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        DocMetricCard("Active Patients", "124", Icons.Default.Groups, ProfessionalIndigo, Modifier.weight(1f))
+                        DocMetricCard("Today's Appts", "12", Icons.Default.EventAvailable, MedicalEmerald, Modifier.weight(1f))
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 3. Main Action Cards
+                    Text(
+                        text = "Clinic Management",
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        DocActionCard(
+                            title = "Queue Manager",
+                            subtitle = "8 Patients in waiting room",
+                            icon = Icons.AutoMirrored.Filled.PlaylistPlay,
+                            accentColor = MedicalEmerald,
+                            onClick = { /* Navigate to Queue */ }
+                        )
+                        DocActionCard(
+                            title = "E-Prescriptions",
+                            subtitle = "Create & share digital Rx",
+                            icon = Icons.Default.Description,
+                            accentColor = ProfessionalIndigo,
+                            onClick = { navController.navigate(NavRoutes.PrescriptionReader) }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 4. Quick Services Grid
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        DocServiceItem("Schedule", Icons.Default.CalendarMonth, Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.DoctorSchedule)
+                        }
+                        DocServiceItem("Patients", Icons.Default.Badge, Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.DoctorPatients)
+                        }
+                        DocServiceItem("Records", Icons.Default.Inventory, Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.HealthVault)
+                        }
+                        DocServiceItem("Vault", Icons.Default.AccountBalanceWallet, Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.DoctorVault)
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.weight(1f))
+                    
+                    // Floating Action (Centered Bottom)
+                    Button(
+                        onClick = { navController.navigate(NavRoutes.SkinDetectorStart) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .shadow(16.dp, RoundedCornerShape(16.dp)),
+                        colors = ButtonDefaults.buttonColors(containerColor = ProfessionalIndigo),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Icon(Icons.Default.AutoGraph, contentDescription = null)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text("Launch AI Clinical Analysis", fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun DoctorVerificationPlaceholder(navController: NavController) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .background(MedicalEmerald.copy(alpha = 0.1f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Default.Security,
+                contentDescription = null,
+                tint = MedicalEmerald,
+                modifier = Modifier.size(48.dp)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Text(
+            "Doctor Verification Required",
+            color = Color.White,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        Text(
+            "To access the Doctor Hub and manage patients, you must verify your professional credentials.",
+            color = DocTextGrey,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            lineHeight = 20.sp
+        )
+        
+        Spacer(modifier = Modifier.height(40.dp))
+        
+        Button(
+            onClick = { navController.navigate(NavRoutes.DoctorProfileManagement) },
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MedicalEmerald),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Text("Complete Professional Profile", color = DocDeepSlate, fontWeight = FontWeight.Bold)
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        TextButton(onClick = { navController.popBackStack() }) {
+            Text("Go Back to Patient Profile", color = MedicalEmerald)
         }
     }
 }
@@ -123,119 +238,136 @@ fun DoctorDashboardScreen(
 fun DoctorTopBarSection(navController: NavController) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Column {
-            Text(text = "HELPiX", color = colorResource(id = R.color.logo_cyan), fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Text(text = "Medical Dashboard", color = colorResource(id = R.color.text_secondary), fontSize = 14.sp)
+            Text(text = "HELPiX", color = MedicalEmerald, fontSize = 28.sp, fontWeight = FontWeight.ExtraBold)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(8.dp).background(MedicalEmerald, CircleShape))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = "Doctor Hub Online", color = DocTextGrey, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            IconBtn(Icons.Outlined.Settings) { navController.navigate(NavRoutes.AppSettings) }
-            IconBtn(Icons.Outlined.Notifications) {}
-            IconBtn(Icons.Filled.Person) { navController.navigate(NavRoutes.Profile) }
+            DocIconBtn(Icons.Outlined.Notifications) {}
+            DocIconBtn(Icons.Filled.Settings) { navController.navigate(NavRoutes.AppSettings) }
         }
     }
 }
 
 @Composable
-fun DoctorOverviewCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth().height(90.dp),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.8f)),
-        border = BorderStroke(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.3f))
+fun PracticeOverviewCard(navController: NavController, doctor: com.healthai.app.domain.model.User?) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(Brush.linearGradient(listOf(Color(0xFF1E1B4B), Color(0xFF312E81))))
+            .clickable { navController.navigate(NavRoutes.DoctorProfileManagement) }
+            .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(24.dp))
     ) {
-        Row(modifier = Modifier.fillMaxSize().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(40.dp).background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) {
-                Icon(Icons.Default.Dashboard, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(22.dp))
+        // Decorative background icon
+        Icon(
+            Icons.Default.VerifiedUser,
+            contentDescription = null,
+            modifier = Modifier.align(Alignment.CenterEnd).offset(x = 20.dp).size(120.dp),
+            tint = Color.White.copy(alpha = 0.05f)
+        )
+        
+        Row(
+            modifier = Modifier.fillMaxSize().padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier.size(54.dp).background(Color.White.copy(alpha = 0.1f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.MedicalInformation, contentDescription = null, tint = MedicalEmerald, modifier = Modifier.size(28.dp))
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text("Dr. ${doctor?.name ?: "Expert"}", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = "${doctor?.specialization ?: "Specialist"} • GMC Verified", 
+                    color = DocTextGrey, 
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = DocTextGrey)
+        }
+    }
+}
+
+@Composable
+fun DocMetricCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, modifier: Modifier) {
+    Card(
+        modifier = modifier.height(90.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = DocCardBg),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.2f))
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.weight(1f))
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(value, color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(title, color = DocTextGrey, fontSize = 10.sp, modifier = Modifier.padding(bottom = 4.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun DocActionCard(title: String, subtitle: String, icon: androidx.compose.ui.graphics.vector.ImageVector, accentColor: Color, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().height(80.dp).clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = DocCardBg),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
+    ) {
+        Row(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(modifier = Modifier.size(44.dp).background(accentColor.copy(alpha = 0.1f), CircleShape), contentAlignment = Alignment.Center) {
+                Icon(icon, contentDescription = null, tint = accentColor, modifier = Modifier.size(24.dp))
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text("Practice Overview", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                Text("Real-time clinic analytics", color = Color.Gray, fontSize = 10.sp)
+                Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(subtitle, color = DocTextGrey, fontSize = 11.sp)
             }
-            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.Gray)
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = DocTextGrey.copy(alpha = 0.5f), modifier = Modifier.size(20.dp))
         }
     }
 }
 
 @Composable
-fun QueueManagerCard(navController: NavController) {
-    Card(
-        modifier = Modifier.fillMaxWidth().height(130.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.logo_cyan).copy(alpha = 0.15f)),
-        border = BorderStroke(2.dp, Brush.linearGradient(colors = listOf(colorResource(id = R.color.logo_cyan), colorResource(id = R.color.neon_pink))))
-    ) {
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Icon(Icons.AutoMirrored.Filled.PlaylistPlay, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(36.dp))
-            Spacer(modifier = Modifier.height(6.dp))
-            Text("PATIENT QUEUE MANAGER", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp)
-            Text("AI-assisted appointment prioritization", color = Color.Gray, fontSize = 10.sp)
+fun DocServiceItem(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier, onClick: () -> Unit) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier.clickable { onClick() }) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .background(DocCardBg, RoundedCornerShape(16.dp))
+                .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = title, tint = Color.White, modifier = Modifier.size(24.dp))
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(title, color = DocTextGrey, fontSize = 11.sp, fontWeight = FontWeight.Medium)
     }
 }
 
 @Composable
-fun DoctorScanButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier.height(56.dp).shadow(12.dp, RoundedCornerShape(28.dp)),
-        shape = RoundedCornerShape(28.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.logo_blue)),
-        contentPadding = PaddingValues(horizontal = 24.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.width(12.dp))
-            Text("Scan Skin", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-@Composable
-fun DashboardVitalCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, modifier: Modifier) {
-    Card(
-        modifier = modifier.height(70.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.05f)),
-        border = BorderStroke(1.dp, color.copy(alpha = 0.2f))
-    ) {
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
-            Text(value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            Text(title, color = Color.Gray, fontSize = 9.sp)
-        }
-    }
-}
-
-@Composable
-fun SmallFeatureCard(title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Card(
-        modifier = modifier.height(80.dp).clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.helpix_bg_bottom).copy(alpha = 0.6f)),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
-    ) {
-        Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-            Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(title, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-        }
-    }
-}
-
-@Composable
-fun IconBtn(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+fun DocIconBtn(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     Box(
-        modifier = Modifier.size(44.dp).border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
-            .background(Color.White.copy(alpha = 0.05f), CircleShape).clickable { onClick() },
+        modifier = Modifier.size(44.dp).background(DocCardBg, CircleShape).clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Icon(icon, contentDescription = null, tint = Color.White)
+        Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
     }
 }
 
 @Composable
-fun GridBackground() {
-    val color = Color.White.copy(alpha = 0.05f)
+fun DocGridBackground() {
+    val color = Color.White.copy(alpha = 0.03f)
     Canvas(modifier = Modifier.fillMaxSize()) {
         val gridSize = 40.dp.toPx()
         for (x in 0..size.width.toInt() step gridSize.toInt()) {

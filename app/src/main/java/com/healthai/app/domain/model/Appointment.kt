@@ -9,5 +9,10 @@ data class Appointment(
     val patientId: String = "",
     val appointmentDate: Date? = null,
     val status: String = "SCHEDULED", // e.g., SCHEDULED, COMPLETED, CANCELED
+    val reason: String? = null,
+    val notes: String? = null,
+    val amount: Double = 0.0,
+    val platformFee: Double = 0.0,
+    val paymentStatus: String = "PENDING", // PENDING, SUCCESS, FAILED
     @ServerTimestamp val createdAt: Date? = null
 )

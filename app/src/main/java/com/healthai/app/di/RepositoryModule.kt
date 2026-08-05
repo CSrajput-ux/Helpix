@@ -8,6 +8,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * RepositoryModule — binds abstract repository interfaces to their implementations.
+ * UserRepository and AppointmentRepository are provided directly in AppModule
+ * since they require constructor injection from HelpixApi.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {

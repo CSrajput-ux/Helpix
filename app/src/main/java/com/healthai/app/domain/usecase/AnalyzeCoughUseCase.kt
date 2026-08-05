@@ -9,12 +9,11 @@ class AnalyzeCoughUseCase @Inject constructor() {
         // SIMULATION: Real AI processing would happen here with TensorFlow Lite
         delay(3000) // 3 seconds "Analysis" time
         
-        // Return dummy futuristic result
         return DiseaseResult(
-            diseaseName = "Respiratory Infection",
-            confidenceScore = 0.89f,
-            severity = "Moderate",
-            recommendation = "Consult a doctor and monitor temperature."
+            diseaseName = "Not Analyzed",
+            confidenceScore = 0f,
+            severity = "Unknown",
+            recommendation = "Please provide a clear recording for analysis."
         )
     }
 }

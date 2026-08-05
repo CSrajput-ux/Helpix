@@ -1,39 +1,66 @@
 package com.healthai.app.data.repository
 
-import com.google.firebase.firestore.FirebaseFirestore
-import com.healthai.app.domain.model.Appointment
-import kotlinx.coroutines.tasks.await
+import com.healthai.app.data.remote.api.AppointmentRequest
+import com.healthai.app.data.remote.api.AppointmentResponse
+import com.healthai.app.data.remote.api.AppointmentStatusUpdate
+import com.healthai.app.data.remote.api.HelpixApi
+import retrofit2.Response
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppointmentRepository {
+/**
+ * FIX #2b: AppointmentRepository now routes all appointment operations through
+ * the FastAPI backend (HelpixApi / Retrofit) instead of directly using Firebase Firestore.
+ *
+ * Firebase Firestore was causing appointments to be invisible to the backend,
+ * making doctor/patient coordination impossible across the system.
+ */
+@Singleton
+class AppointmentRepository @Inject constructor(
+    private val api: HelpixApi
+) {
 
-    private val firestore = FirebaseFirestore.getInstance()
-
-    suspend fun createAppointment(appointment: Appointment) {
-        firestore.collection("appointments").add(appointment).await()
+    /** Book a new appointment (patient → doctor). */
+    suspend fun createAppointment(
+        doctorId: String,
+        appointmentDatetime: String,
+        reason: String
+    ): Response<AppointmentResponse> {
+        return api.bookAppointment(
+            AppointmentRequest(
+                doctor_id = doctorId,
+                appointment_datetime = appointmentDatetime,
+                reason = reason
+            )
+        )
     }
 
-    suspend fun getAppointmentsForDoctor(doctorId: String): List<Appointment> {
-        val snapshot = firestore.collection("appointments")
-            .whereEqualTo("doctorId", doctorId)
-            .get()
-            .await()
-        return snapshot.toObjects(Appointment::class.java)
+    /** List appointments for the authenticated doctor. */
+    suspend fun getAppointmentsForDoctor(
+        status: String? = null
+    ): Response<List<AppointmentResponse>> = api.getAppointments(status)
+
+    /** List appointments for the authenticated patient. */
+    suspend fun getAppointmentsForPatient(
+        status: String? = null
+    ): Response<List<AppointmentResponse>> = api.getAppointments(status)
+
+    /** Get a single appointment by ID (for detail view). */
+    suspend fun getAppointmentById(appointmentId: String): Response<AppointmentResponse> =
+        api.getAppointmentById(appointmentId)
+
+    /**
+     * Update the status of an appointment.
+     * Valid values: "SCHEDULED" | "COMPLETED" | "CANCELLED" | "PENDING"
+     */
+    suspend fun updateAppointmentStatus(
+        appointmentId: String,
+        status: String
+    ): Response<AppointmentResponse> {
+        return api.updateAppointmentStatus(appointmentId, AppointmentStatusUpdate(status))
     }
 
-    suspend fun getAppointmentsForPatient(patientId: String): List<Appointment> {
-        val snapshot = firestore.collection("appointments")
-            .whereEqualTo("patientId", patientId)
-            .get()
-            .await()
-        return snapshot.toObjects(Appointment::class.java)
-    }
-
-    suspend fun updateAppointmentStatus(appointmentId: String, status: String) {
-        // Find document by a field if ID is not the document ID, 
-        // but usually we should use the document ID.
-        // Assuming the 'id' in Appointment model matches Firestore document ID
-        firestore.collection("appointments").document(appointmentId)
-            .update("status", status)
-            .await()
-    }
+    /** Cancel / delete an appointment. */
+    suspend fun cancelAppointment(appointmentId: String): Response<Unit> =
+        api.cancelAppointment(appointmentId)
 }
