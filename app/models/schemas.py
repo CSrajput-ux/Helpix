@@ -150,6 +150,9 @@ class UserProfileResponse(BaseModel):
     allergies: Optional[str] = Field(None, max_length=500)
     consultation_fee: float = 500.0
     experience_years: Optional[int] = None
+    discovery_radius: float = 20.0
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
     profile_image_url: Optional[str] = None
     created_at: datetime
 
@@ -175,6 +178,9 @@ class UserProfileUpdateRequest(BaseModel):
     allergies: Optional[str] = Field(None, max_length=500)
     consultation_fee: Optional[float] = Field(None, ge=0.0)
     experience_years: Optional[int] = Field(None, ge=0, le=100)
+    discovery_radius: Optional[float] = Field(None, ge=0.0)
+    latitude: Optional[float] = Field(None, ge=-90.0, le=90.0)
+    longitude: Optional[float] = Field(None, ge=-180.0, le=180.0)
     profile_image_url: Optional[str] = None
 
 
@@ -252,6 +258,8 @@ class VaultFileResponse(BaseModel):
     size_bytes:   int = Field(..., ge=1)
     uploaded_at:  datetime
     uploaded_by:  UUID4Field
+    file_url:     Optional[str] = None
+    provider:     Optional[str] = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -283,6 +291,7 @@ class DoctorSummary(BaseModel):
     clinic_address: Optional[str] = Field(None, min_length=5, max_length=250)
     consultation_fee: float = 500.0
     experience_years: Optional[int] = None
+    distance: Optional[float] = None
 
 
 class DoctorPatientsResponse(BaseModel):

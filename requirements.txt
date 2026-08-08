@@ -23,6 +23,8 @@ pydantic-settings==2.14.2
 # File uploads & images
 python-multipart==0.0.32
 Pillow==12.3.0
+cloudinary==1.39.1
+supabase==2.3.4
 
 # Caching & Asynchronous Workers (Enterprise)
 redis>=5.0.0

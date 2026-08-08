@@ -82,6 +82,9 @@ async def signup(request: Request, body: SignupRequest):
         "clinic_address": body.clinic_address,
         "consultation_fee": getattr(body, "consultation_fee", 500.0),
         "experience_years": getattr(body, "experience_years", None),
+        "discovery_radius": 20.0,
+        "latitude": None,
+        "longitude": None,
         "age": None,
         "blood_group": None,
         "gender": None,
@@ -113,19 +116,36 @@ async def signup(request: Request, body: SignupRequest):
 # POST /auth/login
 # ---------------------------------------------------------------------------
 @router.post("/login", response_model=TokenResponse)
-async def login(request: Request, body: LoginRequest):
+async def login(request: Request):
     """
     Authenticate with email + password.
 
-    Returns a JWT Bearer token valid for `JWT_EXPIRE_MINUTES` (default 7 days).
-    Use this token in the `Authorization: Bearer <token>` header for all
-    protected endpoints.
+    Supports BOTH JSON (from Android app) and Form Data (from Swagger UI).
+    Returns a JWT Bearer token valid for `JWT_EXPIRE_MINUTES`.
     """
-    await auth_rate_limit(request, body.email)
+    content_type = request.headers.get("content-type", "")
+    
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+            email = body.get("email")
+            password = body.get("password")
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid JSON body")
+    else:
+        # Swagger UI sends x-www-form-urlencoded with 'username' and 'password'
+        form = await request.form()
+        email = form.get("username")
+        password = form.get("password")
+
+    if not email or not password:
+        raise HTTPException(status_code=400, detail="Missing email or password")
+
+    await auth_rate_limit(request, email)
     users = get_users_collection()
 
-    user = await users.find_one({"email": body.email})
-    if not user or not verify_password(body.password, user["hashed_password"]):
+    user = await users.find_one({"email": email})
+    if not user or not verify_password(password, user["hashed_password"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -210,6 +230,9 @@ async def google_login(request: Request, body: GoogleLoginRequest):
             "clinic_address": None,
             "consultation_fee": getattr(body, "consultation_fee", 500.0) if hasattr(body, "consultation_fee") else 500.0,
             "experience_years": getattr(body, "experience_years", None) if hasattr(body, "experience_years") else None,
+            "discovery_radius": 20.0,
+            "latitude": None,
+            "longitude": None,
             "age": None,
             "blood_group": None,
             "gender": None,
@@ -265,6 +288,9 @@ async def get_profile(current_user: dict = Depends(user_rate_limit)):
         allergies=user.get("allergies"),
         consultation_fee=user.get("consultation_fee", 500.0),
         experience_years=user.get("experience_years"),
+        discovery_radius=user.get("discovery_radius", 20.0),
+        latitude=user.get("latitude"),
+        longitude=user.get("longitude"),
         profile_image_url=user.get("profile_image_url"),
         created_at=user["created_at"],
     )
@@ -317,6 +343,9 @@ async def update_profile(
         allergies=updated_user.get("allergies"),
         consultation_fee=updated_user.get("consultation_fee", 500.0),
         experience_years=updated_user.get("experience_years"),
+        discovery_radius=updated_user.get("discovery_radius", 20.0),
+        latitude=updated_user.get("latitude"),
+        longitude=updated_user.get("longitude"),
         profile_image_url=updated_user.get("profile_image_url"),
         created_at=updated_user["created_at"],
     )
@@ -337,20 +366,15 @@ async def upload_profile_image(
     users = get_users_collection()
     user_id = current_user["sub"]
 
-    # FIX #4: Actually write the file to disk instead of just storing a URL
-    upload_path = os.path.join(settings.UPLOAD_DIR, "profiles", user_id)
-    os.makedirs(upload_path, exist_ok=True)
-
-    # Sanitize filename and give it a unique name to prevent overwrites
-    ext = os.path.splitext(image.filename or "profile.jpg")[1].lower() or ".jpg"
-    safe_ext = ext if ext in {".jpg", ".jpeg", ".png", ".webp"} else ".jpg"
-    unique_filename = f"avatar_{uuid.uuid4().hex}{safe_ext}"
-    file_path = os.path.join(upload_path, unique_filename)
-
-    with open(file_path, "wb") as f:
-        f.write(contents)
-
-    image_url = f"/static/profiles/{user_id}/{unique_filename}"
+    # Upload to Cloudinary
+    from app.core.storage import upload_image_cloudinary
+    image_url = await upload_image_cloudinary(contents, image.filename or "profile.jpg")
+    
+    if not image_url:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to upload image to Cloudinary"
+        )
 
     await users.update_one(
         {"user_id": user_id},
@@ -377,6 +401,9 @@ async def upload_profile_image(
         allergies=updated_user.get("allergies"),
         consultation_fee=updated_user.get("consultation_fee", 500.0),
         experience_years=updated_user.get("experience_years"),
+        discovery_radius=updated_user.get("discovery_radius", 20.0),
+        latitude=updated_user.get("latitude"),
+        longitude=updated_user.get("longitude"),
         profile_image_url=updated_user.get("profile_image_url"),
         created_at=updated_user["created_at"],
     )

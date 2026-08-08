@@ -46,6 +46,12 @@ class Settings(BaseSettings):
 
     # ── File Storage ──────────────────────────────────────────────────────────
     UPLOAD_DIR: str = "uploads"
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_API_SECRET: str = ""
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    SUPABASE_BUCKET: str = ""
 
     # ── Google OAuth ──────────────────────────────────────────────────────────
     GOOGLE_CLIENT_ID: str = ""
@@ -108,7 +114,7 @@ class Settings(BaseSettings):
     RATE_LIMIT_BACKOFF_BASE: int = 0
     RATE_LIMIT_BACKOFF_MAX: int = 0
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     @field_validator("APP_ENV")
     @classmethod

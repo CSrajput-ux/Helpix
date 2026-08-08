@@ -7,7 +7,7 @@ Handles connection lifecycle, index creation, and collection accessors.
 
 import logging
 import certifi
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase, AsyncIOMotorGridFSBucket
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -15,14 +15,13 @@ logger = logging.getLogger(__name__)
 # ── Global state (populated at startup) ──────────────────────────────────────
 client: AsyncIOMotorClient = None
 db: AsyncIOMotorDatabase = None
-fs_bucket: AsyncIOMotorGridFSBucket = None
 
 
 # ── Lifecycle ─────────────────────────────────────────────────────────────────
 
 async def connect_db():
-    """Open MongoDB connection, create indexes, and set up GridFS bucket."""
-    global client, db, fs_bucket
+    """Open MongoDB connection and create indexes."""
+    global client, db
 
     # Mask credentials in log output
     safe_url = settings.MONGO_URL.split("@")[-1] if "@" in settings.MONGO_URL else settings.MONGO_URL
@@ -55,7 +54,6 @@ async def connect_db():
         raise exc
 
     db = client[settings.MONGO_DB_NAME]
-    fs_bucket = AsyncIOMotorGridFSBucket(db, bucket_name="health_vault")
 
     # ── Indexes ───────────────────────────────────────────────────────────────
     await db["users"].create_index("email", unique=True)
@@ -84,6 +82,7 @@ async def connect_db():
     await db["sos_events"].create_index([("user_id", 1), ("triggered_at", -1)])
     await db["medical_records"].create_index([("user_id", 1), ("created_at", -1)])
     await db["transactions"].create_index([("doctor_id", 1), ("created_at", -1)])
+    await db["vault_files"].create_index([("uploaded_by", 1), ("uploaded_at", -1)])
 
 
     # ── Time-series collection (MongoDB 5.0+, optional) ───────────────────────
@@ -143,5 +142,5 @@ def get_doctor_links_collection():
 def get_transactions_collection():
     return db["transactions"]
 
-def get_fs_bucket() -> AsyncIOMotorGridFSBucket:
-    return fs_bucket
+def get_vault_files_collection():
+    return db["vault_files"]

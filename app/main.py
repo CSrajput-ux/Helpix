@@ -16,6 +16,10 @@ import os
 import uuid
 from contextlib import asynccontextmanager
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 from fastapi import FastAPI, Depends, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -70,6 +74,18 @@ async def lifespan(app: FastAPI):
     # FIX #4: Ensure upload directories exist at startup
     os.makedirs(os.path.join(settings.UPLOAD_DIR, "profiles"), exist_ok=True)
     os.makedirs(os.path.join(settings.UPLOAD_DIR, "prescriptions"), exist_ok=True)
+
+    # Configure Cloudinary
+    if settings.CLOUDINARY_CLOUD_NAME and settings.CLOUDINARY_API_KEY and settings.CLOUDINARY_API_SECRET:
+        cloudinary.config(
+            cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+            api_key=settings.CLOUDINARY_API_KEY,
+            api_secret=settings.CLOUDINARY_API_SECRET,
+            secure=True
+        )
+        logger.info("Cloudinary configured successfully.")
+    else:
+        logger.warning("Cloudinary credentials are missing. Image uploads to Cloudinary might fail.")
 
     await connect_db()
     yield

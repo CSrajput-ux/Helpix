@@ -124,12 +124,37 @@ async def get_my_patients(current_user: dict = Depends(require_doctor)):
 # GET /doctors
 # ---------------------------------------------------------------------------
 @router.get("/doctors", response_model=List[DoctorSummary])
-async def list_doctors(current_user: dict = Depends(get_current_user)):
-    """Return a list of all registered doctors."""
+async def list_doctors(
+    lat: Optional[float] = Query(None, description="Patient latitude"),
+    lng: Optional[float] = Query(None, description="Patient longitude"),
+    current_user: dict = Depends(get_current_user)
+):
+    """Return a list of all registered doctors. If lat/lng are provided, filters by discovery_radius."""
     users = get_users_collection()
     cursor = users.find({"role": "DOCTOR"})
     results = []
+    
+    import math
+    def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        R = 6371.0
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        return R * c
+
     async for doc in cursor:
+        doc_lat = doc.get("latitude")
+        doc_lng = doc.get("longitude")
+        discovery_radius = doc.get("discovery_radius", 20.0)
+        distance = None
+        
+        if lat is not None and lng is not None:
+            if doc_lat is not None and doc_lng is not None:
+                distance = haversine_distance(lat, lng, doc_lat, doc_lng)
+                if distance > discovery_radius:
+                    continue  # skip if out of range
+
         results.append(
             DoctorSummary(
                 user_id=doc["user_id"],
@@ -138,6 +163,7 @@ async def list_doctors(current_user: dict = Depends(get_current_user)):
                 clinic_address=doc.get("clinic_address"),
                 consultation_fee=doc.get("consultation_fee", 500.0),
                 experience_years=doc.get("experience_years"),
+                distance=distance,
             )
         )
     return results
