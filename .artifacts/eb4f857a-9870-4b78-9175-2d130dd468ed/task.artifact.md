@@ -1,0 +1,3 @@
+- [ ] Modify `HelpixRepository.kt` to support Hilt injection
+- [ ] Update `ProfileViewModel.kt` to use `@HiltViewModel` and constructor injection
+- [ ] Run build to verify fix
