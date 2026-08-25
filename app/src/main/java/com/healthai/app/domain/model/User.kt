@@ -17,5 +17,7 @@ data class User(
     val licenseNumber: String? = null,
     val clinicAddress: String? = null,
     val consultationFee: Double = 500.0, // Default fee
-    val experienceYears: Int? = null
+    val experienceYears: Int? = null,
+    val distance: Double? = null,
+    val discoveryRadius: Float? = null
 )

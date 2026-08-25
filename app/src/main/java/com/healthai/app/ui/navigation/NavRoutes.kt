@@ -9,7 +9,7 @@ object NavRoutes {
     const val Results = "results_screen"
     const val Profile = "profile_screen"
     const val Doctors = "doctors_screen"
-    const val DoctorDetails = "doctor_details"
+    const val DoctorDetails = "doctor_details/{doctorId}"
     const val Health = "health_screen"
     const val Tools = "tools_screen"
     const val KidsMode = "kids_mode_screen"
@@ -51,8 +51,10 @@ object NavRoutes {
     // Skin Detector Flow
     const val SkinDetectorStart = "skin_detector_start_screen"
     const val SkinScanning = "skin_scanning_screen"
-    const val SkinAnalysis = "skin_analysis_screen"
-    const val SkinResult = "skin_result_screen"
+    const val SkinAnalysis = "skin_analysis_screen/{imagePath}"
+    const val SkinResult = "skin_result_screen/{scanId}"
+
+    fun skinAnalysis(imagePath: String) = "skin_analysis_screen/${android.net.Uri.encode(imagePath)}"
 
     // Symptom Doctor Flow
     const val SymptomDoctorStart = "symptom_doctor_start_screen"

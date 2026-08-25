@@ -136,14 +136,14 @@ fun DoctorProfileManagementScreen(
 
             ProfileSectionHeader("Clinic Credentials")
             MedicalCard(backgroundColor = DocCardBg) {
-                ProfileTextField("Specialization", spec, { spec = it }, true, Icons.Default.MedicalServices)
-                ProfileTextField("License Number", license, { license = it }, true, Icons.Default.Badge)
-                ProfileTextField("Years of Experience", experience, { experience = it }, true, Icons.Default.Timeline)
+                ProfileTextField("Specialization", spec, { spec = it }, true, Icons.Default.MedicalServices, themeColor = MedicalEmerald)
+                ProfileTextField("License Number", license, { license = it }, true, Icons.Default.Badge, themeColor = MedicalEmerald)
+                ProfileTextField("Years of Experience", experience, { experience = it }, true, Icons.Default.Timeline, themeColor = MedicalEmerald)
             }
 
             ProfileSectionHeader("Practice Location")
             MedicalCard(backgroundColor = DocCardBg) {
-                ProfileTextField("Clinic Address", clinic, { clinic = it }, true, Icons.Default.Business)
+                ProfileTextField("Clinic Address", clinic, { clinic = it }, true, Icons.Default.Business, themeColor = MedicalEmerald)
             }
 
             if (doctorProfile?.userType == "DOCTOR") {

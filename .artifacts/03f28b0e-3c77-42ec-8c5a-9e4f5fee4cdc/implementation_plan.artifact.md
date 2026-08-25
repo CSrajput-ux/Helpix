@@ -1,49 +1,33 @@
-# Implementation Plan - Gradle and Module Configuration Repair
+# Implementation Plan - TFLite Model Integration
 
-This plan addresses the "Module not specified" error and ensures the `app` module is correctly detected and buildable.
+Integrate the newly added TFLite model for skin disease classification, ensuring robust loading, preprocessing, and inference.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - I will standardize the `rootProject.name` to match the project folder name.
-> - I will create a shared Run Configuration to ensure the "app" module is selectable.
-> - I will verify and align all plugin declarations between the root and app-level Gradle files.
+> - **Model Name**: I am assuming the model is named `model.tflite` as per your IDE context.
+> - **Input Size**: I have set the default input size to `180x180`. If your model requires a different size (e.g., 224x224), please let me know.
+> - **Normalization**: The current implementation normalizes pixel values to the `[0, 1]` range.
 
 ## Proposed Changes
 
-### Project Root
+### [ML Component]
 
-#### [MODIFY] [settings.gradle.kts](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/settings.gradle.kts)
-- Standardize `rootProject.name` to `"Helpix"`.
-- Ensure `include(":app")` is correctly placed.
+#### [MODIFY] [SkinClassifier.kt](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/src/main/java/com/healthai/app/ml/SkinClassifier.kt)
+- Refactor to use **TFLite Support Library** (`ImageProcessor`, `TensorImage`, `TensorBuffer`).
+- Implement automatic label switching based on the model's output shape (supporting both 6-class and 23-class models).
+- Add robust error handling and logging.
 
-#### [MODIFY] [build.gradle.kts](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/build.gradle.kts)
-- Cleanup any redundant whitespace or formatting.
-
-#### [MODIFY] [libs.versions.toml](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/gradle/libs.versions.toml)
-- Verify and pin stable versions for AGP, Kotlin, and KSP to ensure compatibility.
-
-### App Module
+### [Build Configuration]
 
 #### [MODIFY] [app/build.gradle.kts](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/build.gradle.kts)
-- Ensure all plugins are correctly applied.
-- Verify `namespace` and `applicationId`.
-- Fix any potential dependency conflicts (e.g., Guava or Compose BOM).
-
-### IDE Configuration
-
-#### [NEW] [app.run.xml](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/.run/app.run.xml)
-- Create a shared Android App run configuration to force the IDE to recognize the `app` module.
-
-#### [MODIFY] [.idea/modules.xml](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/.idea/modules.xml)
-- Explicitly add the `:app` module to the project modules list to resolve the "no module" error.
+- (Verified) TFLite dependencies are already present.
+- (Verified) `noCompress` for `.tflite` is already configured.
 
 ## Verification Plan
 
 ### Automated Tests
-- I will attempt to run a Gradle task (e.g., `./gradlew help`) to verify that the project structure is valid from Gradle's perspective.
-- I will check for syntax errors in all modified files using `analyze_file`.
+- I will verify the syntax of the updated `SkinClassifier.kt`.
 
 ### Manual Verification
-- The user will need to perform a "Sync Project with Gradle Files" after these changes are applied.
-- The user should see the "app" module in the Run Configurations dropdown.
+- The user should run the "Skin Scanning" flow and verify that the "Analyzing Your Skin..." screen correctly transitions to the "Skin Analysis Report" with a disease name and confidence percentage.

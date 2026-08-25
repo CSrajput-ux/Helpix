@@ -1,5 +1,9 @@
 package com.healthai.app.ui.screens.doctor
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,12 +24,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.android.gms.location.LocationServices
 import com.healthai.app.R
 import com.healthai.app.domain.model.User
 import com.healthai.app.ui.navigation.NavRoutes
@@ -36,6 +43,7 @@ fun DoctorsScreen(
     navController: NavController,
     viewModel: DoctorListViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val doctors by viewModel.doctors.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -44,8 +52,26 @@ fun DoctorsScreen(
         doctors.groupBy { it.specialization ?: "General Physician" }
     }
 
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            LocationServices.getFusedLocationProviderClient(context).lastLocation.addOnSuccessListener { loc ->
+                viewModel.fetchDoctors(loc?.latitude, loc?.longitude)
+            }
+        } else {
+            viewModel.fetchDoctors()
+        }
+    }
+
     LaunchedEffect(Unit) {
-        viewModel.fetchDoctors()
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.getFusedLocationProviderClient(context).lastLocation.addOnSuccessListener { loc ->
+                viewModel.fetchDoctors(loc?.latitude, loc?.longitude)
+            }
+        } else {
+            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
     }
 
     Scaffold(
@@ -171,7 +197,7 @@ fun DoctorSectionCard(doctor: User, themeColor: Color, navController: NavControl
     Card(
         modifier = Modifier
             .width(280.dp)
-            .clickable { navController.navigate(NavRoutes.DoctorDetails) },
+            .clickable { navController.navigate("doctor_details/${doctor.id}") },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
@@ -207,13 +233,18 @@ fun DoctorSectionCard(doctor: User, themeColor: Color, navController: NavControl
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("4.9 (120+ reviews)", color = Color.Gray, fontSize = 11.sp)
                 }
-                Text("₹600", color = colorResource(id = R.color.logo_cyan), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                
+                if (doctor.distance != null) {
+                    Text("${String.format("%.1f", doctor.distance)} km", color = Color.Gray, fontSize = 11.sp)
+                }
+                
+                Text("₹${doctor.consultationFee.toInt()}", color = colorResource(id = R.color.logo_cyan), fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
             
             Spacer(modifier = Modifier.height(16.dp))
             
             Button(
-                onClick = { navController.navigate(NavRoutes.DoctorDetails) },
+                onClick = { navController.navigate("doctor_details/${doctor.id}") },
                 modifier = Modifier.fillMaxWidth().height(40.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = themeColor.copy(alpha = 0.2f)),
                 shape = RoundedCornerShape(10.dp),

@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
 // Centralized ChatMessage data class
@@ -30,7 +30,7 @@ data class ChatMessage(val text: String, val isUser: Boolean)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AiChatScreen(navController: NavController, viewModel: AiChatViewModel = viewModel()) {
+fun AiChatScreen(navController: NavController, viewModel: AiChatViewModel = hiltViewModel()) {
     val messages = viewModel.messages
     val isLoading by viewModel.isLoading.collectAsState()
     var inputText by remember { mutableStateOf("") }

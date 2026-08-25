@@ -165,7 +165,13 @@ fun AppNavGraph(navController: NavHostController) {
         
         composable(NavRoutes.Doctors) { DoctorsScreen(navController = navController) }
         
-        composable(NavRoutes.DoctorDetails) { DoctorDetailsScreen(navController = navController) }
+        composable(
+            route = NavRoutes.DoctorDetails,
+            arguments = listOf(navArgument("doctorId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val doctorId = backStackEntry.arguments?.getString("doctorId") ?: ""
+            DoctorDetailsScreen(navController = navController, doctorId = doctorId)
+        }
         composable(NavRoutes.Health) { HealthScreen(navController = navController) }
         composable(NavRoutes.HealthHistory) { HealthHistoryScreen() }
         composable(NavRoutes.MyAppointments) { MyAppointmentsScreen(navController = navController) }
@@ -221,17 +227,23 @@ fun AppNavGraph(navController: NavHostController) {
         // Skin Detector Flow
         composable(NavRoutes.SkinDetectorStart) { SkinDetectorStartScreen(navController = navController) }
         composable(NavRoutes.SkinScanning) { SkinScanningScreen(navController = navController) }
-        composable(NavRoutes.SkinAnalysis) { SkinAnalysisScreen(navController = navController) }
         composable(
-            route = "${NavRoutes.SkinResult}/{label}/{confidence}",
+            route = NavRoutes.SkinAnalysis,
+            arguments = listOf(navArgument("imagePath") { type = NavType.StringType })
+        ) { backStackEntry ->
+            SkinAnalysisScreen(
+                navController = navController,
+                imagePath = backStackEntry.arguments?.getString("imagePath")
+            )
+        }
+        composable(
+            route = NavRoutes.SkinResult,
             arguments = listOf(
-                navArgument("label") { type = NavType.StringType },
-                navArgument("confidence") { type = NavType.FloatType }
+                navArgument("scanId") { type = NavType.IntType }
             )
         ) { backStackEntry ->
-            val label = backStackEntry.arguments?.getString("label") ?: "Unknown"
-            val confidence = backStackEntry.arguments?.getFloat("confidence") ?: 0f
-            SkinResultScreen(navController, diseaseName = label, confidence = confidence)
+            val scanId = backStackEntry.arguments?.getInt("scanId") ?: -1
+            SkinResultScreen(navController, scanId = scanId)
         }
 
         // Symptom Doctor Flow

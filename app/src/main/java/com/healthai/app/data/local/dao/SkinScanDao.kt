@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SkinScanDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertScan(scan: SkinScanEntity)
+    suspend fun insertScan(scan: SkinScanEntity): Long
 
     @Query("SELECT * FROM skin_scans ORDER BY timestamp DESC")
     fun getAllScans(): Flow<List<SkinScanEntity>>

@@ -23,23 +23,27 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.data.remote.api.DoctorSummary
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DoctorDetailsScreen(navController: NavController) {
+fun DoctorDetailsScreen(
+    navController: NavController,
+    doctorId: String,
+    viewModel: DoctorDetailsViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val doctor by viewModel.doctor.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     
     // Dynamic Date Generation
     val today = LocalDate.now()
@@ -47,6 +51,10 @@ fun DoctorDetailsScreen(navController: NavController) {
     
     var selectedDate by remember { mutableStateOf(today) }
     var selectedTimeSlot by remember { mutableStateOf("") }
+
+    LaunchedEffect(doctorId) {
+        viewModel.fetchDoctorDetails(doctorId)
+    }
 
     Scaffold(
         topBar = {
@@ -63,120 +71,126 @@ fun DoctorDetailsScreen(navController: NavController) {
         containerColor = Color(0xFF0F172A)
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(horizontal = 16.dp)
-            ) {
-                // 1. Doctor Profile Header
-                DoctorProfileHeader()
-                
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // 2. Stats Row
-                DoctorStatsRow()
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // 3. About Section
-                Text("About Doctor", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Dr. Albert Flores is a highly experienced Surgeon at St. Mary's Hospital. He has successfully performed over 1000+ surgeries and is known for his precision and patient care. He specializes in minimally invasive surgical techniques.",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    lineHeight = 20.sp
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // 4. Date Selection
-                Text("Select Date", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    itemsIndexed(next7Days) { _, date ->
-                        val isSelected = date == selectedDate
-                        DateCard(
-                            day = date.format(DateTimeFormatter.ofPattern("EEE")),
-                            date = date.format(DateTimeFormatter.ofPattern("dd MMM")),
-                            isSelected = isSelected,
-                            onClick = { selectedDate = date }
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // 5. Time Slots
-                Text("Available Time Slots", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Spacer(modifier = Modifier.height(16.dp))
-                TimeSlotGrid(selectedTimeSlot) { selectedTimeSlot = it }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // 5.1 Consultation Fee
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text("Consultation Fee", color = Color.Gray, fontSize = 12.sp)
-                            Text("₹500.00", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f))
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            Text("Best Price", color = colorResource(id = R.color.logo_cyan), fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(100.dp))
-            }
-
-            // 6. Footer Button
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color(0xFF0F172A))
-                        )
-                    )
-                    .padding(16.dp)
-            ) {
-                Button(
-                    onClick = { 
-                        if (selectedTimeSlot.isEmpty()) {
-                            Toast.makeText(context, "Please select a time slot", Toast.LENGTH_SHORT).show()
-                        } else {
-                            val docName = Uri.encode("Dr. Albert Flores")
-                            val spec = Uri.encode("Senior Surgeon")
-                            val fee = "500.0"
-                            val date = Uri.encode(selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")))
-                            val time = Uri.encode(selectedTimeSlot)
-                            
-                            navController.navigate("booking_summary_screen/$docName/$spec/$fee/$date/$time")
-                        }
-                    },
+            if (isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = colorResource(id = R.color.logo_cyan))
+            } else if (doctor == null) {
+                Text("Doctor details not found", color = Color.Gray, modifier = Modifier.align(Alignment.Center))
+            } else {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.logo_cyan)),
-                    shape = RoundedCornerShape(16.dp)
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 16.dp)
                 ) {
-                    Text("Book Appointment", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                    // 1. Doctor Profile Header
+                    DoctorProfileHeader(doctor!!)
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 2. Stats Row
+                    DoctorStatsRow(doctor!!)
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 3. About Section
+                    Text("About Doctor", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = doctor!!.bio ?: "Expert professional with dedicated practice.",
+                        color = Color.Gray,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 4. Date Selection
+                    Text("Select Date", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        itemsIndexed(next7Days) { _, date ->
+                            val isSelected = date == selectedDate
+                            DateCard(
+                                day = date.format(DateTimeFormatter.ofPattern("EEE")),
+                                date = date.format(DateTimeFormatter.ofPattern("dd MMM")),
+                                isSelected = isSelected,
+                                onClick = { selectedDate = date }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 5. Time Slots
+                    Text("Available Time Slots", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TimeSlotGrid(selectedTimeSlot) { selectedTimeSlot = it }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 5.1 Consultation Fee
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text("Consultation Fee", color = Color.Gray, fontSize = 12.sp)
+                                Text("₹${doctor!!.consultation_fee}", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f))
+                                    .padding(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text("Best Price", color = colorResource(id = R.color.logo_cyan), fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(100.dp))
+                }
+
+                // 6. Footer Button
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(Color.Transparent, Color(0xFF0F172A))
+                            )
+                        )
+                        .padding(16.dp)
+                ) {
+                    Button(
+                        onClick = { 
+                            if (selectedTimeSlot.isEmpty()) {
+                                Toast.makeText(context, "Please select a time slot", Toast.LENGTH_SHORT).show()
+                            } else {
+                                val docName = Uri.encode(doctor!!.full_name)
+                                val spec = Uri.encode(doctor!!.specialization ?: "Expert")
+                                val fee = doctor!!.consultation_fee.toString()
+                                val date = Uri.encode(selectedDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy")))
+                                val time = Uri.encode(selectedTimeSlot)
+                                
+                                navController.navigate("booking_summary_screen/$docName/$spec/$fee/$date/$time")
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.logo_cyan)),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text("Book Appointment", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                    }
                 }
             }
         }
@@ -184,7 +198,7 @@ fun DoctorDetailsScreen(navController: NavController) {
 }
 
 @Composable
-fun DoctorProfileHeader() {
+fun DoctorProfileHeader(doctor: DoctorSummary) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -203,25 +217,25 @@ fun DoctorProfileHeader() {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text("Dr. Albert Flores", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
-            Text("Senior Surgeon", color = colorResource(id = R.color.logo_cyan), fontSize = 14.sp)
+            Text(doctor.full_name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 22.sp)
+            Text(doctor.specialization ?: "Expert", color = colorResource(id = R.color.logo_cyan), fontSize = 14.sp)
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("St. Mary's Hospital, London", color = Color.Gray, fontSize = 13.sp)
+                Text(doctor.clinic_address ?: "Clinic Location", color = Color.Gray, fontSize = 13.sp)
             }
         }
     }
 }
 
 @Composable
-fun DoctorStatsRow() {
+fun DoctorStatsRow(doctor: DoctorSummary) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        StatItem("Experience", "10 Years", Icons.Default.WorkHistory, colorResource(id = R.color.logo_cyan))
+        StatItem("Experience", "${doctor.experience_years ?: 0} Years", Icons.Default.WorkHistory, colorResource(id = R.color.logo_cyan))
         StatItem("Patients", "2.5K+", Icons.Default.Groups, Color(0xFF00E676))
         StatItem("Reviews", "1.2K+", Icons.Default.Star, Color(0xFFFFC107))
     }

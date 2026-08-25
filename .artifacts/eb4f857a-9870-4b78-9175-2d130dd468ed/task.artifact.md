@@ -1,3 +1,4 @@
-- [ ] Modify `HelpixRepository.kt` to support Hilt injection
-- [ ] Update `ProfileViewModel.kt` to use `@HiltViewModel` and constructor injection
-- [ ] Run build to verify fix
+- [x] Add `bio` field to `HelpixApi.kt` and `UserRepository.kt`
+- [x] Redesign `ProfileScreen.kt` for a professional doctor experience
+- [x] Refactor `DoctorDetailsScreen.kt` to show real doctor data
+- [x] Verify build and functionality

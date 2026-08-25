@@ -21,11 +21,11 @@ class DoctorListViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    fun fetchDoctors() {
+    fun fetchDoctors(lat: Double? = null, lng: Double? = null) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = userRepository.getDoctors()
+                val response = userRepository.getDoctors(lat, lng)
                 if (response.isSuccessful) {
                     _doctors.value = response.body()?.map {
                         User(
@@ -33,7 +33,10 @@ class DoctorListViewModel @Inject constructor(
                             name = it.full_name,
                             specialization = it.specialization,
                             clinicAddress = it.clinic_address,
-                            userType = "DOCTOR"
+                            userType = "DOCTOR",
+                            consultationFee = it.consultation_fee,
+                            distance = it.distance,
+                            discoveryRadius = it.discovery_radius
                         )
                     } ?: emptyList()
                 }

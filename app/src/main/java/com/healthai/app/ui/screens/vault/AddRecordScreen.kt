@@ -21,10 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.healthai.app.ui.navigation.NavRoutes
+import androidx.hilt.navigation.compose.hiltViewModel
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddRecordScreen(navController: NavController) {
+fun AddRecordScreen(
+    navController: NavController,
+    viewModel: HealthVaultViewModel = hiltViewModel()
+) {
     var title by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("Reports") }
     var selectedUri by remember { mutableStateOf<Uri?>(null) }
@@ -138,8 +143,15 @@ fun AddRecordScreen(navController: NavController) {
                 onClick = {
                     if (title.isNotBlank() && selectedUri != null) {
                         isUploading = true
-                        // TODO: Implement actual backend upload call
-                        navController.popBackStack()
+                        viewModel.uploadFile(context, selectedUri!!, title, category) { success ->
+                            isUploading = false
+                            if (success) {
+                                Toast.makeText(context, "Upload successful!", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()
+                            } else {
+                                Toast.makeText(context, "Upload failed.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),

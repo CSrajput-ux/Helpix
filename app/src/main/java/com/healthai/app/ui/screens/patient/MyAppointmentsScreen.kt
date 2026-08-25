@@ -37,7 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
 import com.healthai.app.domain.model.Appointment
@@ -45,7 +45,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun MyAppointmentsScreen(navController: NavController, viewModel: MyAppointmentsViewModel = viewModel()) {
+fun MyAppointmentsScreen(navController: NavController, viewModel: MyAppointmentsViewModel = hiltViewModel()) {
 
     val appointments by viewModel.appointments.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

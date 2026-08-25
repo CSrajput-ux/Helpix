@@ -25,14 +25,22 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
+import android.content.Intent
+import android.net.Uri
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
+import com.healthai.app.data.remote.api.VaultFileResponse
 import com.healthai.app.ui.navigation.NavRoutes
-
-data class HealthRecord(val name: String, val date: String, val type: String, val category: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HealthVaultScreen(navController: NavController) {
+fun HealthVaultScreen(
+    navController: NavController,
+    viewModel: HealthVaultViewModel = hiltViewModel()
+) {
     var isUnlocked by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
     
     // Safely find the FragmentActivity
     val context = LocalContext.current
@@ -45,13 +53,7 @@ fun HealthVaultScreen(navController: NavController) {
         c as? FragmentActivity
     }
 
-    val records = remember {
-        mutableStateListOf(
-            HealthRecord("Annual Blood Test", "15 Oct 2024", "PDF", "Reports"),
-            HealthRecord("Dr. Smith Prescription", "12 Oct 2024", "Image", "Prescriptions"),
-            HealthRecord("Chest X-Ray", "05 Sep 2024", "Image", "Scans")
-        )
-    }
+    // Removed mock records
 
     if (!isUnlocked) {
         VaultLockScreen {
@@ -107,9 +109,19 @@ fun HealthVaultScreen(navController: NavController) {
                 Text("Recent Uploads", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
 
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(records) { record ->
-                        RecordCard(record)
+                when (val state = uiState) {
+                    is VaultUiState.Loading -> CircularProgressIndicator(color = Color(0xFFAA00FF))
+                    is VaultUiState.Error -> Text("Error: ${state.message}", color = Color.Red)
+                    is VaultUiState.Success -> {
+                        if (state.files.isEmpty()) {
+                            Text("No files in vault.", color = Color.Gray)
+                        } else {
+                            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                items(state.files) { record ->
+                                    RecordCard(record, context)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -168,9 +180,15 @@ fun VaultLockScreen(onUnlockRequest: () -> Unit) {
 }
 
 @Composable
-fun RecordCard(record: HealthRecord) {
+fun RecordCard(record: VaultFileResponse, context: android.content.Context) {
+    val isImage = record.content_type.startsWith("image/")
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable {
+            if (!record.file_url.isNullOrEmpty()) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(record.file_url))
+                context.startActivity(intent)
+            }
+        },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
     ) {
@@ -185,18 +203,27 @@ fun RecordCard(record: HealthRecord) {
                     .background(Color(0xFFAA00FF).copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    if (record.type == "PDF") Icons.Default.Description else Icons.Default.Image,
-                    contentDescription = null,
-                    tint = Color(0xFFAA00FF)
-                )
+                if (isImage && !record.file_url.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = record.file_url,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        if (record.content_type.contains("pdf")) Icons.Default.Description else Icons.Default.InsertDriveFile,
+                        contentDescription = null,
+                        tint = Color(0xFFAA00FF)
+                    )
+                }
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(record.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("${record.date} • ${record.category}", color = Color.Gray, fontSize = 12.sp)
+                Text(record.filename, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp, maxLines = 1)
+                Text("${record.uploaded_at.take(10)} • ${record.size_bytes / 1024} KB", color = Color.Gray, fontSize = 12.sp)
             }
-            Icon(Icons.Default.MoreVert, contentDescription = null, tint = Color.Gray)
+            Icon(Icons.Default.OpenInBrowser, contentDescription = "Open", tint = Color(0xFFAA00FF))
         }
     }
 }

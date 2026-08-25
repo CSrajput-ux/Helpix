@@ -36,7 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -56,14 +56,18 @@ val AccentBlue = Color(0xFF2563EB)
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: ProfileViewModel = viewModel(),
+    viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val user by viewModel.user.collectAsState()
 
     if (user == null) {
         AuthIntegratedScreen(navController, viewModel)
     } else {
-        ProfileContent(navController, viewModel, user!!)
+        val isDoctor = user?.role == "DOCTOR"
+        val themeTeal = if (isDoctor) Color(0xFF10B981) else MedicalTeal
+        val themeSlate = if (isDoctor) Color(0xFF020617) else DeepSlate
+        
+        ProfileContent(navController, viewModel, user!!, themeTeal, themeSlate)
     }
 }
 
@@ -107,7 +111,7 @@ fun AuthIntegratedScreen(navController: NavController, viewModel: ProfileViewMod
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Welcome to HELPiX", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                        Text("Sign in to sync your health data", color = TextGrey, fontSize = 13.sp)
+                        Text("Sign in to manage your practice or health", color = TextGrey, fontSize = 13.sp)
                     }
                     Button(
                         onClick = { showAuthSheet = true },
@@ -282,14 +286,16 @@ fun AuthForm(viewModel: ProfileViewModel, onAuthSuccess: () -> Unit) {
         } else {
             Button(
                 onClick = {
+                    val trimmedEmail = email.trim()
+                    val trimmedPassword = password.trim()
                     if (isLoginMode) {
-                        viewModel.login(email, password) { success, msg ->
+                        viewModel.login(trimmedEmail, trimmedPassword) { success, msg ->
                             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                             if (success) onAuthSuccess()
                         }
                     } else {
                         // Default all new users to PATIENT role
-                        val req = SignupRequest(name, email, password, "PATIENT")
+                        val req = SignupRequest(name.trim(), trimmedEmail, trimmedPassword, "PATIENT")
                         viewModel.signup(req) { success, msg ->
                             Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                             if (success) onAuthSuccess()
@@ -321,7 +327,9 @@ fun AuthForm(viewModel: ProfileViewModel, onAuthSuccess: () -> Unit) {
 fun ProfileContent(
     navController: NavController,
     viewModel: ProfileViewModel,
-    user: com.healthai.app.data.remote.api.UserProfile
+    user: com.healthai.app.data.remote.api.UserProfile,
+    themeColor: Color = MedicalTeal,
+    backgroundColor: Color = DeepSlate
 ) {
     val context = LocalContext.current
 
@@ -338,6 +346,10 @@ fun ProfileContent(
     var specialization by remember { mutableStateOf("") }
     var licenseNumber by remember { mutableStateOf("") }
     var clinicAddress by remember { mutableStateOf("") }
+    var discoveryRadius by remember { mutableStateOf(20f) }
+    var clinicLat by remember { mutableStateOf<Double?>(null) }
+    var clinicLng by remember { mutableStateOf<Double?>(null) }
+    var bio by remember { mutableStateOf("") }
 
     var isEditing by remember { mutableStateOf(false) }
     var genderExpanded by remember { mutableStateOf(false) }
@@ -372,12 +384,16 @@ fun ProfileContent(
         specialization = user.specialization ?: ""
         licenseNumber = user.license_number ?: ""
         clinicAddress = user.clinic_address ?: ""
+        discoveryRadius = user.discovery_radius ?: 20f
+        clinicLat = user.latitude
+        clinicLng = user.longitude
+        bio = user.bio ?: ""
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (user.role == "DOCTOR") "Doctor Profile" else "My Profile", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = { Text(if (user.role == "DOCTOR") "Professional Profile" else "My Profile", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
@@ -399,7 +415,11 @@ fun ProfileContent(
                                         allergies = allergies,
                                         specialization = if (user.role == "DOCTOR") specialization else null,
                                         licenseNumber = if (user.role == "DOCTOR") licenseNumber else null,
-                                        clinicAddress = if (user.role == "DOCTOR") clinicAddress else null
+                                        clinicAddress = if (user.role == "DOCTOR") clinicAddress else null,
+                                        discoveryRadius = if (user.role == "DOCTOR") discoveryRadius else null,
+                                        latitude = if (user.role == "DOCTOR") clinicLat else null,
+                                        longitude = if (user.role == "DOCTOR") clinicLng else null,
+                                        bio = if (user.role == "DOCTOR") bio else null
                                     )
                                     isEditing = false
                                     Toast.makeText(context, "Profile Updated", Toast.LENGTH_SHORT).show()
@@ -409,16 +429,16 @@ fun ProfileContent(
                             }) {
                             Text(
                                 if (isEditing) "SAVE" else "EDIT",
-                                color = MedicalTeal,
+                                color = themeColor,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DeepSlate)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = backgroundColor)
             )
         },
-        containerColor = DeepSlate
+        containerColor = backgroundColor
     ) { padding ->
         Column(
             modifier = Modifier
@@ -438,7 +458,7 @@ fun ProfileContent(
                         modifier = Modifier
                             .size(100.dp)
                             .clip(CircleShape)
-                            .border(2.dp, MedicalTeal, CircleShape)
+                            .border(2.dp, themeColor, CircleShape)
                             .clickable { if (isEditing) imagePickerLauncher.launch("image/*") }
                     ) {
                         AsyncImage(
@@ -470,8 +490,8 @@ fun ProfileContent(
                         SuggestionChip(
                             onClick = { },
                             label = { Text(specialization.ifEmpty { "General Physician" }) },
-                            colors = SuggestionChipDefaults.suggestionChipColors(labelColor = MedicalTeal),
-                            border = BorderStroke(1.dp, MedicalTeal.copy(alpha = 0.5f))
+                            colors = SuggestionChipDefaults.suggestionChipColors(labelColor = themeColor),
+                            border = BorderStroke(1.dp, themeColor.copy(alpha = 0.5f))
                         )
                     }
                 }
@@ -481,13 +501,13 @@ fun ProfileContent(
                 // Editing Mode
                 ProfileSectionHeader("Personal Information")
                 MedicalCard {
-                    ProfileTextField("Full Name", fullName, { fullName = it }, true, Icons.Default.Person)
+                    ProfileTextField("Full Name", fullName, { fullName = it }, true, Icons.Default.Person, themeColor = themeColor)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Box(modifier = Modifier.weight(1f)) {
-                            ProfileTextField("Age", age, { age = it }, true, Icons.Default.DateRange, KeyboardType.Number)
+                            ProfileTextField("Age", age, { age = it }, true, Icons.Default.DateRange, KeyboardType.Number, themeColor = themeColor)
                         }
                         Box(modifier = Modifier.weight(1f)) {
-                            ProfileTextField("Blood Group", bloodGroup, { bloodGroup = it }, true, Icons.Default.Bloodtype)
+                            ProfileTextField("Blood Group", bloodGroup, { bloodGroup = it }, true, Icons.Default.Bloodtype, themeColor = themeColor)
                         }
                     }
                     
@@ -501,12 +521,12 @@ fun ProfileContent(
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("Gender") },
-                            leadingIcon = { Icon(Icons.Default.Transgender, contentDescription = null, tint = MedicalTeal) },
+                            leadingIcon = { Icon(Icons.Default.Transgender, contentDescription = null, tint = themeColor) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = genderExpanded) },
                             modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = MedicalTeal,
+                                focusedBorderColor = themeColor,
                                 unfocusedBorderColor = Color.Gray,
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White
@@ -530,12 +550,63 @@ fun ProfileContent(
                 ProfileSectionHeader(if (user.role == "DOCTOR") "Professional Information" else "Medical Information")
                 MedicalCard {
                     if (user.role == "DOCTOR") {
-                        ProfileTextField("Specialization", specialization, { specialization = it }, true, Icons.Default.VerifiedUser)
-                        ProfileTextField("License Number", licenseNumber, { licenseNumber = it }, true, Icons.Default.MedicalServices)
-                        ProfileTextField("Clinic Address", clinicAddress, { clinicAddress = it }, true, Icons.Default.Business)
+                        ProfileTextField("Specialization", specialization, { specialization = it }, true, Icons.Default.VerifiedUser, themeColor = themeColor)
+                        ProfileTextField("License Number", licenseNumber, { licenseNumber = it }, true, Icons.Default.MedicalServices, themeColor = themeColor)
+                        ProfileTextField("Clinic Address", clinicAddress, { clinicAddress = it }, true, Icons.Default.Business, themeColor = themeColor)
+                        
+                        OutlinedTextField(
+                            value = bio,
+                            onValueChange = { bio = it },
+                            label = { Text("About Me / Bio") },
+                            modifier = Modifier.fillMaxWidth().height(120.dp).padding(vertical = 4.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = themeColor,
+                                unfocusedBorderColor = Color.Gray,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Discovery Settings", color = themeColor, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("Radius: ${discoveryRadius.toInt()} km", color = Color.White, fontSize = 12.sp)
+                        Slider(
+                            value = discoveryRadius,
+                            onValueChange = { discoveryRadius = it },
+                            valueRange = 5f..100f,
+                            steps = 19,
+                            colors = SliderDefaults.colors(thumbColor = themeColor, activeTrackColor = themeColor)
+                        )
+                        
+                        Button(
+                            onClick = {
+                                if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                                    LocationServices.getFusedLocationProviderClient(context).lastLocation.addOnSuccessListener { loc ->
+                                        if (loc != null) {
+                                            clinicLat = loc.latitude
+                                            clinicLng = loc.longitude
+                                            Toast.makeText(context, "Clinic location set to current position", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } else {
+                                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = themeColor.copy(alpha = 0.1f)),
+                            border = BorderStroke(1.dp, themeColor.copy(alpha = 0.3f))
+                        ) {
+                            Icon(Icons.Default.MyLocation, contentDescription = null, tint = themeColor)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Set Clinic Location", color = themeColor)
+                        }
+                        if (clinicLat != null) {
+                            Text("Location: ${String.format("%.4f", clinicLat)}, ${String.format("%.4f", clinicLng)}", color = TextGrey, fontSize = 10.sp)
+                        }
                     } else {
-                        ProfileTextField("Emergency Contact", emergencyContact, { emergencyContact = it }, true, Icons.Default.Phone, KeyboardType.Phone)
-                        ProfileTextField("Allergies", allergies, { allergies = it }, true, Icons.Default.Warning)
+                        ProfileTextField("Emergency Contact", emergencyContact, { emergencyContact = it }, true, Icons.Default.Phone, KeyboardType.Phone, themeColor = themeColor)
+                        ProfileTextField("Allergies", allergies, { allergies = it }, true, Icons.Default.Warning, themeColor = themeColor)
                     }
                 }
 
@@ -547,6 +618,7 @@ fun ProfileContent(
                         onValueChange = { location = it },
                         enabled = true,
                         icon = Icons.Default.LocationOn,
+                        themeColor = themeColor,
                         trailingIcon = {
                             IconButton(onClick = {
                                 if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -555,7 +627,7 @@ fun ProfileContent(
                                     locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                                 }
                             }) {
-                                Icon(Icons.Default.MyLocation, contentDescription = null, tint = MedicalTeal)
+                                Icon(Icons.Default.MyLocation, contentDescription = null, tint = themeColor)
                             }
                         }
                     )
@@ -563,32 +635,32 @@ fun ProfileContent(
             } else {
                 // Display Mode (Card Based List)
 
-                // --- SWITCH TO DOCTOR HUB CARD (Always visible after login) ---
-                MedicalCard(
-                    backgroundColor = Color(0xFF1E293B),
-                    modifier = Modifier.clickable { navController.navigate(com.healthai.app.ui.navigation.NavRoutes.DoctorDashboard) }
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(MedicalTeal.copy(alpha = 0.1f), CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.BusinessCenter, contentDescription = null, tint = MedicalTeal, modifier = Modifier.size(20.dp))
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = if (user.role == "DOCTOR") "Enter Doctor Dashboard" else "Switch to Doctor Hub", 
-                            color = Color.White, 
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGrey)
-                    }
-                }
-
                 if (user.role != "DOCTOR") {
+                    // --- SWITCH TO DOCTOR HUB CARD (Only visible for patients) ---
+                    MedicalCard(
+                        backgroundColor = Color(0xFF1E293B),
+                        modifier = Modifier.clickable { navController.navigate(com.healthai.app.ui.navigation.NavRoutes.DoctorDashboard) }
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .background(MedicalTeal.copy(alpha = 0.1f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.BusinessCenter, contentDescription = null, tint = MedicalTeal, modifier = Modifier.size(20.dp))
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = "Switch to Doctor Hub", 
+                                color = Color.White, 
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = TextGrey)
+                        }
+                    }
+
                     ProfileSectionHeader("Emergency Card")
                     Card(
                         colors = CardDefaults.cardColors(containerColor = Color(0xFF450A0A)), // Deep Red
@@ -604,44 +676,66 @@ fun ProfileContent(
                             EmergencyItem("Allergies", allergies.ifEmpty { "None Reported" }, Modifier.fillMaxWidth())
                         }
                     }
+                } else {
+                    // Professional Preview for Doctors
+                    ProfileSectionHeader("Professional Preview")
+                    MedicalCard(backgroundColor = themeColor.copy(alpha = 0.1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Visibility, contentDescription = null, tint = themeColor)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text("Patient View Preview", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("This is how patients see your professional profile", color = TextGrey, fontSize = 12.sp)
+                            }
+                            Spacer(modifier = Modifier.weight(1f))
+                            Button(
+                                onClick = { navController.navigate("doctor_details/${user.user_id}") },
+                                colors = ButtonDefaults.buttonColors(containerColor = themeColor),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                                modifier = Modifier.height(32.dp)
+                            ) {
+                                Text("VIEW", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
                 }
 
                 ProfileSectionHeader("Personal Details")
                 MedicalCard {
-                    ProfileListItem(Icons.Default.Person, "Gender", gender.ifEmpty { "Not specified" }) {}
+                    ProfileListItem(Icons.Default.Person, "Gender", gender.ifEmpty { "Not specified" }, themeColor = themeColor) {}
                     HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
-                    ProfileListItem(Icons.Default.LocationOn, "Location", location.ifEmpty { "Not set" }) {}
+                    ProfileListItem(Icons.Default.LocationOn, "Location", location.ifEmpty { "Not set" }, themeColor = themeColor) {}
                 }
 
                 ProfileSectionHeader("Health Vault")
                 MedicalCard {
-                    ProfileListItem(Icons.Default.History, "Medical History", "View your past consultations") {
+                    ProfileListItem(Icons.Default.History, "Medical History", "View your past consultations", themeColor = themeColor) {
                         navController.navigate(com.healthai.app.ui.navigation.NavRoutes.HealthHistory)
                     }
                     HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
-                    ProfileListItem(Icons.Default.Description, "Reports & Scans", "Access your uploaded documents") {
+                    ProfileListItem(Icons.Default.Description, "Reports & Scans", "Access your uploaded documents", themeColor = themeColor) {
                         navController.navigate(com.healthai.app.ui.navigation.NavRoutes.HealthVault)
                     }
                     HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
-                    ProfileListItem(Icons.Default.Vaccines, "Vaccinations", "Keep track of your immunizations") {
+                    ProfileListItem(Icons.Default.Vaccines, "Vaccinations", "Keep track of your immunizations", themeColor = themeColor) {
                         navController.navigate(com.healthai.app.ui.navigation.NavRoutes.Vaccinations)
                     }
                 }
 
                 ProfileSectionHeader("Contact & Security")
                 MedicalCard {
-                    ProfileListItem(Icons.Default.Phone, "Emergency Contact", emergencyContact.ifEmpty { "Not set" }) {}
+                    ProfileListItem(Icons.Default.Phone, "Emergency Contact", emergencyContact.ifEmpty { "Not set" }, themeColor = themeColor) {}
                     HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
-                    ProfileListItem(Icons.Default.Email, "Email Address", user.email ?: "") {}
+                    ProfileListItem(Icons.Default.Email, "Email Address", user.email ?: "", themeColor = themeColor) {}
                 }
 
                 ProfileSectionHeader("Support")
                 MedicalCard {
-                    ProfileListItem(Icons.AutoMirrored.Filled.HelpOutline, "Help Center", "FAQs and customer support") {
+                    ProfileListItem(Icons.AutoMirrored.Filled.HelpOutline, "Help Center", "FAQs and customer support", themeColor = themeColor) {
                         navController.navigate(com.healthai.app.ui.navigation.NavRoutes.HelpCenter)
                     }
                     HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
-                    ProfileListItem(Icons.Default.Info, "About HELPiX", "Learn more about our mission") {
+                    ProfileListItem(Icons.Default.Info, "About HELPiX", "Learn more about our mission", themeColor = themeColor) {
                         navController.navigate(com.healthai.app.ui.navigation.NavRoutes.AboutHelpix)
                     }
                 }
@@ -688,6 +782,7 @@ fun ProfileListItem(
     title: String,
     subtitle: String? = null,
     trailingIcon: ImageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+    themeColor: Color = MedicalTeal,
     onClick: () -> Unit
 ) {
     Row(
@@ -703,7 +798,7 @@ fun ProfileListItem(
                 .background(DeepSlate.copy(alpha = 0.5f), CircleShape),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = null, tint = MedicalTeal, modifier = Modifier.size(20.dp))
+            Icon(icon, contentDescription = null, tint = themeColor, modifier = Modifier.size(20.dp))
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
@@ -769,6 +864,7 @@ fun ProfileTextField(
     enabled: Boolean,
     icon: ImageVector,
     keyboardType: KeyboardType = KeyboardType.Text,
+    themeColor: Color = MedicalTeal,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
     OutlinedTextField(
@@ -777,12 +873,12 @@ fun ProfileTextField(
         label = { Text(label) },
         enabled = enabled,
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        leadingIcon = { Icon(icon, contentDescription = null, tint = if (enabled) MedicalTeal else Color.Gray) },
+        leadingIcon = { Icon(icon, contentDescription = null, tint = if (enabled) themeColor else Color.Gray) },
         trailingIcon = trailingIcon,
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MedicalTeal,
+            focusedBorderColor = themeColor,
             unfocusedBorderColor = Color.Gray,
             disabledBorderColor = Color.DarkGray,
             disabledTextColor = Color.White,

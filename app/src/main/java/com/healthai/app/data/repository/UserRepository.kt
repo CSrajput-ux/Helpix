@@ -45,7 +45,11 @@ class UserRepository @Inject constructor(
         clinicAddress: String? = null,
         consultationFee: Double? = null,
         experienceYears: Int? = null,
-        role: String? = null
+        role: String? = null,
+        discoveryRadius: Float? = null,
+        latitude: Double? = null,
+        longitude: Double? = null,
+        bio: String? = null
     ): Response<UserProfile> {
         return api.updateProfile(
             UpdateProfileRequest(
@@ -61,7 +65,11 @@ class UserRepository @Inject constructor(
                 clinic_address = clinicAddress,
                 consultation_fee = consultationFee,
                 experience_years = experienceYears,
-                role = role
+                role = role,
+                discovery_radius = discoveryRadius,
+                latitude = latitude,
+                longitude = longitude,
+                bio = bio
             )
         )
     }
@@ -73,8 +81,8 @@ class UserRepository @Inject constructor(
     /** Get latest vitals reading (e.g. for dashboard). */
     suspend fun getLatestVitals(): Response<VitalsResponse> = api.getLatestVitals()
 
-    /** Fetch the list of all registered doctors. */
-    suspend fun getDoctors() = api.getDoctors()
+    /** Fetch the list of all registered doctors, optionally filtered by location. */
+    suspend fun getDoctors(lat: Double? = null, lng: Double? = null) = api.getDoctors(lat, lng)
 
     /** Get a specific doctor's profile (from the doctors list, filtered by id). */
     suspend fun getDoctorById(doctorId: String) = api.getDoctors().let { response ->

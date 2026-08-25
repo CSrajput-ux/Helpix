@@ -10,5 +10,6 @@ data class SkinScanEntity(
     val confidence: Float,
     val topPredictions: String, // JSON or comma-separated
     val imagePath: String,
+    val isUncertain: Boolean = false,
     val timestamp: Long = System.currentTimeMillis()
 )

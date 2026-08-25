@@ -4,6 +4,7 @@ import com.healthai.app.data.remote.dto.ScanResultDto
 import com.healthai.app.domain.model.VitalsLog
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -57,7 +58,11 @@ data class UserProfile(
     val location: String? = null,
     val allergies: String? = null,
     val profile_image_url: String? = null,
-    val created_at: String? = null
+    val created_at: String? = null,
+    val discovery_radius: Float? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val bio: String? = null
 )
 
 data class UpdateProfileRequest(
@@ -73,7 +78,11 @@ data class UpdateProfileRequest(
     val clinic_address: String? = null,
     val consultation_fee: Double? = null,
     val experience_years: Int? = null,
-    val role: String? = null
+    val role: String? = null,
+    val discovery_radius: Float? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val bio: String? = null
 )
 
 // ---------------------------------------------------------------------------
@@ -168,7 +177,10 @@ data class DoctorSummary(
     val specialization: String? = null,
     val clinic_address: String? = null,
     val consultation_fee: Double = 500.0,
-    val experience_years: Int? = null
+    val experience_years: Int? = null,
+    val distance: Double? = null,
+    val discovery_radius: Float? = null,
+    val bio: String? = null
 )
 
 data class FollowPatientRequest(
@@ -325,7 +337,14 @@ data class SkinScanResponse(
     val severity: String,
     val confidence: Double,
     val recommendation: String,
-    val scanned_at: String
+    val scanned_at: String,
+    val top_predictions: List<PredictionItem>? = null,
+    val image_url: String? = null
+)
+
+data class PredictionItem(
+    val label: String,
+    val confidence: Double
 )
 
 // FIX #8: Properly typed PrescriptionResponse (was Response<Any>)
@@ -335,6 +354,16 @@ data class PrescriptionResponse(
     val confidence: Double,
     val processed_at: String,
     val raw_text: String? = null
+)
+
+data class CoughAnalysisResponse(
+    val analysis_id: String,
+    val tb_risk: String,
+    val tb_probability: Double,
+    val respiratory_condition: String,
+    val recommendation: String,
+    val confidence: Double,
+    val analyzed_at: String
 )
 
 // FIX #7: Typed NotificationResponse (was Response<List<Any>>)
@@ -387,7 +416,9 @@ data class VaultFileResponse(
     val content_type: String,
     val size_bytes: Int,
     val uploaded_at: String,
-    val uploaded_by: String
+    val uploaded_by: String,
+    val file_url: String? = null,
+    val provider: String? = null
 )
 
 // ---------------------------------------------------------------------------
@@ -507,7 +538,10 @@ interface HelpixApi {
 
     // ---- Doctor Management (FIX #7) ----
     @GET("doctors")
-    suspend fun getDoctors(): Response<List<DoctorSummary>>
+    suspend fun getDoctors(
+        @Query("lat") lat: Double? = null,
+        @Query("lng") lng: Double? = null
+    ): Response<List<DoctorSummary>>
 
     @POST("doctor/follow")
     suspend fun followPatient(@Body body: FollowPatientRequest): Response<FollowPatientResponse>
@@ -537,6 +571,9 @@ interface HelpixApi {
 
     @GET("reminders")
     suspend fun getReminders(): Response<List<ReminderResponse>>
+
+    @GET("reminders/{reminder_id}")
+    suspend fun getReminderById(@Path("reminder_id") id: String): Response<ReminderResponse>
 
     // FIX #7: Update and delete reminders
     @PATCH("reminders/{reminder_id}")
@@ -568,6 +605,22 @@ interface HelpixApi {
         @Part image: MultipartBody.Part,
         @Part("body_area") bodyArea: RequestBody? = null
     ): Response<SkinScanResponse>
+
+    @Multipart
+    @POST("tools/record-skin-scan")
+    suspend fun recordSkinScan(
+        @Part image: MultipartBody.Part,
+        @Part("detected_condition") condition: RequestBody,
+        @Part("confidence") confidence: RequestBody,
+        @Part("top_predictions_json") topPredictions: RequestBody,
+        @Part("body_area") bodyArea: RequestBody? = null
+    ): Response<SkinScanResponse>
+
+    @Multipart
+    @POST("tools/cough-analyze")
+    suspend fun analyzeCough(
+        @Part audio_file: MultipartBody.Part
+    ): Response<CoughAnalysisResponse>
 
     @GET("tools/nearby-hospitals")
     suspend fun getNearbyHospitals(
@@ -617,8 +670,19 @@ interface HelpixApi {
     suspend fun getPrescriptions(): Response<List<PrescriptionResponse>>
 
     // ---- Health Vault ----
+    @Multipart
+    @POST("vault/upload")
+    suspend fun uploadVaultFile(
+        @Part file: MultipartBody.Part,
+        @Part("record_type") recordType: RequestBody? = null
+    ): Response<VaultFileResponse>
+
     @GET("vault/list")
     suspend fun listVaultFiles(): Response<List<VaultFileResponse>>
+    
+    @Streaming
+    @GET("vault/{file_id}")
+    suspend fun downloadVaultFile(@Path("file_id") fileId: String): Response<ResponseBody>
 
     // FIX #7: Vault delete
     @DELETE("vault/{file_id}")

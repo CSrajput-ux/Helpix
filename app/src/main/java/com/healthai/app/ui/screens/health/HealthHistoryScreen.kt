@@ -26,12 +26,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.healthai.app.R
 import com.healthai.app.domain.model.VitalsLog
 
 @Composable
-fun HealthHistoryScreen(viewModel: HealthHistoryViewModel = viewModel()) {
+fun HealthHistoryScreen(viewModel: HealthHistoryViewModel = hiltViewModel()) {
 
     val vitalsHistory by viewModel.vitalsHistory.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

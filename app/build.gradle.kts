@@ -142,6 +142,7 @@ dependencies {
     implementation(libs.guava)
     implementation("androidx.compose.material:material-icons-extended")
     implementation(libs.androidx.appcompat)
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
     // Navigation
     implementation(libs.androidx.navigation.compose)

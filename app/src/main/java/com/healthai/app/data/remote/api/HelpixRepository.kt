@@ -1,6 +1,9 @@
 package com.healthai.app.data.remote.api
 
 import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -209,13 +212,11 @@ object HelpixRetrofitClient {
 // ---------------------------------------------------------------------------
 // HelpixRepository
 // ---------------------------------------------------------------------------
-class HelpixRepository(private val context: Context) {
-
-    private val BASE_URL = Constants.BASE_URL
-
-    private val api: HelpixApi by lazy {
-        HelpixRetrofitClient.create(BASE_URL, context)
-    }
+@Singleton
+class HelpixRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val api: HelpixApi
+) {
 
     // ---- Authentication & Profile ----
     suspend fun signup(req: SignupRequest) = api.signup(req)
@@ -333,6 +334,22 @@ class HelpixRepository(private val context: Context) {
         return api.scanSkin(part, areaPart)
     }
 
+    suspend fun recordSkinScan(
+        imageFile: File,
+        condition: String,
+        confidence: Double,
+        topPredictionsJson: String,
+        bodyArea: String? = null
+    ): Response<SkinScanResponse> {
+        val body = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+        val part = MultipartBody.Part.createFormData("image", imageFile.name, body)
+        val condPart = condition.toRequestBody("text/plain".toMediaTypeOrNull())
+        val confPart = confidence.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val topPart = topPredictionsJson.toRequestBody("text/plain".toMediaTypeOrNull())
+        val areaPart = bodyArea?.toRequestBody("text/plain".toMediaTypeOrNull())
+        return api.recordSkinScan(part, condPart, confPart, topPart, areaPart)
+    }
+
     suspend fun analyzeScan(imageFile: File, type: String = "skin"): Response<ScanResultDto> {
         val body = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
         val part = MultipartBody.Part.createFormData("image", imageFile.name, body)
@@ -353,6 +370,7 @@ class HelpixRepository(private val context: Context) {
     suspend fun deleteNotification(id: String) = api.deleteNotification(id)
 
     // ---- Health Vault ----
+    suspend fun uploadVaultFile(file: okhttp3.MultipartBody.Part, recordType: okhttp3.RequestBody?) = api.uploadVaultFile(file, recordType)
     suspend fun listVaultFiles() = api.listVaultFiles()
 
     suspend fun deleteVaultFile(fileId: String) = api.deleteVaultFile(fileId)

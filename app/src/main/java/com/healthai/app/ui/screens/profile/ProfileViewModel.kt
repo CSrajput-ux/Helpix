@@ -9,6 +9,7 @@ import com.healthai.app.data.remote.api.HelpixRepository
 import com.healthai.app.data.remote.api.SignupRequest
 import com.healthai.app.data.remote.api.UpdateProfileRequest
 import com.healthai.app.data.remote.api.UserProfile
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -17,10 +18,13 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import javax.inject.Inject
 
-class ProfileViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val repository = HelpixRepository(application)
+@HiltViewModel
+class ProfileViewModel @Inject constructor(
+    private val repository: HelpixRepository,
+    application: Application
+) : AndroidViewModel(application) {
 
     private val _user = MutableStateFlow<UserProfile?>(null)
     val user = _user.asStateFlow()
@@ -142,6 +146,10 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
         specialization: String? = null,
         licenseNumber: String? = null,
         clinicAddress: String? = null,
+        discoveryRadius: Float? = null,
+        latitude: Double? = null,
+        longitude: Double? = null,
+        bio: String? = null,
     ) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -156,7 +164,11 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                     allergies = allergies,
                     specialization = specialization,
                     license_number = licenseNumber,
-                    clinic_address = clinicAddress
+                    clinic_address = clinicAddress,
+                    discovery_radius = discoveryRadius,
+                    latitude = latitude,
+                    longitude = longitude,
+                    bio = bio
                 )
                 val response = repository.updateProfile(request)
                 if (response.isSuccessful) {

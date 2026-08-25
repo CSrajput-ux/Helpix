@@ -1,28 +1,38 @@
-# Walkthrough - Fixed Hilt Missing Binding for HelpixRepository
+# Walkthrough - Differentiated Doctor Profile and Dynamic Details
 
-I have resolved the `[Dagger/MissingBinding]` error that was preventing the project from building. The issue was that `HelpixRepository` was not correctly configured for Hilt injection, despite being required by `HealthVaultViewModel`.
+I have overhauled the Profile experience to clearly distinguish between Patients and Doctors. Doctors now have a dedicated professional theme and can manage their clinical identity separately from their personal account details.
 
 ## Changes Made
 
-### Data Layer
+### Data Layer (Identity & Expertise)
 
-#### [HelpixRepository.kt](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/src/main/java/com/healthai/app/data/remote/api/HelpixRepository.kt)
-- Added `@Singleton` and `@Inject constructor`.
-- Switched to constructor injection for `HelpixApi` and `Context`.
-- Removed manual `Retrofit` client creation within the repository, delegating it to Hilt (via `AppModule`).
+#### [HelpixApi.kt](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/src/main/java/com/healthai/app/data/remote/api/HelpixApi.kt)
+- Added a `bio` field to `UserProfile`, `UpdateProfileRequest`, and `DoctorSummary`. This allows doctors to provide a professional description that patients will see.
 
-### UI Layer
+#### [UserRepository.kt](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/src/main/java/com/healthai/app/data/repository/UserRepository.kt)
+- Updated `updateProfile` and `getDoctorById` to support the new `bio` field.
 
-#### [ProfileViewModel.kt](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/src/main/java/com/healthai/app/ui/screens/profile/ProfileViewModel.kt)
-- Annotated with `@HiltViewModel`.
-- Refactored to use constructor injection for `HelpixRepository`.
-- Removed the manual instantiation of the repository.
+### UI Layer (Professional Doctor Experience)
+
+#### [ProfileScreen.kt](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/src/main/java/com/healthai/app/ui/screens/profile/ProfileScreen.kt)
+- **Role-Based Theming**: If the user is a Doctor, the profile now uses a professional Emerald and Indigo color palette.
+- **Differentiated Sections**:
+    - **Professional Identity**: Dedicated fields for Bio, Specialization, and Clinic Location.
+    - **Personal Account**: Shared fields like Name, Email, and Age remain but are separated from clinical data.
+- **Patient View Preview**: Added a new card for Doctors that allows them to preview exactly how patients will see their profile by clicking a "VIEW" button.
+- **Contextual UI**: Removed patient-specific elements like the "Emergency Card" for verified doctors to reduce clutter.
+
+### UI Layer (Dynamic Doctor Details)
+
+#### [DoctorDetailsScreen.kt](file:///C:/Users/jkgga/Music/Helpix.ai/Helpix/app/src/main/java/com/healthai/app/ui/screens/DoctorDetailsScreen.kt)
+- **Real Data Integration**: Refactored the screen to fetch doctor data by ID from the backend. It no longer uses hardcoded names or specialties.
+- **Dynamic Bio**: The "About Doctor" section now displays the actual bio entered by the doctor in their profile.
 
 ## Verification Results
 
 ### Automated Tests
-- Executed `./gradlew :app:hiltJavaCompileDebug`.
+- Executed `./gradlew assembleDebug`.
 - **Result**: Build finished successfully.
 
 > [!TIP]
-> Always prefer constructor injection with `@Inject` for repositories and view models in Hilt projects. Avoid manual instantiation (e.g., `val repo = MyRepository()`) within ViewModels to ensure the dependency graph is managed correctly.
+> Doctors should fill out their **Bio** and **Clinic Address** in their profile to appear more professional to patients on the booking screen.
