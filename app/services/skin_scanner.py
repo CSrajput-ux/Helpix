@@ -84,10 +84,18 @@ def predict_skin_disease(image_bytes: bytes):
         predicted_class_name = CLASS_NAMES[predicted_class_index]
         confidence = float(pred_probs[predicted_class_index])
 
+        # Get Top 3
+        top_indices = np.argsort(pred_probs)[-3:][::-1]
+        top_3 = [
+            {"label": CLASS_NAMES[i], "confidence": float(pred_probs[i])}
+            for i in top_indices if i < len(CLASS_NAMES)
+        ]
+
         return {
             "condition": predicted_class_name,
             "confidence": confidence,
-            "severity": "high" if confidence > 0.8 else "moderate"
+            "severity": "high" if confidence > 0.8 else "moderate",
+            "top_3": top_3
         }, None
 
     except Exception as e:

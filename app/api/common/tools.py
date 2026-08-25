@@ -2,24 +2,12 @@
 app/api/tools.py
 -----------------
 Smart Tools Zone endpoints:
-
-  POST /tools/symptom-check    – AI Symptom Checker (Symptom Doctor)
-  POST /tools/chat             – AI Chat Doctor (conversational)
-  POST /tools/sos              – Emergency SOS trigger
-  GET  /tools/nearby-hospitals – Find hospitals by GPS coords
-  POST /tools/cough-analyze    – Cough TB / Respiratory Analysis
-  POST /tools/skin-scan        – Skin condition scan (AI)
-  GET  /tools/diet-plan        – Personalized diet plan
-  GET  /tools/diet-history     – User's diet plan history
-  POST /tools/fitness/log      – Log a workout
-  GET  /tools/fitness/history  – Fitness history
-  GET  /tools/stats            – Smart Tools Zone dashboard stats
-
-All AI endpoints use simulated responses. Replace with real ML models in production.
+...
 """
 
 import uuid
 import random
+import json
 from datetime import datetime, timezone
 from typing import List, Optional
 
@@ -131,6 +119,11 @@ class CoughAnalysisResponse(BaseModel):
     analyzed_at:           datetime
 
 
+class PredictionItem(BaseModel):
+    label: str
+    confidence: float
+
+
 class SkinScanResponse(BaseModel):
     scan_id:            str
     detected_condition: str
@@ -138,6 +131,8 @@ class SkinScanResponse(BaseModel):
     confidence:         float = Field(..., ge=0.0, le=1.0)
     recommendation:     str
     scanned_at:         datetime
+    top_predictions:    Optional[List[PredictionItem]] = None
+    image_url:          Optional[str] = None
 
 
 class FitnessLogRequest(BaseModel):
@@ -405,6 +400,7 @@ async def scan_skin(
         detected = prediction["condition"]
         severity = prediction["severity"]
         confidence = prediction["confidence"]
+        top_preds = prediction.get("top_3", [])
         recommendation = f"AI Detected {detected}. Please consult a dermatologist."
     else:
         import logging
@@ -417,6 +413,11 @@ async def scan_skin(
         ]
         detected, severity, recommendation = random.choice(conditions)
         confidence = round(random.uniform(0.75, 0.95), 4)
+        top_preds = [{"label": detected, "confidence": confidence}]
+
+    # Upload to Cloudinary
+    from app.core.storage import upload_image_cloudinary
+    image_url = await upload_image_cloudinary(contents, f"skin_scan_{current_user['sub']}.jpg")
 
     scan_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
@@ -425,8 +426,12 @@ async def scan_skin(
         "scan_id": scan_id,
         "user_id": current_user["sub"],
         "detected_condition": detected,
+        "confidence": confidence,
+        "severity": severity,
         "body_area": body_area,
         "scanned_at": now,
+        "top_predictions": top_preds,
+        "image_url": image_url,
         "is_ai_prediction": bool(prediction)
     })
 
@@ -437,7 +442,92 @@ async def scan_skin(
         confidence=confidence,
         recommendation=recommendation,
         scanned_at=now,
+        top_predictions=top_preds,
+        image_url=image_url
     )
+
+
+# ---------------------------------------------------------------------------
+# 6b. RECORD SKIN SCAN (Sync from device)
+# ---------------------------------------------------------------------------
+@router.post("/record-skin-scan", response_model=SkinScanResponse)
+async def record_skin_scan(
+    image: UploadFile = File(..., description="Skin area image"),
+    detected_condition: str = Form(...),
+    confidence: float = Form(...),
+    severity: str = Form(default="unknown"),
+    top_predictions_json: str = Form(default="[]"),
+    body_area: Optional[str] = Form(default="unknown"),
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Record a skin scan result that was already analyzed on the device.
+    Useful for syncing TFLite results to the backend.
+    """
+    from app.core.file_safety import validate_file_safety
+    from app.core.storage import upload_image_cloudinary
+
+    contents = await validate_file_safety(image, max_size_mb=10, allow_image=True)
+    image_url = await upload_image_cloudinary(contents, f"skin_scan_sync_{current_user['sub']}.jpg")
+
+    try:
+        top_preds = json.loads(top_predictions_json)
+    except:
+        top_preds = []
+
+    scan_id = str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
+    recommendation = f"You recorded {detected_condition} with {round(confidence*100, 1)}% confidence. Please consult a dermatologist for confirmation."
+
+    await _db_module.db["skin_scans"].insert_one({
+        "scan_id": scan_id,
+        "user_id": current_user["sub"],
+        "detected_condition": detected_condition,
+        "confidence": confidence,
+        "severity": severity,
+        "body_area": body_area,
+        "scanned_at": now,
+        "top_predictions": top_preds,
+        "image_url": image_url,
+        "is_ai_prediction": True,
+        "analysis_source": "on-device"
+    })
+
+    return SkinScanResponse(
+        scan_id=scan_id,
+        detected_condition=detected_condition,
+        severity=severity,
+        confidence=confidence,
+        recommendation=recommendation,
+        scanned_at=now,
+        top_predictions=top_preds,
+        image_url=image_url
+    )
+
+
+# ---------------------------------------------------------------------------
+# 6c. GET SKIN SCAN HISTORY
+# ---------------------------------------------------------------------------
+@router.get("/skin-scans", response_model=List[SkinScanResponse])
+async def get_skin_scans(
+    limit: int = 20,
+    current_user: dict = Depends(get_current_user),
+):
+    """Get history of skin scans for the current user."""
+    cursor = _db_module.db["skin_scans"].find({"user_id": current_user["sub"]}).sort("scanned_at", -1).limit(limit)
+    scans = []
+    async for doc in cursor:
+        scans.append(SkinScanResponse(
+            scan_id=doc["scan_id"],
+            detected_condition=doc["detected_condition"],
+            severity=doc.get("severity", "unknown"),
+            confidence=doc.get("confidence", 0.0),
+            recommendation=f"Analysis from {doc['scanned_at'].strftime('%Y-%m-%d')}",
+            scanned_at=doc["scanned_at"],
+            top_predictions=doc.get("top_predictions"),
+            image_url=doc.get("image_url")
+        ))
+    return scans
 
 
 # ===========================================================================
