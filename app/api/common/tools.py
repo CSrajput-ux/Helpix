@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field, field_validator
 from app.core.security import get_current_user
 from app.models.schemas import DiseasePredictionDto, ScanResultDto
 import app.core.db as _db_module
+from app.services.symptom_ml import symptom_ml_service
 
 router = APIRouter(prefix="/tools", tags=["Smart Tools Zone"])
 root_router = APIRouter(tags=["AI Tools (Direct)"])
@@ -60,11 +61,18 @@ class DiagnosisResult(BaseModel):
 
 
 class SymptomCheckResponse(BaseModel):
-    check_id:           str
-    possible_conditions: List[DiagnosisResult]
-    overall_risk:       str
-    should_see_doctor:  bool
-    analyzed_at:        datetime
+    check_id:               str
+    possible_conditions:    List[DiagnosisResult]
+    overall_risk:           str
+    should_see_doctor:      bool
+    analyzed_at:            datetime
+    predicted_condition:    Optional[str] = None
+    confidence_score:       Optional[float] = None
+    triage_level:           Optional[str] = None
+    recommended_specialist: Optional[str] = None
+    gemini_explanation:     Optional[str] = None
+    matched_symptoms:       Optional[List[str]] = None
+
 
 
 class ChatMessage(BaseModel):
@@ -171,58 +179,75 @@ class ToolStatsResponse(BaseModel):
 
 
 # ===========================================================================
-# 1. SYMPTOM CHECKER
+# 1. SYMPTOM CHECKER & ML DIAGNOSTICS
 # ===========================================================================
+@router.get("/symptoms")
+async def get_supported_symptoms(
+    current_user: dict = Depends(get_current_user),
+):
+    """
+    Returns all 132 supported clinical symptoms for autocomplete and selector chips.
+    """
+    return {
+        "status": "success",
+        "total": len(symptom_ml_service.symptoms_columns),
+        "symptoms": symptom_ml_service.get_all_symptoms()
+    }
+
+
 @router.post("/symptom-check", response_model=SymptomCheckResponse)
 async def check_symptoms(
     body: SymptomCheckRequest,
     current_user: dict = Depends(get_current_user),
 ):
     """
-    AI Symptom Doctor — analyzes symptoms and returns possible conditions.
-    Simulated response. Replace with a medical NLP model (e.g., MedPaLM, BioBERT) in production.
+    AI Symptom Doctor — analyzes symptoms using Decision Tree ML model + Gemini Clinical AI.
     """
-    symptom_map = {
-        "fever": [("Viral Infection", 0.75, "mild", "Rest and drink fluids"), ("Malaria", 0.30, "moderate", "Get a blood test")],
-        "cough": [("Upper Respiratory Infection", 0.65, "mild", "Steam inhalation"), ("Tuberculosis", 0.15, "severe", "Consult a pulmonologist")],
-        "headache": [("Tension Headache", 0.80, "mild", "Rest in a quiet room"), ("Migraine", 0.40, "moderate", "Avoid bright lights")],
-        "chest pain": [("Muscle Strain", 0.50, "mild", "Apply heat pack"), ("Cardiac Issue", 0.20, "severe", "Go to ER immediately")],
-        "default": [("General Illness", 0.50, "mild", "Consult a general physician")],
-    }
-
-    conditions_seen = set()
-    results = []
-    for symptom in body.symptoms:
-        for s_key, diagnoses in symptom_map.items():
-            if s_key in symptom.lower():
-                for name, prob, sev, rec in diagnoses:
-                    if name not in conditions_seen:
-                        conditions_seen.add(name)
-                        results.append(DiagnosisResult(condition=name, probability=prob, severity=sev, recommendation=rec))
-
-    if not results:
-        c, p, s, r = symptom_map["default"][0]
-        results.append(DiagnosisResult(condition=c, probability=p, severity=s, recommendation=r))
-
-    risk = "high" if any(r.severity == "severe" for r in results) else "medium" if any(r.severity == "moderate" for r in results) else "low"
-    see_doctor = risk in ("medium", "high")
+    prediction = symptom_ml_service.predict(body.symptoms)
 
     check_id = str(uuid.uuid4())
+    analyzed_at = datetime.now(timezone.utc)
+
+    # Convert possible conditions into DiagnosisResult models
+    results = [
+        DiagnosisResult(
+            condition=c["condition"],
+            probability=c["probability"],
+            severity=c["severity"],
+            recommendation=c["recommendation"]
+        )
+        for c in prediction["possible_conditions"]
+    ]
+
     doc = {
         "check_id": check_id,
         "user_id": current_user["sub"],
         "symptoms": body.symptoms,
-        "overall_risk": risk,
-        "analyzed_at": datetime.now(timezone.utc),
+        "matched_symptoms": prediction.get("matched_symptoms", []),
+        "predicted_condition": prediction.get("predicted_condition"),
+        "confidence_score": prediction.get("confidence_score"),
+        "possible_conditions": [c.model_dump() for c in results],
+        "overall_risk": prediction["overall_risk"],
+        "triage_level": prediction["triage_level"],
+        "should_see_doctor": prediction["should_see_doctor"],
+        "recommended_specialist": prediction.get("recommended_specialist"),
+        "gemini_explanation": prediction.get("gemini_explanation"),
+        "analyzed_at": analyzed_at,
     }
     await _db_module.db["symptom_checks"].insert_one(doc)
 
     return SymptomCheckResponse(
         check_id=check_id,
         possible_conditions=results,
-        overall_risk=risk,
-        should_see_doctor=see_doctor,
-        analyzed_at=doc["analyzed_at"],
+        overall_risk=prediction["overall_risk"],
+        should_see_doctor=prediction["should_see_doctor"],
+        analyzed_at=analyzed_at,
+        predicted_condition=prediction.get("predicted_condition"),
+        confidence_score=prediction.get("confidence_score"),
+        triage_level=prediction.get("triage_level"),
+        recommended_specialist=prediction.get("recommended_specialist"),
+        gemini_explanation=prediction.get("gemini_explanation"),
+        matched_symptoms=prediction.get("matched_symptoms")
     )
 
 
@@ -235,39 +260,71 @@ async def chat_with_doctor(
     current_user: dict = Depends(get_current_user),
 ):
     """
-    24/7 AI Chat Doctor.
-    Simulated. Replace with GPT-4 / MedPaLM / Gemini integration for production.
+    24/7 AI Chat Doctor powered by Google Gemini and Clinical AI.
     """
     session_id = body.session_id or str(uuid.uuid4())
+    now = datetime.now(timezone.utc)
 
-    response_map = {
-        "headache": ("Try resting in a quiet, dark room and stay hydrated. If persistent for more than 72 hours, consult a doctor.", ["Take paracetamol 500mg", "Avoid screen time", "Drink more water"]),
-        "fever": ("Monitor your temperature every 4 hours. Paracetamol can help reduce fever. Seek medical attention if above 104°F.", ["Stay hydrated", "Rest", "Take paracetamol"]),
-        "cough": ("Warm water with honey can soothe cough. If cough persists over 2 weeks, get a chest X-ray.", ["Steam inhalation", "Warm fluids", "Avoid cold drinks"]),
-        "default": ("I'm your AI health assistant. I can help with general health queries. For emergencies, please call 112.", ["Describe your symptoms", "Check your vitals", "Book an appointment"]),
-    }
+    # Default suggestions
+    suggestions = ["Describe your symptoms", "Check your vitals", "Book an appointment"]
+    reply = ""
 
-    user_msg = body.message.lower()
-    reply, suggestions = response_map["default"]
-    for key, (r, s) in response_map.items():
-        if key in user_msg:
-            reply, suggestions = r, s
-            break
+    # Try Gemini if available
+    if symptom_ml_service.gemini_client:
+        try:
+            prompt = f"""You are Helpix AI, a helpful, empathetic and intelligent symptom doctor assistant.
+Patient says: "{body.message}"
+Respond in a friendly, conversational, and medically responsible manner.
+- If symptoms are mentioned, provide gentle preliminary guidance, ask 1-2 clarifying questions, and advise seeing a doctor if severe.
+- Keep response under 3-4 sentences.
+- Suggest 2-3 quick follow-up action phrases at the very end separated by pipe symbol e.g., Suggestions: Check vitals | See a doctor | Rest and hydrate"""
+            
+            res = symptom_ml_service.gemini_client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt
+            )
+            if res and res.text:
+                full_text = res.text.strip()
+                if "Suggestions:" in full_text:
+                    parts = full_text.split("Suggestions:")
+                    reply = parts[0].strip()
+                    custom_suggs = [s.strip() for s in parts[1].split("|") if s.strip()]
+                    if custom_suggs:
+                        suggestions = custom_suggs[:3]
+                else:
+                    reply = full_text
+        except Exception:
+            pass
+
+    if not reply:
+        response_map = {
+            "headache": ("Try resting in a quiet, dark room and stay hydrated. If persistent for more than 48 hours, consider consulting a physician.", ["Take paracetamol 500mg", "Avoid screen time", "Drink more water"]),
+            "fever": ("Monitor your temperature regularly. Paracetamol can help reduce fever. Seek medical attention if temperature exceeds 102°F.", ["Stay hydrated", "Take rest", "Check vitals"]),
+            "cough": ("Warm water with honey or steam inhalation can soothe your throat. If cough persists over 2 weeks, consult a pulmonologist.", ["Steam inhalation", "Warm fluids", "Avoid cold drinks"]),
+            "default": ("Namaste! I'm your Helpix AI health assistant. Tell me about your symptoms and I will help you assess your health.", ["Check my symptoms", "Record my vitals", "Find a specialist"]),
+        }
+        user_msg = body.message.lower()
+        reply, suggestions = response_map["default"]
+        for key, (r, s) in response_map.items():
+            if key in user_msg:
+                reply, suggestions = r, s
+                break
 
     await _db_module.db["chat_sessions"].insert_one({
         "session_id": session_id,
         "user_id": current_user["sub"],
         "message": body.message,
         "reply": reply,
-        "timestamp": datetime.now(timezone.utc),
+        "timestamp": now,
     })
 
     return ChatResponse(
         session_id=session_id,
         reply=reply,
         suggestions=suggestions,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=now,
     )
+
 
 
 # ===========================================================================

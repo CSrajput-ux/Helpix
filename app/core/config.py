@@ -53,8 +53,10 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str = ""
     SUPABASE_BUCKET: str = ""
 
-    # ── Google OAuth ──────────────────────────────────────────────────────────
+    # ── Google OAuth & AI ─────────────────────────────────────────────────────
     GOOGLE_CLIENT_ID: str = ""
+    GEMINI_API_KEY: str = ""
+
 
     # ── CORS ─────────────────────────────────────────────────────────────────
     # Comma-separated list. Use "*" only in development.
