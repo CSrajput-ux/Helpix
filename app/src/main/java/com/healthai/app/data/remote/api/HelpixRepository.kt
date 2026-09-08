@@ -320,9 +320,14 @@ class HelpixRepository @Inject constructor(
     suspend fun markDoseTaken(id: String) = api.markDoseTaken(id)
 
     // ---- Smart Tools (AI) ----
-    suspend fun checkSymptoms(req: SymptomRequest) = api.checkSymptoms(req)
+    suspend fun getSupportedSymptoms() = api.getSupportedSymptoms()
+
+    suspend fun checkSymptoms(req: SymptomCheckRequest) = api.checkSymptoms(req)
+
+    suspend fun checkSymptoms(symptoms: List<String>) = api.checkSymptoms(SymptomCheckRequest(symptoms))
 
     suspend fun chatWithDoctor(msg: String, sid: String? = null) = api.chatWithDoctor(ChatRequest(msg, sid))
+
 
     suspend fun triggerSOS(lat: Double, lon: Double, message: String? = null) =
         api.triggerSOS(SOSRequest(lat, lon, message = message))

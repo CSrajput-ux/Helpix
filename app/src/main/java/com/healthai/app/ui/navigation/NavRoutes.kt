@@ -86,6 +86,8 @@ object NavRoutes {
     // Prescription Reader
     const val PrescriptionReader = "prescription_reader_screen"
     const val PrescriptionScanning = "prescription_scanning_screen"
-    const val PrescriptionAnalysis = "prescription_analysis_screen"
+    const val PrescriptionAnalysis = "prescription_analysis_screen/{imagePath}"
     const val PrescriptionResult = "prescription_result_screen"
+
+    fun prescriptionAnalysis(imagePath: String) = "prescription_analysis_screen/${android.net.Uri.encode(imagePath)}"
 }

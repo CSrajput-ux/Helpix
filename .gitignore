@@ -35,3 +35,9 @@ build_error_v2.txt
 lint_results.txt
 build_result.txt
 wrapper_error.txt
+
+# Large ML model files (use Google Drive / Hugging Face / Firebase ML instead)
+*.tflite
+*.pt
+*.onnx
+*.bin

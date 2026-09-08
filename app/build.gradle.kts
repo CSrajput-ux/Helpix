@@ -9,12 +9,13 @@ if (localPropertiesFile.isFile) {
 fun releaseProperty(name: String): String? =
     providers.gradleProperty(name).orNull ?: localProperties.getProperty(name)
 
-val productionApiUrl = releaseProperty("productionApiUrl")
-val googleMapsApiKey = releaseProperty("googleMapsApiKey")
-val releaseStoreFile = releaseProperty("releaseStoreFile")
+val productionApiUrl    = releaseProperty("productionApiUrl")
+val googleMapsApiKey    = releaseProperty("googleMapsApiKey")
+val geminiApiKey        = releaseProperty("geminiApiKey") ?: ""
+val releaseStoreFile    = releaseProperty("releaseStoreFile")
 val releaseStorePassword = releaseProperty("releaseStorePassword")
-val releaseKeyAlias = releaseProperty("releaseKeyAlias")
-val releaseKeyPassword = releaseProperty("releaseKeyPassword")
+val releaseKeyAlias     = releaseProperty("releaseKeyAlias")
+val releaseKeyPassword  = releaseProperty("releaseKeyPassword")
 
 plugins {
     alias(libs.plugins.android.application)
@@ -38,6 +39,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey.orEmpty()
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -46,7 +48,7 @@ android {
     signingConfigs {
         create("release") {
             if (!releaseStoreFile.isNullOrBlank()) {
-                storeFile = rootProject.file(releaseStoreFile)
+                storeFile = rootProject.file(releaseStoreFile!!)
                 storePassword = releaseStorePassword
                 keyAlias = releaseKeyAlias
                 keyPassword = releaseKeyPassword
@@ -90,11 +92,10 @@ android {
             useLegacyPackaging = true
         }
     }
-    
+
     androidResources {
         noCompress += "tflite"
     }
-
 }
 
 ksp {
@@ -104,12 +105,12 @@ ksp {
 tasks.register("validateReleaseConfiguration") {
     inputs.properties(
         mapOf(
-            "productionApiUrl" to productionApiUrl.orEmpty(),
-            "googleMapsApiKey" to googleMapsApiKey.orEmpty(),
-            "releaseStoreFile" to releaseStoreFile.orEmpty(),
+            "productionApiUrl"     to productionApiUrl.orEmpty(),
+            "googleMapsApiKey"     to googleMapsApiKey.orEmpty(),
+            "releaseStoreFile"     to releaseStoreFile.orEmpty(),
             "releaseStorePassword" to releaseStorePassword.orEmpty(),
-            "releaseKeyAlias" to releaseKeyAlias.orEmpty(),
-            "releaseKeyPassword" to releaseKeyPassword.orEmpty(),
+            "releaseKeyAlias"      to releaseKeyAlias.orEmpty(),
+            "releaseKeyPassword"   to releaseKeyPassword.orEmpty(),
         )
     )
     doLast {
@@ -202,9 +203,12 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.play.services.auth)
     implementation(libs.google.places)
-    
+
     // Image Loading
     implementation(libs.coil.compose)
+
+    // Google Gemini Generative AI — for Prescription OCR
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
     // Testing & Debugging
     testImplementation(libs.junit)

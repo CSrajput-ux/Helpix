@@ -11,8 +11,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,21 +20,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
@@ -46,30 +46,47 @@ import androidx.navigation.NavController
 import com.healthai.app.data.local.database.HelpixDatabase
 import com.healthai.app.data.local.entity.SkinScanEntity
 import com.healthai.app.ml.SkinClassifier
+import com.healthai.app.ml.SkinImageGate
 import com.healthai.app.ui.navigation.NavRoutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/** Agar model ka top confidence itne se kam ho toh image skin nahi hai */
-private const val NOT_SKIN_THRESHOLD = 0.15f
+// ─────────────────────────────────────────────────────────────────────────────
+// State machine for the 2-phase pipeline
+// ─────────────────────────────────────────────────────────────────────────────
+private sealed class PipelineState {
+    /** Phase 1: Running SkinImageGate */
+    object GateChecking : PipelineState()
+
+    /** Phase 1 FAILED: Not a skin image */
+    data class GateRejected(val skinRatio: Float) : PipelineState()
+
+    /** Phase 2: Gate passed, TFLite running */
+    object ModelRunning : PipelineState()
+
+    /** Phase 2 DONE: Saving to DB and navigating */
+    object Navigating : PipelineState()
+
+    /** Any error */
+    data class Failed(val message: String) : PipelineState()
+}
 
 @Composable
 fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var pipelineState by remember { mutableStateOf<PipelineState>(PipelineState.GateChecking) }
 
-    // Non-skin image warning dialog states
-    var showNotSkinDialog by remember { mutableStateOf(false) }
-    var pendingRecognition by remember { mutableStateOf<SkinClassifier.Recognition?>(null) }
-    var pendingImagePath by remember { mutableStateOf<String?>(null) }
+    // For "Analyze Anyway" from Gate-Rejected dialog
+    var pendingBitmapPath by remember { mutableStateOf<String?>(null) }
 
-    // DB mein save karke navigate karo
+    // ── Helper: save result → DB → navigate ──────────────────────────────────
     fun saveAndNavigate(result: SkinClassifier.Recognition, filePath: String) {
         coroutineScope.launch {
+            pipelineState = PipelineState.Navigating
             runCatching {
                 val scanId = withContext(Dispatchers.IO) {
                     HelpixDatabase.getDatabase(context).skinScanDao().insertScan(
@@ -88,158 +105,155 @@ fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
                     popUpTo(NavRoutes.SkinDetectorStart) { inclusive = true }
                 }
             }.onFailure { e ->
-                errorMessage = "Analysis could not be completed. ${e.message.orEmpty()}"
+                pipelineState = PipelineState.Failed("Could not save result: ${e.message}")
             }
         }
     }
 
+    // ── Helper: run TFLite on a file ─────────────────────────────────────────
+    suspend fun runClassifier(filePath: String): SkinClassifier.Recognition {
+        return withContext(Dispatchers.Default) {
+            val bitmap = SkinImageDecoder.decode(File(filePath))
+            try {
+                val classifier = SkinClassifier(context)
+                try {
+                    classifier.classifySkin(bitmap)
+                } finally {
+                    classifier.close()
+                }
+            } finally {
+                if (!bitmap.isRecycled) bitmap.recycle()
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Main Pipeline LaunchedEffect
+    // ─────────────────────────────────────────────────────────────────────────
     LaunchedEffect(imagePath) {
         if (imagePath.isNullOrBlank()) {
-            errorMessage = "No image was selected for analysis."
+            pipelineState = PipelineState.Failed("No image was selected for analysis.")
+            return@LaunchedEffect
+        }
+
+        val imageFile = File(imagePath)
+        if (!imageFile.isFile || imageFile.length() == 0L) {
+            pipelineState = PipelineState.Failed("Selected image is unavailable.")
             return@LaunchedEffect
         }
 
         runCatching {
-            withContext(Dispatchers.Default) {
-                val imageFile = File(imagePath)
-                require(imageFile.isFile && imageFile.length() > 0) { "Selected image is unavailable." }
+            // ── PHASE 1: Skin Image Gate ──────────────────────────────────────
+            pipelineState = PipelineState.GateChecking
+            val bitmap = withContext(Dispatchers.Default) {
+                SkinImageDecoder.decode(imageFile)
+            }
+            val gateResult = withContext(Dispatchers.Default) {
+                SkinImageGate.check(bitmap)
+            }
+            if (!bitmap.isRecycled) bitmap.recycle()
 
-                val bitmap = SkinImageDecoder.decode(imageFile)
-                try {
-                    val classifier = SkinClassifier(context)
-                    try {
-                        classifier.classifySkin(bitmap)
-                    } finally {
-                        classifier.close()
-                    }
-                } finally {
-                    if (!bitmap.isRecycled) bitmap.recycle()
-                }
+            Log.d("SkinGate", gateResult.reason)
+
+            if (!gateResult.passed) {
+                // ❌ Gate REJECTED — not a skin image
+                pendingBitmapPath = imagePath
+                pipelineState = PipelineState.GateRejected(gateResult.skinRatio)
+                return@LaunchedEffect
             }
-        }.onSuccess { result ->
-            if (result.confidence < NOT_SKIN_THRESHOLD) {
-                // ⚠️ Confidence bahut kam — skin image nahi lag rahi
-                pendingRecognition = result
-                pendingImagePath = imagePath
-                showNotSkinDialog = true
-            } else {
-                // ✅ Normal flow — save karke navigate karo
-                saveAndNavigate(result, imagePath)
-            }
+
+            // ── PHASE 2: TFLite 7-class classifier ───────────────────────────
+            pipelineState = PipelineState.ModelRunning
+            val result = runClassifier(imagePath)
+
+            // Save and navigate
+            saveAndNavigate(result, imagePath)
+
         }.onFailure { error ->
-            Log.e("SkinAnalysis", "Skin analysis failed", error)
-            errorMessage = "Analysis could not be completed. ${error.message.orEmpty()}"
+            Log.e("SkinAnalysis", "Pipeline failed", error)
+            pipelineState = PipelineState.Failed("Analysis failed: ${error.message.orEmpty()}")
         }
     }
 
-    // ─────────────────────────────────────────────
-    // ⚠️ Non-Skin Image Warning Modal
-    // ─────────────────────────────────────────────
-    if (showNotSkinDialog) {
-        AlertDialog(
-            onDismissRequest = { /* Bahar touch se dismiss na ho */ },
-            containerColor = Color(0xFF1E293B),
-            shape = RoundedCornerShape(20.dp),
-            title = {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = "⚠️",
-                        fontSize = 40.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Skin Image Nahi Laga",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp,
-                        textAlign = TextAlign.Center
-                    )
+    // ─────────────────────────────────────────────────────────────────────────
+    // ❌ Gate Rejected — NOT SKIN Modal
+    // ─────────────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // ❌ Gate Rejected — Non-skin image, simple clean message
+    // ─────────────────────────────────────────────────────────────────────────
+    val state = pipelineState
+    if (state is PipelineState.GateRejected) {
+        Scaffold(containerColor = Color(0xFF0B1221)) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                // Icon
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .background(Color(0xFFFF3B30).copy(alpha = 0.12f), RoundedCornerShape(50.dp))
+                        .border(2.dp, Color(0xFFFF3B30).copy(alpha = 0.35f), RoundedCornerShape(50.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("🚫", fontSize = 44.sp)
                 }
-            },
-            text = {
-                Column {
-                    // Warning banner
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFFF6B35).copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-                            .border(1.dp, Color(0xFFFF6B35).copy(alpha = 0.4f), RoundedCornerShape(10.dp))
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Yeh image kisi skin disease jaisi nahi lag rahi hai. " +
-                                    "Galat image se galat result aa sakta hai.",
-                            color = Color(0xFFFF6B35),
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Behtar results ke liye:\n" +
-                                "• Affected skin area ki clear photo lo\n" +
-                                "• Achhi roshni mein photo lo\n" +
-                                "• Close-up shot lena better hoga",
-                        color = Color.LightGray,
-                        fontSize = 13.sp,
-                        lineHeight = 20.sp
-                    )
-                }
-            },
-            confirmButton = {
-                Column(
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                // Main message
+                Text(
+                    text = "Please upload a clear image\nof the affected skin area.",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 28.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = "Non-skin images (like pan, car, food, etc.) cannot be analyzed.",
+                    color = Color(0xFF64748B),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp
+                )
+
+                Spacer(modifier = Modifier.height(40.dp))
+
+                // Retry button
+                Button(
+                    onClick = {
+                        pipelineState = PipelineState.GateChecking
+                        navController.popBackStack()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676))
                 ) {
-                    // Primary: Doosri photo lo
-                    Button(
-                        onClick = {
-                            showNotSkinDialog = false
-                            navController.popBackStack()
-                        },
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E676))
-                    ) {
-                        Text(
-                            "📷  Doosri Photo Lo",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 15.sp
-                        )
-                    }
-                    // Secondary: Phir bhi analyze karo
-                    OutlinedButton(
-                        onClick = {
-                            showNotSkinDialog = false
-                            val rec = pendingRecognition ?: return@OutlinedButton
-                            val path = pendingImagePath ?: return@OutlinedButton
-                            saveAndNavigate(rec, path)
-                        },
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp, Color.White.copy(alpha = 0.3f)
-                        ),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.LightGray)
-                    ) {
-                        Text(
-                            "Phir Bhi Analyze Karo",
-                            fontSize = 14.sp
-                        )
-                    }
+                    Text(
+                        "📷  Upload Skin Image",
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
                 }
-            },
-            dismissButton = null  // Custom buttons upar hain
-        )
+            }
+        }
+        return
     }
 
-    // ─────────────────────────────────────────────
-    // Main Screen
-    // ─────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    // Main UI — Loading / Error
+    // ─────────────────────────────────────────────────────────────────────────
     Scaffold(containerColor = Color(0xFF0B1221)) { paddingValues ->
         Column(
             modifier = Modifier
@@ -249,54 +263,104 @@ fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            if (errorMessage == null) {
-                SkinAnalysisAnimation()
-                Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                    "Analyzing Your Skin...",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Helpix AI is scanning for patterns, color, and texture markers.",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center
-                )
-            } else {
-                Text(
-                    "Unable to analyze image",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(errorMessage.orEmpty(), color = Color.Gray, textAlign = TextAlign.Center)
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(onClick = { navController.popBackStack() }) {
-                    Text("Choose another photo")
+            when (val s = pipelineState) {
+                is PipelineState.GateChecking -> {
+                    SkinAnalysisAnimation(color = Color(0xFF38BDF8))
+                    Spacer(modifier = Modifier.height(28.dp))
+                    Text(
+                        "Phase 1: Verifying Skin Image...",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Checking image for skin pixels before analysis.",
+                        color = Color(0xFF64748B),
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
+
+                is PipelineState.ModelRunning, is PipelineState.Navigating -> {
+                    SkinAnalysisAnimation(color = Color(0xFF00E676))
+                    Spacer(modifier = Modifier.height(28.dp))
+                    Text(
+                        if (pipelineState is PipelineState.Navigating)
+                            "Saving Results..."
+                        else
+                            "Phase 2: AI Model Running...",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Helpix TFLite is detecting skin disease patterns.",
+                        color = Color(0xFF64748B),
+                        fontSize = 13.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                is PipelineState.Failed -> {
+                    Text("❌", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "Analysis Failed",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        s.message,
+                        color = Color(0xFF64748B),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = { navController.popBackStack() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B))
+                    ) {
+                        Text("Choose Another Photo", color = Color.White)
+                    }
+                }
+
+                else -> { /* Gate rejected state — dialog handles it */ }
             }
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Spinner animation (reusable)
+// ─────────────────────────────────────────────────────────────────────────────
 @Composable
-private fun SkinAnalysisAnimation() {
-    val infiniteTransition = rememberInfiniteTransition(label = "skin-analysis")
-    val angle by infiniteTransition.animateFloat(
+private fun SkinAnalysisAnimation(color: Color = Color(0xFF00E676)) {
+    val transition = rememberInfiniteTransition(label = "skin-spinner")
+    val angle by transition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(1500, easing = LinearEasing), RepeatMode.Restart),
-        label = "skin-analysis-angle"
+        animationSpec = infiniteRepeatable(
+            tween(1400, easing = LinearEasing),
+            RepeatMode.Restart
+        ),
+        label = "spin"
     )
-    Canvas(modifier = Modifier.size(150.dp)) {
+    Canvas(modifier = Modifier.size(130.dp)) {
         drawArc(
-            color = Color(0xFF00E676),
+            color = color.copy(alpha = 0.2f),
+            startAngle = 0f,
+            sweepAngle = 360f,
+            useCenter = false,
+            style = Stroke(width = 8.dp.toPx())
+        )
+        drawArc(
+            color = color,
             startAngle = angle,
-            sweepAngle = 120f,
+            sweepAngle = 110f,
             useCenter = false,
             style = Stroke(width = 8.dp.toPx())
         )

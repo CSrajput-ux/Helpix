@@ -7,6 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,18 +17,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.ui.navigation.NavRoutes
+import com.healthai.app.ui.viewmodel.SymptomViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun SymptomAnalysisScreen(navController: NavController) {
+fun SymptomAnalysisScreen(
+    navController: NavController,
+    viewModel: SymptomViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
 
-    // Simulate analysis and navigate to a result screen after a delay
-    LaunchedEffect(key1 = true) {
-        delay(3000) // Simulate a 3-second analysis
-        navController.navigate(NavRoutes.SymptomResult) { 
-            popUpTo(NavRoutes.SymptomDoctorStart) { inclusive = true }
+    LaunchedEffect(uiState.analysisResult) {
+        if (uiState.analysisResult != null) {
+            delay(1500) // Aesthetic delay for animation
+            navController.navigate(NavRoutes.SymptomResult) {
+                popUpTo(NavRoutes.SymptomDoctorStart) { inclusive = false }
+            }
+        } else if (!uiState.isLoading && uiState.selectedSymptoms.isNotEmpty()) {
+            viewModel.analyzeSymptoms { success ->
+                if (success) {
+                    navController.navigate(NavRoutes.SymptomResult) {
+                        popUpTo(NavRoutes.SymptomDoctorStart) { inclusive = false }
+                    }
+                }
+            }
         }
     }
 
@@ -36,25 +52,26 @@ fun SymptomAnalysisScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             SymptomAnalysisAnimation()
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(36.dp))
             Text(
                 text = "Analyzing Your Symptoms...",
                 color = Color.White,
-                fontSize = 20.sp,
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Helpix AI is processing your health data for accurate results.",
+                text = "Comparing against 130+ clinical disease patterns with Decision Tree AI & Gemini.",
                 color = Color.Gray,
                 fontSize = 14.sp,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                lineHeight = 20.sp
             )
         }
     }
@@ -67,25 +84,25 @@ fun SymptomAnalysisAnimation() {
         initialValue = 0f,
         targetValue = 360f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = LinearEasing),
+            animation = tween(1400, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
         )
     )
 
-    Canvas(modifier = Modifier.size(150.dp)) {
+    Canvas(modifier = Modifier.size(140.dp)) {
         drawArc(
-            color = Color(0xFF2979FF), // Blue theme color
+            color = Color(0xFF2563EB),
             startAngle = angle,
             sweepAngle = 120f,
             useCenter = false,
-            style = Stroke(width = 8.dp.toPx())
+            style = Stroke(width = 7.dp.toPx())
         )
         drawArc(
-            color = Color(0xFF2979FF).copy(alpha = 0.5f),
+            color = Color(0xFF60A5FA).copy(alpha = 0.5f),
             startAngle = angle + 180,
             sweepAngle = 120f,
             useCenter = false,
-            style = Stroke(width = 8.dp.toPx())
+            style = Stroke(width = 7.dp.toPx())
         )
     }
 }

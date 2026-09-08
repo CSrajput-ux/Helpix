@@ -273,7 +273,15 @@ fun AppNavGraph(navController: NavHostController) {
         // Prescription Reader
         composable(NavRoutes.PrescriptionReader) { PrescriptionReaderScreen(navController = navController) }
         composable(NavRoutes.PrescriptionScanning) { PrescriptionScanningScreen(navController = navController) }
-        composable(NavRoutes.PrescriptionAnalysis) { PrescriptionAnalysisScreen(navController = navController) }
+        composable(
+            route = NavRoutes.PrescriptionAnalysis,
+            arguments = listOf(navArgument("imagePath") { type = NavType.StringType })
+        ) { backStackEntry ->
+            PrescriptionAnalysisScreen(
+                navController = navController,
+                imagePath = backStackEntry.arguments?.getString("imagePath")
+            )
+        }
         composable(NavRoutes.PrescriptionResult) { PrescriptionResultScreen(navController = navController) }
     }
 }

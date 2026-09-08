@@ -444,6 +444,55 @@ data class WalletResponse(
     val recent_transactions: List<WalletTransactionResponse>
 )
 
+// ---------------------------------------------------------------------------
+// Symptom Doctor & ML Diagnostic DTOs
+// ---------------------------------------------------------------------------
+
+data class SymptomCheckRequest(
+    val symptoms: List<String>,
+    val age: Int? = null,
+    val gender: String? = null,
+    val duration_days: Int? = null
+)
+
+data class SymptomCheckResponse(
+    val check_id: String,
+    val possible_conditions: List<DiagnosisResult>,
+    val overall_risk: String,
+    val should_see_doctor: Boolean,
+    val analyzed_at: String,
+    val predicted_condition: String? = null,
+    val confidence_score: Double? = null,
+    val triage_level: String? = null,
+    val recommended_specialist: String? = null,
+    val gemini_explanation: String? = null,
+    val matched_symptoms: List<String>? = null
+)
+
+data class SymptomItem(
+    val key: String,
+    val label: String
+)
+
+data class SymptomsListResponse(
+    val status: String,
+    val total: Int,
+    val symptoms: List<SymptomItem>
+)
+
+data class SymptomChatMessage(
+    val message: String,
+    val session_id: String? = null
+)
+
+data class SymptomChatResponse(
+    val session_id: String,
+    val reply: String,
+    val suggestions: List<String>,
+    val timestamp: String
+)
+
+
 data class WithdrawalRequest(
     val amount: Double,
     val bank_account_id: String? = null
@@ -589,11 +638,15 @@ interface HelpixApi {
     suspend fun markDoseTaken(@Path("reminder_id") id: String): Response<DoseTakenResponse>
 
     // ---- Smart Tools (AI) ----
+    @GET("tools/symptoms")
+    suspend fun getSupportedSymptoms(): Response<SymptomsListResponse>
+
     @POST("tools/symptom-check")
-    suspend fun checkSymptoms(@Body body: SymptomRequest): Response<SymptomResponse>
+    suspend fun checkSymptoms(@Body body: SymptomCheckRequest): Response<SymptomCheckResponse>
 
     @POST("tools/chat")
     suspend fun chatWithDoctor(@Body body: ChatRequest): Response<ChatResponse>
+
 
     @POST("tools/sos")
     suspend fun triggerSOS(@Body body: SOSRequest): Response<SOSResponse>
