@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.data.local.database.HelpixDatabase
 import com.healthai.app.data.local.entity.SkinScanEntity
@@ -74,14 +75,15 @@ private sealed class PipelineState {
 }
 
 @Composable
-fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
+fun SkinAnalysisScreen(
+    navController: NavController,
+    imagePath: String?,
+    viewModel: SkinScanViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     var pipelineState by remember { mutableStateOf<PipelineState>(PipelineState.GateChecking) }
-
-    // For "Analyze Anyway" from Gate-Rejected dialog
-    var pendingBitmapPath by remember { mutableStateOf<String?>(null) }
 
     // ── Helper: save result → DB → navigate ──────────────────────────────────
     fun saveAndNavigate(result: SkinClassifier.Recognition, filePath: String) {
@@ -110,17 +112,9 @@ fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
         }
     }
 
-    // ── Helper: run Hugging Face Cloud AI on a file ─────────────────────────
+    // ── Helper: run the backend-owned model pipeline on a file ──────────────
     suspend fun runClassifier(filePath: String): SkinClassifier.Recognition {
-        return withContext(Dispatchers.Default) {
-            val bitmap = SkinImageDecoder.decode(File(filePath))
-            try {
-                val hfClassifier = com.healthai.app.ml.HuggingFaceSkinClassifier()
-                hfClassifier.classifyAsRecognition(bitmap)
-            } finally {
-                if (!bitmap.isRecycled) bitmap.recycle()
-            }
-        }
+        return viewModel.analyze(filePath)
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -153,12 +147,11 @@ fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
 
             if (!gateResult.passed) {
                 // ❌ Gate REJECTED — not a skin image
-                pendingBitmapPath = imagePath
                 pipelineState = PipelineState.GateRejected(gateResult.skinRatio)
                 return@LaunchedEffect
             }
 
-            // ── PHASE 2: TFLite 7-class classifier ───────────────────────────
+            // ── PHASE 2: backend skin-lesion classifier ─────────────────────
             pipelineState = PipelineState.ModelRunning
             val result = runClassifier(imagePath)
 

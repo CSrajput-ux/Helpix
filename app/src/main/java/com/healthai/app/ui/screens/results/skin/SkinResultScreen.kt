@@ -65,8 +65,8 @@ fun SkinResultScreen(navController: NavController, scanId: Int) {
             diseaseName.contains("Cancer", ignoreCase = true) ||
             diseaseName.contains("Melanoma", ignoreCase = true) ||
             diseaseName.contains("melanoma", ignoreCase = true) ||
-            diseaseName.contains("basal_cell_carcinoma", ignoreCase = true) ||
-            diseaseName.contains("actinic_keratoses", ignoreCase = true) -> {
+            diseaseName.contains("Basal Cell Carcinoma", ignoreCase = true) ||
+            diseaseName.contains("Actinic Keratosis", ignoreCase = true) -> {
             flagText = "Urgent Medical Attention Recommended"
             flagColor = Color.Red
         }
