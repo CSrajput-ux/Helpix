@@ -23,3 +23,10 @@ The local server listens on `http://127.0.0.1:8000` by default. Set `HOST` and `
 4. Start it with `.\.venv\Scripts\python.exe run.py` on Windows, or `python run.py` on Linux.
 
 MongoDB must be reachable over TLS and backed up independently. Redis/Celery are optional; the app falls back to synchronous background work when they are not configured.
+
+## Render Deployment (Fast Build with `uv`)
+
+Configure your Web Service on Render with:
+- **Build Command**: `pip install uv && uv pip install -r requirements.txt` (or `pip install uv && uv pip install --system -r requirements.txt`)
+- **Start Command**: `python run.py`
+- **Environment Variable**: `PYTHON_VERSION = 3.12.0`
