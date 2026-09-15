@@ -57,6 +57,10 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GEMINI_API_KEY: str = ""
 
+    # ── Skin lesion inference ───────────────────────────────────────────────
+    SKIN_INFERENCE_URL: str = "https://kokulan123-skin-lesion-api.hf.space/api/predict"
+    SKIN_INFERENCE_TIMEOUT_SECONDS: int = 55
+
 
     # ── CORS ─────────────────────────────────────────────────────────────────
     # Comma-separated list. Use "*" only in development.

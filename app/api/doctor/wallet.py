@@ -12,7 +12,7 @@ from app.core.security import get_current_user
 from app.core.db import get_transactions_collection
 from app.models.schemas import WalletResponse, WalletTransactionResponse, WithdrawalRequest
 
-router = APIRouter(prefix="/wallet", tags=["Doctor Wallet"])
+router = APIRouter(prefix="/doctor/wallet", tags=["Doctor Wallet"])
 
 @router.get("", response_model=WalletResponse)
 async def get_wallet_summary(current_user: dict = Depends(get_current_user)):

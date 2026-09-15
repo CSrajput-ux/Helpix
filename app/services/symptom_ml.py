@@ -252,9 +252,9 @@ class SymptomDiagnosticEngine:
             should_see_doctor = False
 
         specialist = SPECIALIST_RECOMMENDATION.get(predicted_disease, "General Physician")
-        confidence_pct = round(possible_conditions[0]["probability"] * 100, 1) if possible_conditions else 85.0
-        if confidence_pct < 10.0:
-            confidence_pct = 80.0  # Normalized confidence display
+        # Preserve actual model confidence; never inflate a weak medical-model
+        # prediction into a reassuringly high score.
+        confidence_pct = round(possible_conditions[0]["probability"] * 100, 1) if possible_conditions else 0.0
 
         # Gemini Clinical explanation (if connected) or rich static explanation
         gemini_explanation = self.generate_clinical_advice(predicted_disease, user_symptoms)

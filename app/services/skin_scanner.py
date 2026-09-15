@@ -1,102 +1,109 @@
-"""
-app/services/skin_scanner.py
------------------------------
-Skin disease prediction using VGG19 feature extraction and a custom classifier.
-Falls back gracefully if ML libraries are not installed or the model file is missing.
+"""Server-side client for the configured skin-lesion model.
+
+The model used by Helpix is ``kokulan123/skin-lesion-classifier``. It is
+served by the model author's public Space, whose API accepts an image URL.
+The photo is uploaded to a random Cloudinary object only for inference and is
+always deleted afterwards. No simulated medical result is ever returned.
 """
 
 import logging
-import os
-import io
+import uuid
+from typing import Any
 
-try:
-    import numpy as np
-    from PIL import Image
-    import cv2
-    import tensorflow as tf
-    from tensorflow.keras.applications import VGG19
-    ML_AVAILABLE = True
-except ImportError:
-    ML_AVAILABLE = False
+import cloudinary.uploader
+import requests
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-CLASS_NAMES = ["Acne", "Eczema", "Atopic dermatitis", "Psoriasis", "Tinea", "Vitiligo"]
+CLASS_NAMES = {
+    "Actinic Keratosis", "Basal Cell Carcinoma", "Benign Keratosis-like Lesion",
+    "Dermatofibroma", "Melanoma", "Melanocytic Nevi", "Vascular Lesion",
+}
 
-# Cache the models globally to avoid reloading on every request
-_vgg_model = None
-_disease_model = None
+
+def _severity_for(label: str) -> str:
+    """A triage hint only; this is not a clinical diagnosis or severity score."""
+    if label in {"Melanoma", "Basal Cell Carcinoma", "Actinic Keratosis"}:
+        return "urgent_review"
+    return "review_recommended"
 
 
-def get_models():
-    global _vgg_model, _disease_model
-    if not ML_AVAILABLE:
-        return None, None
+def _recommendation_for(label: str) -> str:
+    if label in {"Melanoma", "Basal Cell Carcinoma", "Actinic Keratosis"}:
+        return "This research model found a pattern that needs prompt review by a dermatologist. It is not a diagnosis."
+    return "This result is for informational screening only. Please arrange a dermatologist review if the lesion is new, changing, painful, bleeding, or concerning."
 
+
+def _parse_prediction(payload: Any) -> dict[str, Any]:
+    """Validate and normalize the response from the model Space."""
+    if not isinstance(payload, dict):
+        raise ValueError("Skin model returned an invalid response.")
+    label = payload.get("class")
+    confidence = payload.get("confidence")
+    all_predictions = payload.get("all_predictions")
+    if label not in CLASS_NAMES or not isinstance(confidence, (int, float)):
+        raise ValueError("Skin model returned an incomplete response.")
+    if not isinstance(all_predictions, dict):
+        raise ValueError("Skin model returned no class probabilities.")
+
+    top_3 = [
+        {"label": str(name), "confidence": float(score)}
+        for name, score in all_predictions.items()
+        if name in CLASS_NAMES and isinstance(score, (int, float))
+    ]
+    top_3.sort(key=lambda item: item["confidence"], reverse=True)
+    if not top_3:
+        raise ValueError("Skin model returned no usable class probabilities.")
+    return {
+        "condition": label,
+        "confidence": max(0.0, min(float(confidence), 1.0)),
+        "severity": _severity_for(label),
+        "recommendation": _recommendation_for(label),
+        "top_3": top_3[:3],
+    }
+
+
+def predict_skin_disease(image_bytes: bytes) -> tuple[dict[str, Any] | None, str | None]:
+    """Run the classifier and delete its temporary image in every code path."""
+    if not image_bytes:
+        return None, "The uploaded image is empty."
+    if not settings.SKIN_INFERENCE_URL:
+        return None, "Skin inference is not configured."
+    if not all((settings.CLOUDINARY_CLOUD_NAME, settings.CLOUDINARY_API_KEY, settings.CLOUDINARY_API_SECRET)):
+        return None, "Temporary image storage for skin inference is not configured."
+
+    public_id: str | None = None
     try:
-        if _vgg_model is None:
-            _vgg_model = VGG19(weights="imagenet", include_top=False, input_shape=(180, 180, 3))
-
-        if _disease_model is None:
-            model_path = os.path.join(os.getcwd(), "6class.h5")
-            if os.path.exists(model_path):
-                _disease_model = tf.keras.models.load_model(model_path)
-    except Exception as e:
-        logger.error("Error loading skin scanner models: %s", e)
-        return None, None
-
-    return _vgg_model, _disease_model
-
-
-def predict_skin_disease(image_bytes: bytes):
-    """
-    Analyzes uploaded image bytes and returns the predicted disease class.
-    Uses VGG19 for feature extraction followed by a custom classifier.
-
-    Returns:
-        (dict, None) on success with keys: condition, confidence, severity
-        (None, str) on failure with an error message
-    """
-    if not ML_AVAILABLE:
-        return None, "ML libraries (tensorflow, opencv-python) are not installed."
-
-    vgg, disease_model = get_models()
-
-    if disease_model is None:
-        return None, "Model file '6class.h5' not found in project root."
-
-    try:
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        img_array = np.array(image)
-        img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
-
-        img = cv2.resize(img_bgr, (180, 180))
-        img = np.array(img) / 255.0
-        img = np.expand_dims(img, axis=0)
-
-        features = vgg.predict(img)
-        features = features.reshape(1, -1)
-
-        start_pred = disease_model.predict(features)
-        pred_probs = start_pred[0]
-
-        predicted_class_index = np.argmax(pred_probs)
-        predicted_class_name = CLASS_NAMES[predicted_class_index]
-        confidence = float(pred_probs[predicted_class_index])
-
-        # Get Top 3
-        top_indices = np.argsort(pred_probs)[-3:][::-1]
-        top_3 = [
-            {"label": CLASS_NAMES[i], "confidence": float(pred_probs[i])}
-            for i in top_indices if i < len(CLASS_NAMES)
-        ]
-
-        return {
-            "condition": predicted_class_name,
-            "confidence": confidence,
-            "severity": "high" if confidence > 0.8 else "moderate",
-            "top_3": top_3
-        }, None
-
-    except Exception as e:
-        return None, f"Analysis error: {str(e)}"
+        upload = cloudinary.uploader.upload(
+            image_bytes,
+            public_id=f"helpix-tmp-skin/{uuid.uuid4().hex}",
+            resource_type="image",
+            overwrite=False,
+        )
+        public_id = upload.get("public_id")
+        image_url = upload.get("secure_url")
+        if not public_id or not image_url:
+            raise ValueError("Temporary image upload did not return a URL.")
+        response = requests.post(
+            settings.SKIN_INFERENCE_URL,
+            json={"url": image_url},
+            timeout=settings.SKIN_INFERENCE_TIMEOUT_SECONDS,
+        )
+        if response.status_code != 200:
+            logger.warning("Skin inference returned HTTP %s", response.status_code)
+            return None, "The skin analysis service is temporarily unavailable."
+        return _parse_prediction(response.json()), None
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning("Skin inference failed: %s", exc)
+        return None, "The skin analysis service is temporarily unavailable."
+    except Exception:
+        logger.exception("Unexpected skin inference failure")
+        return None, "The skin analysis service is temporarily unavailable."
+    finally:
+        if public_id:
+            try:
+                cloudinary.uploader.destroy(public_id, resource_type="image", invalidate=True)
+            except Exception:
+                logger.exception("Could not delete temporary skin image %s", public_id)

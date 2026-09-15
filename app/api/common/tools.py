@@ -441,7 +441,8 @@ async def scan_skin(
 ):
     """
     Skin Condition Scanner.
-    Uses ML logic if available; falls back to simulated data if model is not loaded.
+    Runs the configured skin-lesion classifier. This endpoint never fabricates
+    a diagnosis: unavailable inference is returned as a clear 503 response.
     """
     from app.core.file_safety import validate_file_safety
     contents = await validate_file_safety(image, max_size_mb=10, allow_pdf=False, allow_image=True, allow_audio=False)
@@ -458,19 +459,12 @@ async def scan_skin(
         severity = prediction["severity"]
         confidence = prediction["confidence"]
         top_preds = prediction.get("top_3", [])
-        recommendation = f"AI Detected {detected}. Please consult a dermatologist."
+        recommendation = prediction["recommendation"]
     else:
-        import logging
-        logging.getLogger(__name__).warning("Skin scan ML fallback triggered: %s", error)
-        conditions = [
-            ("Normal Skin", "none", "No condition detected. Skin looks healthy."),
-            ("Acne", "mild", "Use gentle cleanser and avoid squeezing. Consult dermatologist if severe."),
-            ("Eczema", "moderate", "Apply moisturizer and avoid irritants. Consult dermatologist."),
-            ("Psoriasis", "moderate", "Use prescribed topical cream. Avoid triggers like stress."),
-        ]
-        detected, severity, recommendation = random.choice(conditions)
-        confidence = round(random.uniform(0.75, 0.95), 4)
-        top_preds = [{"label": detected, "confidence": confidence}]
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=error or "The skin analysis service is temporarily unavailable.",
+        )
 
     # We should not upload model data as per privacy requirements
     image_url = None
@@ -812,4 +806,3 @@ async def ask_ai_doctor_direct(
     msg_obj = ChatMessage(message=prompt, session_id=session_id)
     res = await chat_with_doctor(msg_obj, current_user)
     return {"reply": res.reply, "session_id": res.session_id}
-
