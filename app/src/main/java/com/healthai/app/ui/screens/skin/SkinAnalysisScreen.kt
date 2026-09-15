@@ -110,17 +110,13 @@ fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
         }
     }
 
-    // ── Helper: run TFLite on a file ─────────────────────────────────────────
+    // ── Helper: run Hugging Face Cloud AI on a file ─────────────────────────
     suspend fun runClassifier(filePath: String): SkinClassifier.Recognition {
         return withContext(Dispatchers.Default) {
             val bitmap = SkinImageDecoder.decode(File(filePath))
             try {
-                val classifier = SkinClassifier(context)
-                try {
-                    classifier.classifySkin(bitmap)
-                } finally {
-                    classifier.close()
-                }
+                val hfClassifier = com.healthai.app.ml.HuggingFaceSkinClassifier()
+                hfClassifier.classifyAsRecognition(bitmap)
             } finally {
                 if (!bitmap.isRecycled) bitmap.recycle()
             }
@@ -296,7 +292,7 @@ fun SkinAnalysisScreen(navController: NavController, imagePath: String?) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Helpix TFLite is detecting skin disease patterns.",
+                        "Helpix Cloud AI is analyzing skin lesion patterns.",
                         color = Color(0xFF64748B),
                         fontSize = 13.sp,
                         textAlign = TextAlign.Center

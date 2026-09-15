@@ -12,6 +12,7 @@ fun releaseProperty(name: String): String? =
 val productionApiUrl    = releaseProperty("productionApiUrl")
 val googleMapsApiKey    = releaseProperty("googleMapsApiKey")
 val geminiApiKey        = releaseProperty("geminiApiKey") ?: ""
+val hfApiKey            = releaseProperty("hfApiKey") ?: ""
 val releaseStoreFile    = releaseProperty("releaseStoreFile")
 val releaseStorePassword = releaseProperty("releaseStorePassword")
 val releaseKeyAlias     = releaseProperty("releaseKeyAlias")
@@ -40,6 +41,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey.orEmpty()
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
+        buildConfigField("String", "HF_API_KEY", "\"$hfApiKey\"")
         vectorDrawables {
             useSupportLibrary = true
         }
