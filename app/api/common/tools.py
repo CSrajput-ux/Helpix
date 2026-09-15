@@ -472,9 +472,8 @@ async def scan_skin(
         confidence = round(random.uniform(0.75, 0.95), 4)
         top_preds = [{"label": detected, "confidence": confidence}]
 
-    # Upload to Cloudinary
-    from app.core.storage import upload_image_cloudinary
-    image_url = await upload_image_cloudinary(contents, f"skin_scan_{current_user['sub']}.jpg")
+    # We should not upload model data as per privacy requirements
+    image_url = None
 
     scan_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
@@ -522,10 +521,10 @@ async def record_skin_scan(
     Useful for syncing TFLite results to the backend.
     """
     from app.core.file_safety import validate_file_safety
-    from app.core.storage import upload_image_cloudinary
 
     contents = await validate_file_safety(image, max_size_mb=10, allow_image=True)
-    image_url = await upload_image_cloudinary(contents, f"skin_scan_sync_{current_user['sub']}.jpg")
+    # We should not upload model data as per privacy requirements
+    image_url = None
 
     try:
         top_preds = json.loads(top_predictions_json)
