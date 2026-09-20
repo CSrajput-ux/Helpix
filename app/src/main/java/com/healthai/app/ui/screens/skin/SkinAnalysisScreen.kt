@@ -70,6 +70,9 @@ private sealed class PipelineState {
     /** Phase 2 DONE: Saving to DB and navigating */
     object Navigating : PipelineState()
 
+    /** Model ran, but its probability distribution was not reliable enough to show a class. */
+    data class ResultRejected(val message: String) : PipelineState()
+
     /** Any error */
     data class Failed(val message: String) : PipelineState()
 }
@@ -151,9 +154,17 @@ fun SkinAnalysisScreen(
                 return@LaunchedEffect
             }
 
-            // ── PHASE 2: backend skin-lesion classifier ─────────────────────
+            // ── PHASE 2: on-device skin-lesion classifier ───────────────────
             pipelineState = PipelineState.ModelRunning
             val result = runClassifier(imagePath)
+
+            // Never turn an ambiguous or malformed model output into a disease label.
+            if (!result.isReliable) {
+                pipelineState = PipelineState.ResultRejected(
+                    result.rejectionReason ?: "The model could not make a reliable match."
+                )
+                return@LaunchedEffect
+            }
 
             // Save and navigate
             saveAndNavigate(result, imagePath)
@@ -285,7 +296,7 @@ fun SkinAnalysisScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Helpix Cloud AI is analyzing skin lesion patterns.",
+                        "The on-device AI is analyzing skin lesion patterns.",
                         color = Color(0xFF64748B),
                         fontSize = 13.sp,
                         textAlign = TextAlign.Center
@@ -304,6 +315,31 @@ fun SkinAnalysisScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         s.message,
+                        color = Color(0xFF64748B),
+                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = { navController.popBackStack() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B))
+                    ) {
+                        Text("Choose Another Photo", color = Color.White)
+                    }
+                }
+
+                is PipelineState.ResultRejected -> {
+                    Text("⚠️", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "No Reliable Result",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "${s.message} Please retake a close, well-lit photo of only the affected skin area.",
                         color = Color(0xFF64748B),
                         textAlign = TextAlign.Center,
                         fontSize = 14.sp
