@@ -2,10 +2,63 @@
 
 Helpix is a futuristic, AI-powered mobile healthcare application built with modern Android development practices. It serves as a comprehensive platform for both patients and doctors, offering a wide range of features from real-time health monitoring to appointment booking.
 
-## 📺 Project Demo
-Check out the project in action: [**View Demo Video**](https://drive.google.com/file/d/1_iEXYnoIR3V-6Gl4gr-1QDDQGnT1YpZl/view?usp=sharing)
+---
 
-## ✨ Features : 
+## 📲 Download & Try
+
+Aap application ka pre-built APK niche diye gaye link se download kar sakte hain:
+
+[![Download APK](https://img.shields.io/badge/Download-Helpix%20APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/CSrajput-ux/Helpix/releases)
+
+---
+
+## 📺 Project Demo
+
+Check out the project in action: [View Demo Video](https://github.com/CSrajput-ux/Helpix)
+
+---
+
+## ✨ Features
+
+- **Dual User Portals:** Separate, secure registration and login flows for both **Patients** and **Doctors**.
+- **AI Health Scanner:** A central dashboard for initiating various health scans.
+- **Smartwatch Integration:**
+  - Real-time connection to smartwatches (simulated).
+  - Live vitals dashboard displaying heart rate, SpO2, and more.
+  - Persistent connection state across app sessions.
+- **Appointment Booking System:**
+  - Patients can browse a list of available doctors.
+  - View detailed doctor profiles.
+  - Book appointments with a date and time picker.
+- **Doctor Dashboard:** A dedicated dashboard for doctors to view their upcoming appointments.
+- **Patient Health Hub:**
+  - **Vitals History:** View historical vitals data in a line chart.
+  - **My Appointments:** Patients can see a list of their scheduled appointments.
+  - **Diet Planner:** View daily meal plans connected to a Firestore backend.
+- **Multi-Language Support:** Fully internationalized to support both **English** and **Hindi**.
+- **Location-Based Services:** Find nearby hospitals and blood banks using Google Maps & Places API.
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+- **UI:** 100% Jetpack Compose using Material 3 components for a modern and reactive user interface.
+- **Architecture:** MVVM (Model-View-ViewModel) for clean separation of concerns and scalability.
+- **Backend:** Serverless backend built entirely on **Google Firebase**.
+- **Database:** Cloud Firestore for scalable, real-time data storage.
+- **Authentication:** Firebase Authentication for secure email/password login.
+- **Asynchronous Programming:** Kotlin Coroutines and Flows for background tasks and live data streams.
+- **Dependency Injection:** Hilt for dependency management.
+- **Navigation:** Jetpack Navigation Compose.
+
+---
+
+## 🚀 Setup Instructions
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/CSrajput-ux/Helpix.git](https://github.com/CSrajput-ux/Helpix.git)
+   cd Helpix
 
 - **Dual User Portals:** Separate, secure registration and login flows for both **Patients** and **Doctors**.
 - **AI Health Scanner:** A central dashboard for initiating various health scans.
