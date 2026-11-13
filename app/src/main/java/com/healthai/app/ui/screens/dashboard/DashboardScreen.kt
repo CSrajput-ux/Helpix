@@ -138,22 +138,7 @@ fun HelpixBottomNav(navController: NavController, userType: String? = null) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     
-    // Internal user type state if not provided
-    var resolvedUserType by remember { mutableStateOf(userType ?: "PATIENT") }
-
-    if (userType == null) {
-        LaunchedEffect(Unit) {
-            val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-            if (uid != null) {
-                com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).get()
-                    .addOnSuccessListener { document ->
-                        resolvedUserType = document.getString("userType") ?: "PATIENT"
-                    }
-            }
-        }
-    } else {
-        resolvedUserType = userType
-    }
+    val resolvedUserType = userType ?: "PATIENT"
 
     NavigationBar(
         containerColor = colorResource(id = R.color.login_bg_bottom),

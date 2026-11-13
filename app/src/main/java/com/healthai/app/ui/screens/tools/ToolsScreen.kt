@@ -37,16 +37,11 @@ data class ToolItem(
 
 @Composable
 fun ToolsScreen(navController: NavController) {
-    // Tool List
+    // Tool List - Only active/retained tools
     val toolsList = listOf(
-        ToolItem("Symptom Doctor", "Check your symptoms", Icons.Default.MedicalServices, Color(0xFF2979FF)),
-        ToolItem("AI Chat Doctor", "24/7 medical assistance", Icons.Default.Chat, Color(0xFF00B0FF)),
-        ToolItem("Emergency SOS", "Quick emergency help", Icons.Default.Warning, Color(0xFFFF1744)), 
-        ToolItem("Nearby Hospitals", "Find healthcare centers", Icons.Default.LocalHospital, Color(0xFFFF9100)),
+        ToolItem("Emergency SOS", "Quick emergency help", Icons.Default.Warning, Color(0xFFFF1744)),
         ToolItem("Medicine Reminders", "Never miss a dose", Icons.Default.NotificationsActive, Color(0xFFFF4081)),
         ToolItem("Health Records Vault", "Secure document storage", Icons.Default.Folder, Color(0xFFAA00FF)),
-        ToolItem("Diet Planner", "Personalized meal plans", Icons.Default.Restaurant, Color(0xFF76FF03)),
-        ToolItem("Fitness Tracker", "Track your workouts", Icons.Default.MonitorHeart, Color(0xFF00E5FF)),
         ToolItem("Prescription Reader", "AI OCR for prescriptions", Icons.Default.Description, Color(0xFF2962FF)),
         ToolItem("Disease Heatmap", "Track outbreak zones", Icons.Default.Map, Color(0xFFFF6D00))
     )
@@ -95,20 +90,17 @@ fun ToolsScreen(navController: NavController) {
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(bottom = 120.dp)
                 ) {
-                    items(toolsList) { tool ->
+                    items(
+                        items = toolsList,
+                        key = { tool -> tool.title }
+                    ) { tool ->
                         ToolCard(tool) {
                             when (tool.title) {
                                 "Skin Detector" -> navController.navigate(NavRoutes.SkinDetectorStart)
-                                "Symptom Doctor" -> navController.navigate(NavRoutes.SymptomDoctorStart)
-                                "AI Chat Doctor" -> navController.navigate(NavRoutes.AiChat)
-                                "Nearby Hospitals" -> navController.navigate(NavRoutes.NearbyHospitals)
                                 "Medicine Reminders" -> navController.navigate(NavRoutes.MedicineReminders)
                                 "Health Records Vault" -> navController.navigate(NavRoutes.HealthVault)
-                                "Diet Planner" -> navController.navigate(NavRoutes.DietPlanner)
-                                "Fitness Tracker" -> navController.navigate(NavRoutes.FitnessTracker)
                                 "Prescription Reader" -> navController.navigate(NavRoutes.PrescriptionReader)
                                 "Emergency SOS" -> navController.navigate(NavRoutes.Emergency)
-                                // Add navigation for other tools here
                             }
                         }
                     }
@@ -129,7 +121,7 @@ fun ToolsScreen(navController: NavController) {
 }
 
 @Composable
-fun ToolCard(tool: ToolItem, onClick: () -> Unit) { // Added onClick parameter
+fun ToolCard(tool: ToolItem, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -137,7 +129,7 @@ fun ToolCard(tool: ToolItem, onClick: () -> Unit) { // Added onClick parameter
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFF1E293B))
             .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
-            .clickable { onClick() } // Trigger onClick here
+            .clickable { onClick() }
             .padding(16.dp)
     ) {
         Column(

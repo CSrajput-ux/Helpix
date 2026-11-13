@@ -1,9 +1,13 @@
 package com.healthai.app.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "health_metrics")
+@Entity(
+    tableName = "health_metrics",
+    indices = [Index(value = ["timestamp"])]
+)
 data class HealthMetricEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val heartRate: Int,

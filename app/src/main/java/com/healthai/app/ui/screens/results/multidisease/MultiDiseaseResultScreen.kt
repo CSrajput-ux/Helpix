@@ -66,7 +66,10 @@ fun MultiDiseaseResultScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            items(results) { result ->
+            items(
+                items = results,
+                key = { result -> result.name }
+            ) { result ->
                 ClusterResultCard(result)
                 Spacer(modifier = Modifier.height(12.dp))
             }

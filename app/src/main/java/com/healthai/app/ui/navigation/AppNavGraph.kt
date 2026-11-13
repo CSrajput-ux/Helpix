@@ -23,12 +23,10 @@ import com.healthai.app.ui.DeviceConnectScreen
 import com.healthai.app.ui.WatchScannerScreen
 import com.healthai.app.ui.screens.auth.ForgotPasswordScreen
 import com.healthai.app.ui.screens.auth.PhoneLoginScreen
-import com.healthai.app.ui.screens.chat.AiChatScreen
 import com.healthai.app.ui.screens.cough.CoughAnalysisScreen
 import com.healthai.app.ui.screens.cough.CoughAnalyzerStartScreen
 import com.healthai.app.ui.screens.cough.CoughRecordingScreen
 import com.healthai.app.ui.screens.dashboard.DashboardScreen
-import com.healthai.app.ui.screens.diet.DietPlannerScreen
 import com.healthai.app.ui.screens.doctor.DoctorBookingsScreen
 import com.healthai.app.ui.screens.doctor.DoctorDashboardScreen
 import com.healthai.app.ui.screens.doctor.DoctorDashboardViewModel
@@ -39,10 +37,8 @@ import com.healthai.app.ui.screens.doctor.DoctorVaultScreen
 import com.healthai.app.ui.screens.doctor.DoctorsScreen
 import com.healthai.app.ui.screens.DoctorDetailsScreen
 import com.healthai.app.ui.screens.emergency.EmergencyScreen
-import com.healthai.app.ui.screens.fitness.FitnessTrackerScreen
 import com.healthai.app.ui.screens.health.HealthHistoryScreen
 import com.healthai.app.ui.screens.health.HealthScreen
-import com.healthai.app.ui.screens.hospitals.NearbyHospitalsScreen
 import com.healthai.app.ui.screens.kids.KidsModeScreen
 import com.healthai.app.ui.screens.onboarding.OnboardingScreen
 import com.healthai.app.ui.screens.patient.BookingSummaryScreen
@@ -69,11 +65,6 @@ import com.healthai.app.ui.screens.settings.AppSettingsScreen
 import com.healthai.app.ui.screens.skin.SkinAnalysisScreen
 import com.healthai.app.ui.screens.skin.SkinDetectorStartScreen
 import com.healthai.app.ui.screens.skin.SkinScanningScreen
-import com.healthai.app.ui.screens.symptom.SymptomAnalysisScreen
-import com.healthai.app.ui.screens.symptom.SymptomBodyMapScreen
-import com.healthai.app.ui.screens.symptom.SymptomChatScreen
-import com.healthai.app.ui.screens.symptom.SymptomDoctorStartScreen
-import com.healthai.app.ui.screens.symptom.SymptomResultScreen
 import com.healthai.app.ui.screens.senior.SeniorModeScreen
 import com.healthai.app.ui.screens.tools.ToolsScreen
 import com.healthai.app.ui.screens.vault.AddRecordScreen
@@ -197,7 +188,6 @@ fun AppNavGraph(navController: NavHostController) {
         
         composable(NavRoutes.PaymentProcess) { PaymentProcessScreen(navController = navController) }
         
-        composable(NavRoutes.DietPlanner) { DietPlannerScreen(navController = navController) }
         composable(NavRoutes.AppSettings) { AppSettingsScreen(navController = navController) }
         composable(NavRoutes.DeviceConnect) { DeviceConnectScreen(navController = navController) }
         composable(NavRoutes.WatchScanner) {
@@ -246,19 +236,6 @@ fun AppNavGraph(navController: NavHostController) {
             SkinResultScreen(navController, scanId = scanId)
         }
 
-        // Symptom Doctor Flow
-        composable(NavRoutes.SymptomDoctorStart) { SymptomDoctorStartScreen(navController = navController) }
-        composable(NavRoutes.SymptomChat) { SymptomChatScreen(navController = navController) }
-        composable(NavRoutes.SymptomBodyMap) { SymptomBodyMapScreen(navController = navController) }
-        composable(NavRoutes.SymptomAnalysis) { SymptomAnalysisScreen(navController = navController) }
-        composable(NavRoutes.SymptomResult) { SymptomResultScreen(navController = navController) }
-
-        // AI Chat Doctor
-        composable(NavRoutes.AiChat) { AiChatScreen(navController = navController) }
-
-        // Nearby Hospitals
-        composable(NavRoutes.NearbyHospitals) { NearbyHospitalsScreen(navController = navController) }
-
         // Medicine Reminders
         composable(NavRoutes.MedicineReminders) { MedicineRemindersScreen(navController = navController) }
         composable(NavRoutes.AddReminder) { AddReminderScreen(navController = navController) }
@@ -266,9 +243,6 @@ fun AppNavGraph(navController: NavHostController) {
         // Health Vault
         composable(NavRoutes.HealthVault) { HealthVaultScreen(navController = navController) }
         composable(NavRoutes.AddRecord) { AddRecordScreen(navController = navController) }
-
-        // Fitness Tracker
-        composable(NavRoutes.FitnessTracker) { FitnessTrackerScreen(navController = navController) }
 
         // Prescription Reader
         composable(NavRoutes.PrescriptionReader) { PrescriptionReaderScreen(navController = navController) }

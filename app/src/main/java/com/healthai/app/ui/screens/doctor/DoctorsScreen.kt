@@ -139,7 +139,10 @@ fun DoctorsScreen(
                                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                                     modifier = Modifier.padding(bottom = 24.dp)
                                 ) {
-                                    items(doctorsInCategory) { doctor ->
+                                    items(
+                                        items = doctorsInCategory,
+                                        key = { doctor -> doctor.id }
+                                    ) { doctor ->
                                         DoctorSectionCard(doctor, color, navController)
                                     }
                                 }

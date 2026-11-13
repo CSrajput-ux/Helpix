@@ -15,7 +15,7 @@ import com.healthai.app.data.local.entity.UserProfile
 
 @Database(
     entities = [Reminder::class, HealthMetricEntity::class, UserProfile::class, SkinScanEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 abstract class HelpixDatabase : RoomDatabase() {

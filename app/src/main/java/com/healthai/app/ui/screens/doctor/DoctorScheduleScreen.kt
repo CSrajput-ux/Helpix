@@ -154,7 +154,10 @@ fun DoctorScheduleScreen(
                                     }
                                 }
                             } else {
-                                items(filteredAppointments) { appointment ->
+                                items(
+                                    items = filteredAppointments,
+                                    key = { appointment -> appointment.id }
+                                ) { appointment ->
                                     AestheticScheduleCard(appointment)
                                 }
                             }
@@ -327,7 +330,10 @@ fun DocDateSelector(
         contentPadding = PaddingValues(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items(days) { date ->
+        items(
+            items = days,
+            key = { date -> date.time }
+        ) { date ->
             val isSelected = isSameDay(date, selectedDate)
             val isToday = isSameDay(date, Calendar.getInstance().time)
             

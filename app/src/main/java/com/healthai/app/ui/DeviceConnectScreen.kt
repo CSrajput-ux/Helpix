@@ -366,7 +366,10 @@ fun DeviceSelectionScreen(devices: List<BleDevice>, onDeviceClick: (BleDevice) -
             modifier = Modifier.padding(bottom = 16.dp)
         )
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(devices) { device ->
+            items(
+                items = devices,
+                key = { device -> device.address }
+            ) { device ->
                 BleDeviceListItem(device, onDeviceClick)
             }
         }

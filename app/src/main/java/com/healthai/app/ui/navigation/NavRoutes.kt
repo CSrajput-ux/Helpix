@@ -56,19 +56,6 @@ object NavRoutes {
 
     fun skinAnalysis(imagePath: String) = "skin_analysis_screen/${android.net.Uri.encode(imagePath)}"
 
-    // Symptom Doctor Flow
-    const val SymptomDoctorStart = "symptom_doctor_start_screen"
-    const val SymptomChat = "symptom_chat_screen"
-    const val SymptomBodyMap = "symptom_body_map_screen"
-    const val SymptomAnalysis = "symptom_analysis_screen"
-    const val SymptomResult = "symptom_result_screen"
-
-    // AI Chat Doctor
-    const val AiChat = "ai_chat_screen"
-
-    // Nearby Hospitals
-    const val NearbyHospitals = "nearby_hospitals_screen"
-
     // Medicine Reminders
     const val MedicineReminders = "medicine_reminders_screen"
     const val AddReminder = "add_reminder_screen"
@@ -76,12 +63,6 @@ object NavRoutes {
     // Health Vault
     const val HealthVault = "health_vault_screen"
     const val AddRecord = "add_record_screen"
-
-    // Diet Planner
-    const val DietPlanner = "diet_planner_screen"
-
-    // Fitness Tracker
-    const val FitnessTracker = "fitness_tracker_screen"
 
     // Prescription Reader
     const val PrescriptionReader = "prescription_reader_screen"

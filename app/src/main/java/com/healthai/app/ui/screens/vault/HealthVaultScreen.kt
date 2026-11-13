@@ -117,7 +117,10 @@ fun HealthVaultScreen(
                             Text("No files in vault.", color = Color.Gray)
                         } else {
                             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                items(state.files) { record ->
+                                items(
+                                    items = state.files,
+                                    key = { record -> record.file_id }
+                                ) { record ->
                                     RecordCard(record, context)
                                 }
                             }

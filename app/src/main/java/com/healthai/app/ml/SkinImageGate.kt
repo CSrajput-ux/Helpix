@@ -1,7 +1,6 @@
 package com.healthai.app.ml
 
 import android.graphics.Bitmap
-import android.graphics.Color
 
 /**
  * SkinImageGate — Lightweight pixel-level skin color detector
@@ -35,17 +34,19 @@ object SkinImageGate {
      */
     fun check(bitmap: Bitmap): GateResult {
         val sample = downsample(bitmap)
-        val total = sample.width * sample.height
-        var skinCount = 0
+        val width = sample.width
+        val height = sample.height
+        val total = width * height
+        val pixels = IntArray(total)
+        sample.getPixels(pixels, 0, width, 0, 0, width, height)
 
-        for (x in 0 until sample.width) {
-            for (y in 0 until sample.height) {
-                val pixel = sample.getPixel(x, y)
-                val r = Color.red(pixel)
-                val g = Color.green(pixel)
-                val b = Color.blue(pixel)
-                if (isSkinPixel(r, g, b)) skinCount++
-            }
+        var skinCount = 0
+        for (i in 0 until total) {
+            val pixel = pixels[i]
+            val r = (pixel shr 16) and 0xFF
+            val g = (pixel shr 8) and 0xFF
+            val b = pixel and 0xFF
+            if (isSkinPixel(r, g, b)) skinCount++
         }
 
         // Cleanup sample if it was newly created

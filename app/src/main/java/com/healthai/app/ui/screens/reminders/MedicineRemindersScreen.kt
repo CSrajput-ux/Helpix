@@ -81,7 +81,10 @@ fun MedicineRemindersScreen(navController: NavController) {
                     Text("Today's Reminders", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-                items(reminders) { reminder ->
+                items(
+                    items = reminders,
+                    key = { reminder -> reminder.id }
+                ) { reminder ->
                     ReminderListItem(reminder, db)
                 }
             }
@@ -123,7 +126,10 @@ fun HorizontalCalendarView() {
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(daysInMonth) { date ->
+            items(
+                items = daysInMonth,
+                key = { date -> date.toString() }
+            ) { date ->
                 val isSelected = date == selectedDate
                 val isToday = date == today
 

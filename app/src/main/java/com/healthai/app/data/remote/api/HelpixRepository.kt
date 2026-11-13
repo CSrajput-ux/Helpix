@@ -174,7 +174,11 @@ object HelpixRetrofitClient {
             }
         }
 
+        val cacheDir = File(context.cacheDir, "http_cache")
+        val httpCache = okhttp3.Cache(cacheDir, 10L * 1024L * 1024L) // 10 MB HTTP Cache
+
         val okHttpClient = OkHttpClient.Builder()
+            .cache(httpCache)
             .addInterceptor(AuthInterceptor(context))
             .addInterceptor(TokenRefreshInterceptor(context))
             .addInterceptor(RetryInterceptor(maxRetry = 3))

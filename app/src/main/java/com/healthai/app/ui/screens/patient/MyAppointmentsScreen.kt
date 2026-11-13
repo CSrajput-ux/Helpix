@@ -85,7 +85,10 @@ fun MyAppointmentsScreen(navController: NavController, viewModel: MyAppointments
                 }
             } else {
                 LazyColumn {
-                    items(appointments) { appointment ->
+                    items(
+                        items = appointments,
+                        key = { appointment -> appointment.id }
+                    ) { appointment ->
                         AppointmentCard(appointment)
                         Spacer(modifier = Modifier.height(16.dp))
                     }

@@ -139,7 +139,10 @@ fun DoctorVaultScreen(
                             }
                         }
                     } else {
-                        items(transactions) { tx ->
+                        items(
+                            items = transactions,
+                            key = { tx -> tx.transaction_id }
+                        ) { tx ->
                             VaultTransactionItem(tx)
                         }
                     }

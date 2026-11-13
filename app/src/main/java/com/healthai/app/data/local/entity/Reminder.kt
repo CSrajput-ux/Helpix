@@ -1,9 +1,13 @@
 package com.healthai.app.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "reminders")
+@Entity(
+    tableName = "reminders",
+    indices = [Index(value = ["time"])]
+)
 data class Reminder(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,

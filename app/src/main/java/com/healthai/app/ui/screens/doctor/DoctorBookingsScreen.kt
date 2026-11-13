@@ -125,7 +125,10 @@ fun DoctorBookingsScreen(
                                 }
                             }
                         } else {
-                            items(filteredList) { appointment ->
+                            items(
+                                items = filteredList,
+                                key = { appointment -> appointment.id }
+                            ) { appointment ->
                                 AestheticScheduleCard(appointment)
                             }
                         }
