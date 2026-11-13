@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -15,52 +16,51 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
+
+// --- User-Friendly Light Palette Color Constants ---
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val MedicalTeal = Color(0xFF0D9488)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 // --- Data Model ---
 data class ToolItem(
     val title: String,
     val subtitle: String,
     val icon: ImageVector,
-    val color: Color
+    val iconColor: Color,
+    val circleBg: Color
 )
 
 @Composable
 fun ToolsScreen(navController: NavController) {
-    // Tool List - Only active/retained tools
+    // Retained Active Tools with Soft Icon Circle Backgrounds
     val toolsList = listOf(
-        ToolItem("Emergency SOS", "Quick emergency help", Icons.Default.Warning, Color(0xFFFF1744)),
-        ToolItem("Medicine Reminders", "Never miss a dose", Icons.Default.NotificationsActive, Color(0xFFFF4081)),
-        ToolItem("Health Records Vault", "Secure document storage", Icons.Default.Folder, Color(0xFFAA00FF)),
-        ToolItem("Prescription Reader", "AI OCR for prescriptions", Icons.Default.Description, Color(0xFF2962FF)),
-        ToolItem("Disease Heatmap", "Track outbreak zones", Icons.Default.Map, Color(0xFFFF6D00))
+        ToolItem("Emergency SOS", "Quick emergency help", Icons.Default.Warning, Color(0xFFDC2626), Color(0xFFFEE2E2)),
+        ToolItem("Medicine Reminders", "Never miss a dose", Icons.Default.NotificationsActive, Color(0xFFDB2777), Color(0xFFFCE7F3)),
+        ToolItem("Health Records Vault", "Secure document storage", Icons.Default.Folder, Color(0xFF9333EA), Color(0xFFF3E8FF)),
+        ToolItem("Prescription Reader", "AI OCR for prescriptions", Icons.Default.Description, Color(0xFF2563EB), Color(0xFFE0E7FF)),
+        ToolItem("Disease Heatmap", "Track outbreak zones", Icons.Default.Map, Color(0xFFEA580C), Color(0xFFFFEDD5))
     )
 
     Scaffold(
-        bottomBar = { HelpixBottomNav(navController = navController) }
+        bottomBar = { HelpixBottomNav(navController = navController) },
+        containerColor = OffWhiteBg
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            colorResource(id = R.color.login_bg_top),
-                            colorResource(id = R.color.login_bg_bottom)
-                        )
-                    )
-                )
+                .background(OffWhiteBg)
         ) {
             Column(
                 modifier = Modifier
@@ -71,14 +71,15 @@ fun ToolsScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     text = "Smart Tools Zone",
-                    color = colorResource(id = R.color.logo_cyan),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold
+                    color = MedicalTeal,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.ExtraBold
                 )
                 Text(
                     text = "Your complete health operating system",
-                    color = Color.Gray,
-                    fontSize = 14.sp
+                    color = SlateGrayText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
                 )
                 Spacer(modifier = Modifier.height(20.dp))
 
@@ -112,7 +113,8 @@ fun ToolsScreen(navController: NavController) {
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .background(Color(0xFF020617).copy(alpha = 0.95f))
+                    .background(Color.White)
+                    .border(1.dp, CardBorderGray)
             ) {
                ToolsStatsRow(toolsList.size) 
             }
@@ -126,9 +128,9 @@ fun ToolCard(tool: ToolItem, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .height(130.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1E293B))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(18.dp))
+            .background(Color.White)
+            .border(1.dp, CardBorderGray, RoundedCornerShape(18.dp))
             .clickable { onClick() }
             .padding(16.dp)
     ) {
@@ -139,23 +141,23 @@ fun ToolCard(tool: ToolItem, onClick: () -> Unit) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(tool.color.copy(alpha = 0.1f)),
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .background(tool.circleBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = tool.icon,
                     contentDescription = null,
-                    tint = tool.color,
-                    modifier = Modifier.size(24.dp)
+                    tint = tool.iconColor,
+                    modifier = Modifier.size(22.dp)
                 )
             }
             
             Column {
                 Text(
                     text = tool.title,
-                    color = Color.White,
+                    color = DarkCharcoalText,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     lineHeight = 18.sp
@@ -163,9 +165,9 @@ fun ToolCard(tool: ToolItem, onClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = tool.subtitle,
-                    color = Color.Gray,
-                    fontSize = 10.sp,
-                    lineHeight = 12.sp
+                    color = SlateGrayText,
+                    fontSize = 11.sp,
+                    lineHeight = 14.sp
                 )
             }
         }
@@ -178,16 +180,16 @@ fun ToolsStatsRow(activeToolsCount: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-            .background(Color(0xFF0F172A), RoundedCornerShape(16.dp))
-            .padding(vertical = 16.dp),
+            .border(1.dp, CardBorderGray, RoundedCornerShape(16.dp))
+            .background(Color(0xFFF8FAFC), RoundedCornerShape(16.dp))
+            .padding(vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(activeToolsCount.toString(), "Active Tools", Color(0xFF2979FF), Icons.Default.Bolt)
+        StatItem(activeToolsCount.toString(), "Active Tools", MedicalTeal, Icons.Default.Bolt)
         VerticalDivider()
-        StatItem("0", "Scans Done", Color(0xFF00E676), Icons.Default.CenterFocusWeak)
+        StatItem("0", "Scans Done", Color(0xFF16A34A), Icons.Default.CenterFocusWeak)
         VerticalDivider()
-        StatItem("100%", "AI Ready", Color(0xFFD500F9), Icons.Default.Psychology)
+        StatItem("100%", "AI Ready", Color(0xFF9333EA), Icons.Default.Psychology)
     }
 }
 
@@ -196,8 +198,8 @@ fun StatItem(value: String, label: String, color: Color, icon: ImageVector) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
-        Text(text = label, fontSize = 10.sp, color = Color.Gray)
+        Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = DarkCharcoalText)
+        Text(text = label, fontSize = 10.sp, color = SlateGrayText, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -207,6 +209,6 @@ fun VerticalDivider() {
         modifier = Modifier
             .height(30.dp)
             .width(1.dp)
-            .background(Color.Gray.copy(alpha = 0.3f))
+            .background(CardBorderGray)
     )
 }
