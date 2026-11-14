@@ -96,7 +96,7 @@ fun OnboardingScreen(navController: NavController) {
             // HELPiX Text
             Text(
                 text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                    withStyle(style = SpanStyle(color = Color(0xFF1E293B), fontWeight = FontWeight.Bold)) {
                         append("HELP")
                     }
                     withStyle(style = SpanStyle(color = colorResource(id = R.color.logo_cyan), fontWeight = FontWeight.Bold)) {
@@ -136,7 +136,7 @@ fun OnboardingScreen(navController: NavController) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "Welcome Back",
-                        color = Color.White,
+                        color = Color(0xFF1E293B),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )

@@ -10,13 +10,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -35,6 +35,9 @@ import androidx.navigation.NavController
 import com.healthai.app.R
 import com.healthai.app.ui.navigation.NavRoutes
 
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
+
 @Composable
 fun PhoneLoginScreen(navController: NavController) {
     var phoneNumber by remember { mutableStateOf("") }
@@ -51,30 +54,24 @@ fun PhoneLoginScreen(navController: NavController) {
                 )
             )
     ) {
-        // Reuse Grid Background
         GridBackgroundPhone()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // --- LOGO SECTION ---
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Logo Box
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(80.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(60.dp)
-                        .blur(20.dp)
-                        .background(colorResource(id = R.color.logo_blue).copy(alpha = 0.5f), CircleShape)
-                )
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
+                        .size(70.dp)
                         .background(
                             brush = Brush.linearGradient(
                                 colors = listOf(colorResource(id = R.color.logo_cyan), colorResource(id = R.color.logo_blue))
@@ -96,7 +93,7 @@ fun PhoneLoginScreen(navController: NavController) {
 
             Text(
                 text = buildAnnotatedString {
-                    withStyle(style = SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                    withStyle(style = SpanStyle(color = DarkCharcoalText, fontWeight = FontWeight.Bold)) {
                         append("HELP")
                     }
                     withStyle(style = SpanStyle(color = colorResource(id = R.color.logo_cyan), fontWeight = FontWeight.Bold)) {
@@ -108,8 +105,9 @@ fun PhoneLoginScreen(navController: NavController) {
             
             Text(
                 text = "✨ AI-Powered Healthcare Platform",
-                color = colorResource(id = R.color.text_grey),
-                fontSize = 12.sp
+                color = SlateGrayText,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -118,32 +116,23 @@ fun PhoneLoginScreen(navController: NavController) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .shadow(elevation = 20.dp, spotColor = colorResource(id = R.color.card_border_glow))
-                    .border(1.dp, colorResource(id = R.color.card_border_glow).copy(alpha = 0.3f), RoundedCornerShape(24.dp))
+                    .shadow(elevation = 8.dp, spotColor = colorResource(id = R.color.card_border_glow))
+                    .border(1.dp, colorResource(id = R.color.card_border_glow), RoundedCornerShape(24.dp))
                     .clip(RoundedCornerShape(24.dp))
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                colorResource(id = R.color.card_bg_gradient_start),
-                                colorResource(id = R.color.card_bg_gradient_end)
-                            )
-                        )
-                    )
+                    .background(Color.White)
                     .padding(24.dp)
             ) {
                 Column {
-                    // Back Link
                     Text(
                         text = "← Back to options",
                         color = colorResource(id = R.color.logo_cyan),
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier.clickable { navController.popBackStack() }
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Title Row
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
@@ -157,7 +146,7 @@ fun PhoneLoginScreen(navController: NavController) {
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Phone Login",
-                            color = Color.White,
+                            color = DarkCharcoalText,
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -165,8 +154,7 @@ fun PhoneLoginScreen(navController: NavController) {
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Phone Input (Using the renamed function)
-                    Text("Phone Number", color = Color.LightGray, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                    Text("Phone Number", color = SlateGrayText, fontSize = 12.sp, fontWeight = FontWeight.Medium)
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     PhoneTextField(
@@ -177,29 +165,28 @@ fun PhoneLoginScreen(navController: NavController) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Info Box (Blue Tint)
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color(0xFF0F2942), RoundedCornerShape(8.dp)) // Dark Blue tint
-                            .border(1.dp, Color(0xFF1E3A5F), RoundedCornerShape(8.dp))
+                            .background(Color(0xFFCCFBF1), RoundedCornerShape(10.dp))
+                            .border(1.dp, colorResource(id = R.color.logo_cyan).copy(alpha = 0.3f), RoundedCornerShape(10.dp))
                             .padding(12.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Outlined.Lock, contentDescription = null, tint = colorResource(id = R.color.text_grey), modifier = Modifier.size(16.dp))
+                            Icon(Icons.Outlined.Lock, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = "Phone sign-in is not available yet. Continue with email instead.",
-                                color = Color.LightGray,
+                                color = Color(0xFF115E59),
                                 fontSize = 12.sp,
-                                lineHeight = 16.sp
+                                lineHeight = 16.sp,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Send OTP Button
                     Button(
                         onClick = { navController.navigate(NavRoutes.EmailLogin) },
                         modifier = Modifier
@@ -234,10 +221,9 @@ fun PhoneLoginScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Footer
             Text(
                 text = "Protected by 256-bit encryption • Your data is secure",
-                color = colorResource(id = R.color.text_grey).copy(alpha = 0.5f),
+                color = SlateGrayText.copy(alpha = 0.7f),
                 fontSize = 10.sp,
                 textAlign = TextAlign.Center
             )
@@ -245,7 +231,6 @@ fun PhoneLoginScreen(navController: NavController) {
     }
 }
 
-// --- RENAMED TO PhoneTextField TO FIX CONFLICT ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PhoneTextField(
@@ -256,17 +241,17 @@ fun PhoneTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, color = Color.Gray) },
+        placeholder = { Text(placeholder, color = SlateGrayText) },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
         colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = Color(0xFF1E293B),
-            focusedContainerColor = Color(0xFF1E293B),
+            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color.White,
             focusedBorderColor = colorResource(id = R.color.logo_cyan),
-            unfocusedBorderColor = Color(0xFF334155),
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
+            unfocusedBorderColor = Color(0xFFE2E8F0),
+            focusedTextColor = DarkCharcoalText,
+            unfocusedTextColor = DarkCharcoalText,
             cursorColor = colorResource(id = R.color.logo_cyan)
         ),
         singleLine = true
@@ -279,21 +264,21 @@ fun GridBackgroundPhone() {
         val gridSize = 50.dp.toPx()
         val width = size.width
         val height = size.height
-        
-        for (x in 0..((width / gridSize).toInt())) {
+
+        for (x in 0..width.toInt() step gridSize.toInt()) {
             drawLine(
-                color = Color.White.copy(alpha = 0.03f),
-                start = Offset(x * gridSize, 0f),
-                end = Offset(x * gridSize, height),
+                color = Color.Black.copy(alpha = 0.03f),
+                start = Offset(x.toFloat(), 0f),
+                end = Offset(x.toFloat(), height),
                 strokeWidth = 1f
             )
         }
-        
-        for (y in 0..((height / gridSize).toInt())) {
+
+        for (y in 0..height.toInt() step gridSize.toInt()) {
             drawLine(
-                color = Color.White.copy(alpha = 0.03f),
-                start = Offset(0f, y * gridSize),
-                end = Offset(width, y * gridSize),
+                color = Color.Black.copy(alpha = 0.03f),
+                start = Offset(0f, y.toFloat()),
+                end = Offset(width, y.toFloat()),
                 strokeWidth = 1f
             )
         }
