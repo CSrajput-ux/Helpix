@@ -3,10 +3,8 @@ fastapi==0.135.3
 uvicorn[standard]==0.42.0
 
 # Database
-motor==3.4.0
-pymongo==4.7.2
-certifi==2026.2.25
-dnspython==2.8.0
+SQLAlchemy[asyncio]==2.0.48
+asyncpg==0.31.0
 
 # Auth & Security
 PyJWT[crypto]==2.13.0
@@ -36,7 +34,6 @@ celery==5.6.3
 httpx==0.28.1
 pytest==9.1.1
 pytest-asyncio==1.4.0
-mongomock-motor==0.0.36
 requests==2.33.1
 
 # Machine Learning & AI Services

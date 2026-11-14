@@ -8,7 +8,7 @@ Smartwatch vitals sync routes for Patients:
 
 High-Frequency Data Strategy
 -----------------------------
-1. **Time-Series Collection**: MongoDB 5.0+ vitals_ts collection.
+1. **Separate document collection**: vitals_ts records in PostgreSQL JSONB.
 2. **Client-Side Batching**: Android app buffers for 30–60 seconds.
 3. **Rate Limiting**: Future enhancement.
 """

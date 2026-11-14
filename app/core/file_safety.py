@@ -7,11 +7,11 @@ Design
 ------
 - NEVER trusts the client's Content-Type or filename extension.
 - Validates actual byte content against magic numbers BEFORE storing anything.
-- Returns raw bytes so callers can pass them directly to GridFS / ML models.
+- Returns raw bytes so callers can pass them directly to storage / ML models.
 - Sanitises filenames before they are stored (strips path separators and
   control characters that could enable path-traversal attacks).
-- Uploaded files always go to GridFS (MongoDB) — never to the local filesystem,
-  so they can never be served as executable code by a web server.
+- Validated files are stored by the configured external storage provider, not
+  served as executable code by the API process.
 """
 
 import io

@@ -9,6 +9,10 @@ dist/
 build/
 .pytest_cache/
 
+# Local tests and generated test data are not included in deploy commits.
+/tests/
+/testing/
+
 # Virtual environment
 .venv/
 venv/

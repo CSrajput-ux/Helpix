@@ -7,15 +7,18 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app.core.config import settings
 
-async def check_mongodb():
-    print("Checking MongoDB...")
-    from motor.motor_asyncio import AsyncIOMotorClient
+async def check_postgres():
+    print("Checking PostgreSQL...")
+    from app.core.db import connect_db, close_db, is_db_healthy
     try:
-        client = AsyncIOMotorClient(settings.MONGO_URL, serverSelectionTimeoutMS=5000)
-        await client.admin.command('ping')
-        print("[SUCCESS] MongoDB connection SUCCESS")
+        await connect_db()
+        if not await is_db_healthy():
+            raise RuntimeError("health check failed")
+        print("[SUCCESS] PostgreSQL connection SUCCESS")
     except Exception as e:
-        print(f"[FAILED] MongoDB connection FAILED: {e}")
+        print(f"[FAILED] PostgreSQL connection FAILED: {e}")
+    finally:
+        await close_db()
 
 def check_cloudinary():
     print("\nChecking Cloudinary...")
@@ -62,7 +65,7 @@ def check_supabase():
         print(f"[FAILED] Supabase connection FAILED: {e}")
 
 async def main():
-    await check_mongodb()
+    await check_postgres()
     check_cloudinary()
     check_supabase()
 

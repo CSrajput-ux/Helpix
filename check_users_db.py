@@ -1,34 +1,30 @@
 import asyncio
-import os
-from motor.motor_asyncio import AsyncIOMotorClient
-from dotenv import load_dotenv
 
-# Load .env
-load_dotenv()
+from app.core.db import close_db, connect_db
+import app.core.db as db_module
+
 
 async def check_users():
-    mongo_url = os.getenv("MONGO_URL")
-    db_name = os.getenv("MONGO_DB_NAME", "helpix_ai")
-    
     try:
-        client = AsyncIOMotorClient(mongo_url)
-        db = client[db_name]
-        users_col = db["users"]
-        
+        await connect_db()
+        users_col = db_module.db["users"]
         count = await users_col.count_documents({})
         print(f"Total Users in DB: {count}")
-        
+
         if count > 0:
-            cursor = users_col.find({}, {"password": 0, "hashed_password": 0})
-            async for user in cursor:
-                print(f"User: {user.get('full_name')} ({user.get('email')}) - Role: {user.get('role')}")
+            for user in await users_col.find().to_list(count):
+                print(
+                    f"User: {user.get('full_name')} ({user.get('email')}) "
+                    f"- Role: {user.get('role')}"
+                )
         else:
             print("No users found in database.")
-            
+
     except Exception as e:
         print(f"Error: {e}")
     finally:
-        client.close()
+        await close_db()
+
 
 if __name__ == "__main__":
     asyncio.run(check_users())

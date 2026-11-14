@@ -6,7 +6,7 @@ Helpix AI – FastAPI application entry point.
 Startup sequence:
   1. Logging is configured before anything else.
   2. Settings are validated (crashes fast if secrets are missing in production).
-  3. MongoDB is connected and indexes are created.
+  3. PostgreSQL is connected and the document table/indexes are created.
   4. All routers are registered with rate-limiting dependencies.
 """
 
@@ -99,7 +99,7 @@ app = FastAPI(
     title="Helpix AI – Healthcare Backend",
     description=(
         "Secure, scalable FastAPI backend for the Helpix AI healthcare app.\n\n"
-        "**Stack**: FastAPI · MongoDB (Motor) · JWT · AES-Fernet · GridFS\n\n"
+        "**Stack**: FastAPI · PostgreSQL (JSONB) · JWT · AES-Fernet · Cloud file storage\n\n"
         "**Features**: Auth · Vitals Sync · Prescription AI · Health Vault · "
         "Doctor–Patient Linking · Appointments · Health Score · "
         "Medicine Reminders · Symptom AI · SOS · Skin Scanner · "

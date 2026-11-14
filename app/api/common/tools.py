@@ -725,8 +725,8 @@ async def get_tool_stats(
     if rem_count > 0:
         active_tools.add("medicine_reminders")
 
-    fs = _db_module.get_fs_bucket()
-    vault_cursor = fs.find({"metadata.uploaded_by": uid}).limit(1)
+    vault_files = _db_module.db["vault_files"]
+    vault_cursor = vault_files.find({"uploaded_by": uid}).limit(1)
     has_vault = False
     async for _ in vault_cursor:
         has_vault = True

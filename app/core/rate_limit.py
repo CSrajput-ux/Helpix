@@ -26,6 +26,7 @@ from app.core.config import settings
 from app.core.security import get_current_user
 
 logger = logging.getLogger(__name__)
+_cleanup_counter = 0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -61,6 +62,7 @@ async def _check_key(
       lockout is created and HTTP 429 is raised.
     - Otherwise the request is logged and the function returns normally.
     """
+    global _cleanup_counter
     db = _db.db
     if db is None:
         # Fail-open: never block requests because of a DB outage
@@ -68,6 +70,14 @@ async def _check_key(
         return
 
     now = datetime.now(timezone.utc)
+    _cleanup_counter += 1
+    if _cleanup_counter % 100 == 0:
+        await db["rate_limit_logs"].delete_many({
+            "timestamp": {"$lt": now - timedelta(hours=24)},
+        })
+        await db["rate_limit_lockouts"].delete_many({
+            "blocked_until": {"$lte": now},
+        })
 
     # ── 1. Check active lockout ───────────────────────────────────────────────
     if backoff_base is not None:

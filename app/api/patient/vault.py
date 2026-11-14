@@ -9,8 +9,8 @@ Health Vault (medical file storage) routes:
 """
 
 import httpx
+import re
 from datetime import datetime, timezone
-from bson import ObjectId
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
 from typing import List, Optional
@@ -130,12 +130,10 @@ async def download_file(file_id: str, current_user: dict = Depends(get_current_u
     """
     vault_files = get_vault_files_collection()
 
-    try:
-        object_id = ObjectId(file_id)
-    except Exception:
+    if not re.fullmatch(r"[0-9a-fA-F]{24}", file_id):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file_id format.")
 
-    doc = await vault_files.find_one({"_id": object_id})
+    doc = await vault_files.find_one({"_id": file_id.lower()})
 
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
@@ -176,12 +174,10 @@ async def delete_file(file_id: str, current_user: dict = Depends(get_current_use
     """Delete a file. Only the owner can delete their files."""
     vault_files = get_vault_files_collection()
 
-    try:
-        object_id = ObjectId(file_id)
-    except Exception:
+    if not re.fullmatch(r"[0-9a-fA-F]{24}", file_id):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid file_id format.")
 
-    doc = await vault_files.find_one({"_id": object_id})
+    doc = await vault_files.find_one({"_id": file_id.lower()})
 
     if not doc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
@@ -203,4 +199,4 @@ async def delete_file(file_id: str, current_user: dict = Depends(get_current_use
             await delete_document_supabase(file_url)
 
     # Delete from DB
-    await vault_files.delete_one({"_id": object_id})
+    await vault_files.delete_one({"_id": file_id.lower()})

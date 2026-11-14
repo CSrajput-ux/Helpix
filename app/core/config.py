@@ -25,6 +25,7 @@ Backoff formula: base * (2 ^ (consecutive_violations - 1)), capped at max.
 
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from cryptography.fernet import Fernet
 
 
 class Settings(BaseSettings):
@@ -32,9 +33,8 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"           # "development" | "production"
     APP_VERSION: str = "2.0.0"
 
-    # ── MongoDB ───────────────────────────────────────────────────────────────
-    MONGO_URL: str = "mongodb://localhost:27017"
-    MONGO_DB_NAME: str = "helpix_ai"
+    # ── PostgreSQL ────────────────────────────────────────────────────────────
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/helpix_ai"
 
     # ── JWT ───────────────────────────────────────────────────────────────────
     JWT_SECRET_KEY: str = "CHANGE_ME"
@@ -60,7 +60,6 @@ class Settings(BaseSettings):
     # ── Skin lesion inference ───────────────────────────────────────────────
     SKIN_INFERENCE_URL: str = "https://kokulan123-skin-lesion-api.hf.space/api/predict"
     SKIN_INFERENCE_TIMEOUT_SECONDS: int = 55
-
 
     # ── CORS ─────────────────────────────────────────────────────────────────
     # Comma-separated list. Use "*" only in development.
@@ -138,25 +137,57 @@ class Settings(BaseSettings):
         """
         # ── Production secret check ───────────────────────────────────────────
         if self.APP_ENV == "production":
-            if self.JWT_SECRET_KEY == "CHANGE_ME":
+            if len(self.JWT_SECRET_KEY) < 32:
                 raise ValueError(
-                    "JWT_SECRET_KEY must be set in production. "
-                    "Generate one: python -c \"import secrets; print(secrets.token_hex(32))\""
+                    "JWT_SECRET_KEY must be at least 32 characters "
+                    "in production. Generate one with Python secrets."
                 )
-            if self.ENCRYPTION_KEY == "CHANGE_ME":
+            if self.JWT_SECRET_KEY.startswith(("CHANGE_ME", "REPLACE_WITH")):
+                raise ValueError(
+                    "JWT_SECRET_KEY must not use a placeholder in production."
+                )
+            if self.ENCRYPTION_KEY.startswith(
+                ("CHANGE_ME", "REPLACE_WITH")
+            ):
                 raise ValueError(
                     "ENCRYPTION_KEY must be set in production. "
-                    "Generate one: python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
+                    "Generate one with Fernet.generate_key()."
                 )
-           # if not self.ALLOWED_ORIGINS or self.ALLOWED_ORIGINS.strip() == "*":
-                 #raise ValueError(
-                  #  "ALLOWED_ORIGINS must contain explicit HTTPS origins in production."
-               # )
-                if not self.ALLOWED_ORIGINS:
-                   raise ValueError("ALLOWED_ORIGINS is required in production.")
-                  
-            if self.MONGO_URL.startswith("mongodb://localhost"):
-                raise ValueError("MONGO_URL must not point to localhost in production.")
+            try:
+                Fernet(self.ENCRYPTION_KEY.encode("utf-8"))
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    "ENCRYPTION_KEY must be a valid Fernet key in production."
+                ) from exc
+
+            origins = [
+                origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")
+            ]
+            if not self.ALLOWED_ORIGINS.strip():
+                raise ValueError(
+                    "ALLOWED_ORIGINS must contain explicit origins in production."
+                )
+            if any(not origin or origin == "*" for origin in origins):
+                raise ValueError(
+                    "ALLOWED_ORIGINS must contain explicit origins in production."
+                )
+
+            allowed_schemes = (
+                "postgresql://",
+                "postgres://",
+                "postgresql+asyncpg://",
+            )
+            if not self.DATABASE_URL.startswith(allowed_schemes):
+                raise ValueError(
+                    "DATABASE_URL must use a PostgreSQL connection string."
+                )
+            if any(
+                host in self.DATABASE_URL.lower()
+                for host in ("localhost", "127.0.0.1", "sqlite")
+            ):
+                raise ValueError(
+                    "DATABASE_URL must point to a production PostgreSQL instance."
+                )
 
         # ── Migrate legacy RATE_LIMIT_* vars if they were explicitly set ─────
         # (non-zero means the user had them in their .env)
