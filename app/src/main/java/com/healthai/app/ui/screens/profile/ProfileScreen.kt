@@ -288,16 +288,34 @@ fun AuthForm(viewModel: ProfileViewModel, onAuthSuccess: () -> Unit) {
                 onClick = {
                     val trimmedEmail = email.trim()
                     val trimmedPassword = password.trim()
+                    val trimmedName = name.trim()
+
+                    if (trimmedEmail.isBlank()) {
+                        Toast.makeText(context, "Please enter your email", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (trimmedPassword.isBlank()) {
+                        Toast.makeText(context, "Please enter your password", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+
                     if (isLoginMode) {
                         viewModel.login(trimmedEmail, trimmedPassword) { success, msg ->
-                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                             if (success) onAuthSuccess()
                         }
                     } else {
-                        // Default all new users to PATIENT role
-                        val req = SignupRequest(name.trim(), trimmedEmail, trimmedPassword, "PATIENT")
+                        if (trimmedName.isBlank()) {
+                            Toast.makeText(context, "Please enter your full name", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        if (trimmedPassword.length < 6) {
+                            Toast.makeText(context, "Password must be at least 6 characters long", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+                        val req = SignupRequest(trimmedName, trimmedEmail, trimmedPassword, "PATIENT")
                         viewModel.signup(req) { success, msg ->
-                            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                             if (success) onAuthSuccess()
                         }
                     }

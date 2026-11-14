@@ -62,7 +62,11 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val trimmedReq = req.copy(email = req.email.trim(), full_name = req.full_name.trim())
+                val trimmedReq = req.copy(
+                    email = req.email.trim(),
+                    full_name = req.full_name.trim(),
+                    password = req.password.trim()
+                )
                 val response = repository.signup(trimmedReq)
                 if (response.isSuccessful) {
                     login(trimmedReq.email, trimmedReq.password, onResult)
@@ -86,8 +90,24 @@ class ProfileViewModel @Inject constructor(
                 if (json.has("detail")) {
                     val detail = json.get("detail")
                     if (detail is org.json.JSONArray) {
-                        val first = detail.getJSONObject(0)
-                        first.optString("msg", detail.toString())
+                        val msgs = mutableListOf<String>()
+                        for (i in 0 until detail.length()) {
+                            val obj = detail.getJSONObject(i)
+                            val locArr = obj.optJSONArray("loc")
+                            val loc = if (locArr != null) {
+                                (0 until locArr.length())
+                                    .map { locArr.getString(it) }
+                                    .filter { it != "body" }
+                                    .joinToString(".")
+                            } else ""
+                            val msg = obj.optString("msg", "Invalid input")
+                            if (loc.isNotBlank()) {
+                                msgs.add("$loc: $msg")
+                            } else {
+                                msgs.add(msg)
+                            }
+                        }
+                        msgs.joinToString("; ")
                     } else {
                         detail.toString()
                     }
