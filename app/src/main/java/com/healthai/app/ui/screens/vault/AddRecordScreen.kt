@@ -3,6 +3,7 @@ package com.healthai.app.ui.screens.vault
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,9 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.healthai.app.ui.navigation.NavRoutes
 import androidx.hilt.navigation.compose.hiltViewModel
 import android.widget.Toast
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val CardBorderGray = Color(0xFFE2E8F0)
+private val MedicalTeal = Color(0xFF0D9488)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,37 +43,29 @@ fun AddRecordScreen(
 
     val context = LocalContext.current
 
-    // Gallery Launcher
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         selectedUri = uri
     }
 
-    // Camera Launcher (Simplified for URI)
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap ->
-        // In a real app, save bitmap to URI
-    }
+    ) { bitmap -> }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Secure Upload", fontWeight = FontWeight.Bold) },
+                title = { Text("Secure Upload", color = DarkCharcoalText, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF0B1221),
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = OffWhiteBg)
             )
         },
-        containerColor = Color(0xFF0B1221)
+        containerColor = OffWhiteBg
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -76,24 +74,22 @@ fun AddRecordScreen(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Title Input
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Record Title (e.g. Blood Report)") },
+                label = { Text("Record Title (e.g. Blood Report)", color = SlateGrayText) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = Color(0xFFAA00FF),
-                    unfocusedBorderColor = Color.Gray
+                    focusedTextColor = DarkCharcoalText,
+                    unfocusedTextColor = DarkCharcoalText,
+                    focusedBorderColor = MedicalTeal,
+                    unfocusedBorderColor = CardBorderGray
                 )
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Category Dropdown (Simplified)
-            Text("Select Category", color = Color.Gray, modifier = Modifier.align(Alignment.Start))
+            Text("Select Category", color = SlateGrayText, modifier = Modifier.align(Alignment.Start), fontWeight = FontWeight.Medium)
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -103,18 +99,19 @@ fun AddRecordScreen(
                     Button(
                         onClick = { category = cat },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) Color(0xFFAA00FF) else Color(0xFF1E293B)
+                            containerColor = if (isSelected) MedicalTeal else Color.White,
+                            contentColor = if (isSelected) Color.White else DarkCharcoalText
                         ),
+                        border = BorderStroke(1.dp, if (isSelected) MedicalTeal else CardBorderGray),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text(cat, fontSize = 10.sp)
+                        Text(cat, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // Selection Options
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 SelectionCard(
                     "Camera",
@@ -131,14 +128,12 @@ fun AddRecordScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Preview or Status
             if (selectedUri != null) {
-                Text("File Selected: ${selectedUri?.path?.takeLast(20)}...", color = Color(0xFF00E676))
+                Text("File Selected: ${selectedUri?.path?.takeLast(20)}...", color = Color(0xFF16A34A), fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Upload Button
             Button(
                 onClick = {
                     if (title.isNotBlank() && selectedUri != null) {
@@ -155,14 +150,14 @@ fun AddRecordScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFAA00FF)),
-                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MedicalTeal),
+                shape = RoundedCornerShape(14.dp),
                 enabled = !isUploading && title.isNotBlank() && selectedUri != null
             ) {
                 if (isUploading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Securely Upload to Vault", fontWeight = FontWeight.Bold)
+                    Text("Securely Upload to Vault", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }
             }
         }
@@ -174,16 +169,17 @@ fun SelectionCard(title: String, icon: androidx.compose.ui.graphics.vector.Image
     Card(
         modifier = modifier.height(120.dp).clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, CardBorderGray)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(icon, contentDescription = null, tint = Color(0xFFAA00FF), modifier = Modifier.size(32.dp))
+            Icon(icon, contentDescription = null, tint = MedicalTeal, modifier = Modifier.size(32.dp))
             Spacer(modifier = Modifier.height(8.dp))
-            Text(title, color = Color.White, fontWeight = FontWeight.Bold)
+            Text(title, color = DarkCharcoalText, fontWeight = FontWeight.Bold)
         }
     }
 }

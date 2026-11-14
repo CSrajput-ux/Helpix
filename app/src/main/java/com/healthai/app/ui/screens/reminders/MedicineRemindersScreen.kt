@@ -1,5 +1,6 @@
 package com.healthai.app.ui.screens.reminders
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +37,12 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.*
 
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val CardBorderGray = Color(0xFFE2E8F0)
+private val MedicalTeal = Color(0xFF0D9488)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicineRemindersScreen(navController: NavController) {
@@ -47,24 +54,25 @@ fun MedicineRemindersScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Medicine Reminders") },
+                title = { Text("Medicine Reminders", color = DarkCharcoalText, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221), titleContentColor = Color.White, navigationIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = OffWhiteBg)
             )
         },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(NavRoutes.AddReminder) },
-                containerColor = Color(0xFFFF4081)
+                containerColor = MedicalTeal,
+                contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Reminder", tint = Color.White)
             }
         },
-        containerColor = Color(0xFF0B1221)
+        containerColor = OffWhiteBg
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -78,7 +86,7 @@ fun MedicineRemindersScreen(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item { 
-                    Text("Today's Reminders", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text("Today's Reminders", color = DarkCharcoalText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
                 items(
@@ -97,25 +105,23 @@ fun HorizontalCalendarView() {
     val today = LocalDate.now()
     var selectedDate by remember { mutableStateOf(today) }
     
-    // Get all days of the current month
     val firstDayOfMonth = today.withDayOfMonth(1)
     val daysInMonth = (1..today.lengthOfMonth()).map { day ->
         firstDayOfMonth.withDayOfMonth(day)
     }
 
-    // Initial scroll position near today's date
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = (today.dayOfMonth - 3).coerceAtLeast(0))
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF1E293B).copy(alpha = 0.5f))
+            .background(Color.White)
+            .border(BorderStroke(1.dp, CardBorderGray))
             .padding(vertical = 16.dp)
     ) {
-        // Month Year Header
         Text(
             text = today.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + today.year,
-            color = Color.White,
+            color = DarkCharcoalText,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(start = 16.dp, bottom = 12.dp)
@@ -139,7 +145,7 @@ fun HorizontalCalendarView() {
                 ) {
                     Text(
                         text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
-                        color = if (isSelected) Color(0xFFFF4081) else Color.Gray,
+                        color = if (isSelected) MedicalTeal else SlateGrayText,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -150,21 +156,21 @@ fun HorizontalCalendarView() {
                             .clip(CircleShape)
                             .background(
                                 when {
-                                    isSelected -> Color(0xFFFF4081)
-                                    isToday -> Color(0xFFFF4081).copy(alpha = 0.15f)
-                                    else -> Color(0xFF1E293B)
+                                    isSelected -> MedicalTeal
+                                    isToday -> MedicalTeal.copy(alpha = 0.15f)
+                                    else -> OffWhiteBg
                                 }
                             )
                             .border(
                                 width = 1.dp,
-                                color = if (isSelected || isToday) Color(0xFFFF4081) else Color.Transparent,
+                                color = if (isSelected || isToday) MedicalTeal else CardBorderGray,
                                 shape = CircleShape
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = date.dayOfMonth.toString(),
-                            color = Color.White,
+                            color = if (isSelected) Color.White else DarkCharcoalText,
                             fontSize = 16.sp,
                             fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal
                         )
@@ -183,8 +189,8 @@ fun ReminderListItem(reminder: Reminder, db: HelpixDatabase) {
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Reminder") },
-            text = { Text("Are you sure you want to delete this reminder for ${reminder.medicineName}?") },
+            title = { Text("Delete Reminder", color = DarkCharcoalText) },
+            text = { Text("Are you sure you want to delete this reminder for ${reminder.medicineName}?", color = SlateGrayText) },
             confirmButton = {
                 TextButton(onClick = {
                     coroutineScope.launch {
@@ -197,7 +203,7 @@ fun ReminderListItem(reminder: Reminder, db: HelpixDatabase) {
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Cancel")
+                    Text("Cancel", color = SlateGrayText)
                 }
             }
         )
@@ -211,8 +217,9 @@ fun ReminderListItem(reminder: Reminder, db: HelpixDatabase) {
                     onLongPress = { showDeleteDialog = true }
                 )
             },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B))
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, CardBorderGray)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -221,20 +228,20 @@ fun ReminderListItem(reminder: Reminder, db: HelpixDatabase) {
             Icon(
                 Icons.Default.NotificationsActive, 
                 contentDescription = null, 
-                tint = Color(0xFFFF4081), 
+                tint = MedicalTeal, 
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFFF4081).copy(alpha = 0.1f))
+                    .background(Color(0xFFCCFBF1))
                     .padding(8.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(reminder.medicineName, color = Color.White, fontWeight = FontWeight.Bold)
-                Text("${reminder.dosage} • ${reminder.time}", color = Color.Gray, fontSize = 12.sp)
+                Text(reminder.medicineName, color = DarkCharcoalText, fontWeight = FontWeight.Bold)
+                Text("${reminder.dosage} • ${reminder.time}", color = SlateGrayText, fontSize = 12.sp)
             }
             IconButton(onClick = { showDeleteDialog = true }) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray)
+                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = SlateGrayText)
             }
             Checkbox(
                 checked = reminder.isTaken,
@@ -243,7 +250,7 @@ fun ReminderListItem(reminder: Reminder, db: HelpixDatabase) {
                         db.reminderDao().updateTakenStatus(reminder.id, it)
                     }
                 },
-                colors = CheckboxDefaults.colors(checkedColor = Color(0xFFFF4081))
+                colors = CheckboxDefaults.colors(checkedColor = MedicalTeal)
             )
         }
     }

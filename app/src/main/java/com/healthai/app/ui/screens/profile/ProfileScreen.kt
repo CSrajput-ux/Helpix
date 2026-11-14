@@ -45,11 +45,11 @@ import com.healthai.app.R
 import com.healthai.app.data.remote.api.SignupRequest
 import java.util.Locale
 
-// Modern Healthcare Palette
-val DeepSlate = Color(0xFF020617)
-val MedicalTeal = Color(0xFF2DD4BF)
-val CardBackground = Color(0xFF1E293B)
-val TextGrey = Color(0xFF94A3B8)
+// Modern Healthcare Light Palette
+val DeepSlate = Color(0xFFF8FAFC)
+val MedicalTeal = Color(0xFF0D9488)
+val CardBackground = Color.White
+val TextGrey = Color(0xFF475569)
 val AccentBlue = Color(0xFF2563EB)
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -768,8 +768,9 @@ fun MedicalCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        border = BorderStroke(1.dp, Color(0xFFE2E8F0)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp), content = content)
@@ -795,19 +796,19 @@ fun ProfileListItem(
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .background(DeepSlate.copy(alpha = 0.5f), CircleShape),
+                .background(Color(0xFFCCFBF1), CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(icon, contentDescription = null, tint = themeColor, modifier = Modifier.size(20.dp))
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            Text(title, color = Color(0xFF1E293B), fontWeight = FontWeight.Bold, fontSize = 15.sp)
             if (subtitle != null) {
-                Text(subtitle, color = TextGrey, fontSize = 12.sp)
+                Text(subtitle, color = Color(0xFF475569), fontSize = 12.sp)
             }
         }
-        Icon(trailingIcon, contentDescription = null, tint = TextGrey, modifier = Modifier.size(18.dp))
+        Icon(trailingIcon, contentDescription = null, tint = Color(0xFF475569), modifier = Modifier.size(18.dp))
     }
 }
 
@@ -815,9 +816,9 @@ fun ProfileListItem(
 fun ProfileSectionHeader(title: String) {
     Text(
         text = title,
-        color = TextGrey,
-        fontSize = 13.sp,
-        fontWeight = FontWeight.Medium,
+        color = Color(0xFF0D9488),
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
     )
 }
@@ -834,7 +835,7 @@ fun AuthRoleItem(label: String, isSelected: Boolean, modifier: Modifier, onClick
     ) {
         Text(
             text = label,
-            color = if (isSelected) DeepSlate else Color.White,
+            color = if (isSelected) Color.White else Color(0xFF1E293B),
             fontWeight = FontWeight.Bold
         )
     }
@@ -843,7 +844,7 @@ fun AuthRoleItem(label: String, isSelected: Boolean, modifier: Modifier, onClick
 @Composable
 fun EmergencyItem(label: String, value: String, modifier: Modifier, icon: ImageVector? = null) {
     Column(modifier = modifier) {
-        Text(label, color = Color.White.copy(alpha = 0.6f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        Text(label, color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.height(2.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (icon != null) {
@@ -870,21 +871,21 @@ fun ProfileTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label) },
+        label = { Text(label, color = Color(0xFF475569)) },
         enabled = enabled,
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        leadingIcon = { Icon(icon, contentDescription = null, tint = if (enabled) themeColor else Color.Gray) },
+        leadingIcon = { Icon(icon, contentDescription = null, tint = if (enabled) themeColor else Color(0xFF475569)) },
         trailingIcon = trailingIcon,
         shape = RoundedCornerShape(12.dp),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = themeColor,
-            unfocusedBorderColor = Color.Gray,
-            disabledBorderColor = Color.DarkGray,
-            disabledTextColor = Color.White,
-            focusedTextColor = Color.White,
-            unfocusedTextColor = Color.White,
-            disabledLabelColor = Color.Gray,
+            unfocusedBorderColor = Color(0xFFE2E8F0),
+            disabledBorderColor = Color(0xFFE2E8F0),
+            disabledTextColor = Color(0xFF1E293B),
+            focusedTextColor = Color(0xFF1E293B),
+            unfocusedTextColor = Color(0xFF1E293B),
+            disabledLabelColor = Color(0xFF475569),
             focusedContainerColor = Color.Transparent,
             unfocusedContainerColor = Color.Transparent
         )

@@ -21,9 +21,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
 import com.healthai.app.ui.screens.profile.MedicalCard
 import com.healthai.app.ui.screens.profile.ProfileSectionHeader
 import com.healthai.app.ui.screens.profile.ProfileTextField
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,10 +57,10 @@ fun DoctorProfileManagementScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Professional Profile", color = Color.White, fontWeight = FontWeight.ExtraBold) },
+                title = { Text("Professional Profile", color = DarkCharcoalText, fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                 },
                 actions = {
@@ -69,7 +74,6 @@ fun DoctorProfileManagementScreen(
                                 viewModel.updateProfessionalProfile(spec, license, clinic, experience.toIntOrNull()) { success ->
                                     if (success) {
                                         Toast.makeText(context, "Profile Verified Successfully", Toast.LENGTH_SHORT).show()
-                                        // Navigate to Dashboard and clear this screen from stack
                                         navController.navigate(com.healthai.app.ui.navigation.NavRoutes.DoctorDashboard) {
                                             popUpTo(com.healthai.app.ui.navigation.NavRoutes.DoctorProfileManagement) { inclusive = true }
                                         }
@@ -83,10 +87,10 @@ fun DoctorProfileManagementScreen(
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DocDeepSlate)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = OffWhiteBg)
             )
         },
-        containerColor = DocDeepSlate
+        containerColor = OffWhiteBg
     ) { padding ->
         Column(
             modifier = Modifier
@@ -96,25 +100,20 @@ fun DoctorProfileManagementScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Header: Professional Badge
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(ProfessionalIndigo.copy(alpha = 0.1f))
-                    .border(1.dp, ProfessionalIndigo.copy(alpha = 0.2f), RoundedCornerShape(24.dp)),
+                    .background(Color(0xFFCCFBF1))
+                    .border(1.dp, MedicalEmerald, RoundedCornerShape(24.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(
                         modifier = Modifier
                             .size(64.dp)
-                            .background(
-                                if (doctorProfile?.userType == "DOCTOR" || !doctorProfile?.licenseNumber.isNullOrBlank()) MedicalEmerald.copy(alpha = 0.2f)
-                                else Color.Gray.copy(alpha = 0.2f),
-                                CircleShape
-                            ),
+                            .background(Color.White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -127,7 +126,7 @@ fun DoctorProfileManagementScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         if (doctorProfile?.userType == "DOCTOR" || !doctorProfile?.licenseNumber.isNullOrBlank()) "Verified Professional" else "Verification Pending",
-                        color = if (doctorProfile?.userType == "DOCTOR" || !doctorProfile?.licenseNumber.isNullOrBlank()) MedicalEmerald else Color.Gray,
+                        color = Color(0xFF115E59),
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -135,29 +134,27 @@ fun DoctorProfileManagementScreen(
             }
 
             ProfileSectionHeader("Clinic Credentials")
-            MedicalCard(backgroundColor = DocCardBg) {
+            MedicalCard(backgroundColor = Color.White) {
                 ProfileTextField("Specialization", spec, { spec = it }, true, Icons.Default.MedicalServices, themeColor = MedicalEmerald)
                 ProfileTextField("License Number", license, { license = it }, true, Icons.Default.Badge, themeColor = MedicalEmerald)
                 ProfileTextField("Years of Experience", experience, { experience = it }, true, Icons.Default.Timeline, themeColor = MedicalEmerald)
             }
 
             ProfileSectionHeader("Practice Location")
-            MedicalCard(backgroundColor = DocCardBg) {
+            MedicalCard(backgroundColor = Color.White) {
                 ProfileTextField("Clinic Address", clinic, { clinic = it }, true, Icons.Default.Business, themeColor = MedicalEmerald)
             }
 
             if (doctorProfile?.userType == "DOCTOR") {
                 ProfileSectionHeader("Consultation Settings")
-                MedicalCard(backgroundColor = DocCardBg) {
+                MedicalCard(backgroundColor = Color.White) {
                     DocManagementItem(Icons.Default.Schedule, "Manage Working Hours", "Mon - Sat • 09:00 - 18:00") {}
-                    HorizontalDivider(color = Color.White.copy(alpha = 0.05f))
+                    HorizontalDivider(color = CardBorderGray)
                     DocManagementItem(Icons.Default.Payments, "Consultation Fee", "₹800 per session") {}
                 }
             }
             
             Spacer(modifier = Modifier.height(32.dp))
-            
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -172,16 +169,16 @@ fun DocManagementItem(icon: ImageVector, title: String, subtitle: String, onClic
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
-            modifier = Modifier.size(40.dp).background(DocDeepSlate, CircleShape),
+            modifier = Modifier.size(40.dp).background(OffWhiteBg, CircleShape).border(1.dp, CardBorderGray, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(icon, contentDescription = null, tint = ProfessionalIndigo, modifier = Modifier.size(20.dp))
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-            Text(subtitle, color = DocTextGrey, fontSize = 12.sp)
+            Text(title, color = DarkCharcoalText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            Text(subtitle, color = SlateGrayText, fontSize = 12.sp)
         }
-        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = DocTextGrey, modifier = Modifier.size(18.dp))
+        Icon(Icons.Default.ChevronRight, contentDescription = null, tint = SlateGrayText)
     }
 }

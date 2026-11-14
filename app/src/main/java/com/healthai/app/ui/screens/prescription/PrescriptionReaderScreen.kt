@@ -4,7 +4,10 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -22,6 +25,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.healthai.app.ui.navigation.NavRoutes
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val CardBorderGray = Color(0xFFE2E8F0)
+private val MedicalTeal = Color(0xFF0D9488)
+private val FriendlyRoyalBlue = Color(0xFF2563EB)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @Composable
 fun PrescriptionReaderScreen(navController: NavController) {
@@ -42,39 +52,53 @@ fun PrescriptionReaderScreen(navController: NavController) {
         }
     }
 
-    Scaffold(containerColor = Color(0xFF0B1221)) { paddingValues ->
+    Scaffold(containerColor = OffWhiteBg) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(0.5f))
 
-            Icon(Icons.Default.Description, contentDescription = "Prescription Reader", tint = Color(0xFF2962FF), modifier = Modifier.size(80.dp))
+            Box(
+                modifier = Modifier
+                    .size(90.dp)
+                    .background(Color(0xFFE0E7FF), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Description, contentDescription = "Prescription Reader", tint = FriendlyRoyalBlue, modifier = Modifier.size(48.dp))
+            }
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "AI Prescription Reader",
-                color = Color.White,
+                color = DarkCharcoalText,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Scan the doctor's prescription to easily understand medicines and their details.",
-                color = Color.Gray,
+                color = SlateGrayText,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-                Text("Instructions:", color = Color.White, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White, RoundedCornerShape(18.dp))
+                    .border(androidx.compose.foundation.BorderStroke(1.dp, CardBorderGray), RoundedCornerShape(18.dp))
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text("Instructions:", color = DarkCharcoalText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Spacer(modifier = Modifier.height(10.dp))
                 InstructionRow(number = "1.", text = "Place the prescription on a flat surface.")
                 InstructionRow(number = "2.", text = "Ensure there is good lighting.")
                 InstructionRow(number = "3.", text = "Bring the entire prescription within the frame.")
@@ -88,12 +112,12 @@ fun PrescriptionReaderScreen(navController: NavController) {
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)),
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = FriendlyRoyalBlue),
                 enabled = hasCamPermission
             ) {
-                Text("Scan Prescription", color = Color.White, fontWeight = FontWeight.Bold)
+                Text("Scan Prescription", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
             }
@@ -103,9 +127,9 @@ fun PrescriptionReaderScreen(navController: NavController) {
 
 @Composable
 fun InstructionRow(number: String, text: String) {
-    Row(verticalAlignment = Alignment.Top) {
-        Text(number, color = Color.Gray, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+    Row(modifier = Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.Top) {
+        Text(number, color = MedicalTeal, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text, color = Color.Gray, fontSize = 14.sp)
+        Text(text, color = SlateGrayText, fontSize = 14.sp, fontWeight = FontWeight.Medium)
     }
 }

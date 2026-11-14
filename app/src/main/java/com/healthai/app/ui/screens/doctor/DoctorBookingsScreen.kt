@@ -2,13 +2,14 @@ package com.healthai.app.ui.screens.doctor
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,9 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
-import java.text.SimpleDateFormat
-import java.util.*
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,43 +46,42 @@ fun DoctorBookingsScreen(
         bottomBar = {
             HelpixBottomNav(navController = navController, userType = "DOCTOR")
         },
-        containerColor = DocDeepSlate
+        containerColor = OffWhiteBg
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(OffWhiteBg)
         ) {
-            DocScheduleGridBackground()
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
-                // Header
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     IconButton(
                         onClick = { navController.popBackStack() },
-                        modifier = Modifier.background(DocCardBg, androidx.compose.foundation.shape.CircleShape)
+                        modifier = Modifier
+                            .border(1.dp, CardBorderGray, CircleShape)
+                            .background(Color.White, CircleShape)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
                         text = "Patient Bookings",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = Color.White
+                        color = DarkCharcoalText
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Filtering Chips
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -87,17 +90,17 @@ fun DoctorBookingsScreen(
                         FilterChip(
                             selected = selectedFilter == filter,
                             onClick = { selectedFilter = filter },
-                            label = { Text(filter) },
+                            label = { Text(filter, fontWeight = FontWeight.SemiBold) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MedicalEmerald,
-                                selectedLabelColor = DocDeepSlate,
-                                containerColor = DocCardBg,
-                                labelColor = DocTextGrey
+                                selectedLabelColor = Color.White,
+                                containerColor = Color.White,
+                                labelColor = SlateGrayText
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 enabled = true,
                                 selected = selectedFilter == filter,
-                                borderColor = Color.White.copy(alpha = 0.1f),
+                                borderColor = CardBorderGray,
                                 selectedBorderColor = MedicalEmerald
                             )
                         )
@@ -121,7 +124,7 @@ fun DoctorBookingsScreen(
                         if (filteredList.isEmpty()) {
                             item {
                                 Box(modifier = Modifier.fillMaxWidth().padding(top = 60.dp), contentAlignment = Alignment.Center) {
-                                    Text("No $selectedFilter bookings found", color = DocTextGrey, fontSize = 14.sp)
+                                    Text("No $selectedFilter bookings found", color = SlateGrayText, fontSize = 14.sp)
                                 }
                             }
                         } else {

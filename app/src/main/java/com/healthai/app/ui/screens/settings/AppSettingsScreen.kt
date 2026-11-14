@@ -20,15 +20,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavController
-import com.healthai.app.R
 import com.healthai.app.services.LanguageManager
 import com.healthai.app.services.ThemeManager
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val MedicalTeal = Color(0xFF0D9488)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,16 +42,16 @@ fun AppSettingsScreen(navController: NavController) {
     val themeManager = remember { ThemeManager(context) }
 
     Scaffold(
-        containerColor = Color(0xFF0B1221),
+        containerColor = OffWhiteBg,
         topBar = {
             TopAppBar(
-                title = { Text("App Settings", color = Color.White, fontWeight = FontWeight.Bold) },
+                title = { Text("App Settings", color = DarkCharcoalText, fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = OffWhiteBg)
             )
         }
     ) { paddingValues ->
@@ -55,7 +59,7 @@ fun AppSettingsScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
             SettingsSectionTitle("Personalization")
             
@@ -68,7 +72,7 @@ fun AppSettingsScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(32.dp))
             
             SettingsSectionTitle("About App")
-            Text("Version 1.0.0", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(vertical = 8.dp))
+            Text("Version 1.0.0", color = SlateGrayText, fontSize = 14.sp, fontWeight = FontWeight.Medium, modifier = Modifier.padding(vertical = 8.dp))
         }
     }
 }
@@ -77,8 +81,8 @@ fun AppSettingsScreen(navController: NavController) {
 fun SettingsSectionTitle(title: String) {
     Text(
         text = title,
-        color = colorResource(id = R.color.logo_cyan),
-        fontSize = 14.sp,
+        color = MedicalTeal,
+        fontSize = 15.sp,
         fontWeight = FontWeight.Bold,
         modifier = Modifier.padding(vertical = 8.dp)
     )
@@ -100,28 +104,30 @@ fun LanguageSwitcher(languageManager: LanguageManager, context: Context){
             value = selectedOptionText,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Language") },
-            leadingIcon = { Icon(Icons.Default.Language, contentDescription = null, tint = colorResource(id = R.color.logo_cyan)) },
+            label = { Text("Language", color = SlateGrayText) },
+            leadingIcon = { Icon(Icons.Default.Language, contentDescription = null, tint = MedicalTeal) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = colorResource(id = R.color.logo_cyan),
-                unfocusedBorderColor = Color.Gray,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                unfocusedLabelColor = Color.Gray,
-                focusedLabelColor = colorResource(id = R.color.logo_cyan)
+                focusedBorderColor = MedicalTeal,
+                unfocusedBorderColor = CardBorderGray,
+                focusedTextColor = DarkCharcoalText,
+                unfocusedTextColor = DarkCharcoalText,
+                unfocusedLabelColor = SlateGrayText,
+                focusedLabelColor = MedicalTeal,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
             )
         )
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.background(Color(0xFF1E293B))
+            modifier = Modifier.background(Color.White)
         ) {
             languages.forEach { selectionOption ->
                 DropdownMenuItem(
-                    text = { Text(selectionOption, color = Color.White) },
+                    text = { Text(selectionOption, color = DarkCharcoalText, fontWeight = FontWeight.Medium) },
                     onClick = {
                         selectedOptionText = selectionOption
                         val lang = if (selectionOption == "English") "en" else "hi"
@@ -166,34 +172,35 @@ fun ThemeSwitcher(themeManager: ThemeManager){
             value = selectedOptionText,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Theme") },
-            leadingIcon = { Icon(themeIcon, contentDescription = null, tint = colorResource(id = R.color.logo_cyan)) },
+            label = { Text("Theme", color = SlateGrayText) },
+            leadingIcon = { Icon(themeIcon, contentDescription = null, tint = MedicalTeal) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor(),
-            shape = RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = colorResource(id = R.color.logo_cyan),
-                unfocusedBorderColor = Color.Gray,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                unfocusedLabelColor = Color.Gray,
-                focusedLabelColor = colorResource(id = R.color.logo_cyan)
+                focusedBorderColor = MedicalTeal,
+                unfocusedBorderColor = CardBorderGray,
+                focusedTextColor = DarkCharcoalText,
+                unfocusedTextColor = DarkCharcoalText,
+                unfocusedLabelColor = SlateGrayText,
+                focusedLabelColor = MedicalTeal,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White
             )
         )
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.background(Color(0xFF1E293B))
+            modifier = Modifier.background(Color.White)
         ) {
             themes.keys.forEach { selectionOption ->
                 DropdownMenuItem(
-                    text = { Text(selectionOption, color = Color.White) },
+                    text = { Text(selectionOption, color = DarkCharcoalText, fontWeight = FontWeight.Medium) },
                     onClick = {
                         selectedOptionText = selectionOption
                         val themeValue = themes[selectionOption] ?: ThemeManager.THEME_SYSTEM
                         themeManager.saveTheme(themeValue)
                         
-                        // Apply theme immediately
                         val mode = when(themeValue) {
                             ThemeManager.THEME_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
                             ThemeManager.THEME_DARK -> AppCompatDelegate.MODE_NIGHT_YES

@@ -21,11 +21,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,10 +31,16 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.android.gms.location.LocationServices
-import com.healthai.app.R
 import com.healthai.app.domain.model.User
 import com.healthai.app.ui.navigation.NavRoutes
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val MedicalTeal = Color(0xFF0D9488)
+private val FriendlyRoyalBlue = Color(0xFF2563EB)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @Composable
 fun DoctorsScreen(
@@ -47,7 +51,6 @@ fun DoctorsScreen(
     val doctors by viewModel.doctors.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    // Group doctors by specialty
     val groupedDoctors = remember(doctors) {
         doctors.groupBy { it.specialization ?: "General Physician" }
     }
@@ -76,24 +79,19 @@ fun DoctorsScreen(
 
     Scaffold(
         bottomBar = { HelpixBottomNav(navController = navController) },
-        containerColor = Color(0xFF0A0E17)
+        containerColor = OffWhiteBg
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF0F172A), Color(0xFF020617))
-                    )
-                )
+                .background(OffWhiteBg)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    // Header
                     item {
                         Spacer(modifier = Modifier.height(20.dp))
                         Row(
@@ -101,12 +99,12 @@ fun DoctorsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             IconButton(onClick = { navController.popBackStack() }) {
-                                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text("Book Appointment", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                                Text("Consult with our expert doctors", fontSize = 12.sp, color = Color.Gray)
+                                Text("Book Appointment", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = DarkCharcoalText)
+                                Text("Consult with our expert doctors", fontSize = 13.sp, color = SlateGrayText, fontWeight = FontWeight.Medium)
                             }
                         }
                         Spacer(modifier = Modifier.height(24.dp))
@@ -115,17 +113,16 @@ fun DoctorsScreen(
                     if (isLoading) {
                         item {
                             Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator(color = colorResource(id = R.color.logo_cyan))
+                                CircularProgressIndicator(color = MedicalTeal)
                             }
                         }
                     } else if (doctors.isEmpty()) {
                         item {
                             Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                                Text("No doctors available at the moment.", color = Color.Gray)
+                                Text("No doctors available at the moment.", color = SlateGrayText)
                             }
                         }
                     } else {
-                        // Category-wise Sections based on actual data from database/backend
                         groupedDoctors.forEach { (specialtyName, doctorsInCategory) ->
                             val (icon, color) = getSpecialtyInfo(specialtyName)
                             
@@ -151,16 +148,15 @@ fun DoctorsScreen(
                     }
                 }
 
-                // Stats Section FIXED at the bottom
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    StatItem("500+", "Available", Color(0xFF2979FF), Modifier.weight(1f))
-                    StatItem("98%", "Rating", Color(0xFF00C853), Modifier.weight(1f))
-                    StatItem("24/7", "Support", Color(0xFFD500F9), Modifier.weight(1f))
+                    StatItem("500+", "Available", FriendlyRoyalBlue, Modifier.weight(1f))
+                    StatItem("98%", "Rating", Color(0xFF16A34A), Modifier.weight(1f))
+                    StatItem("24/7", "Support", MedicalTeal, Modifier.weight(1f))
                 }
             }
         }
@@ -169,13 +165,13 @@ fun DoctorsScreen(
 
 fun getSpecialtyInfo(specialty: String): Pair<ImageVector, Color> {
     return when (specialty.lowercase()) {
-        "cardiologist" -> Icons.Default.Favorite to Color(0xFFE91E63)
-        "pulmonologist" -> Icons.Default.Air to Color(0xFF4CAF50)
-        "dermatologist" -> Icons.Default.Face to Color(0xFFE040FB)
-        "neurologist" -> Icons.Default.Psychology to Color(0xFF673AB7)
-        "pediatrician" -> Icons.Default.ChildCare to Color(0xFFFFC107)
-        "dentist" -> Icons.Default.MedicalServices to Color(0xFF00BCD4)
-        else -> Icons.Default.MedicalServices to Color(0xFF00E5FF)
+        "cardiologist" -> Icons.Default.Favorite to Color(0xFFDC2626)
+        "pulmonologist" -> Icons.Default.Air to Color(0xFF16A34A)
+        "dermatologist" -> Icons.Default.Face to Color(0xFF9333EA)
+        "neurologist" -> Icons.Default.Psychology to Color(0xFF4F46E5)
+        "pediatrician" -> Icons.Default.ChildCare to Color(0xFFD97706)
+        "dentist" -> Icons.Default.MedicalServices to Color(0xFF0284C7)
+        else -> Icons.Default.MedicalServices to MedicalTeal
     }
 }
 
@@ -189,9 +185,9 @@ fun SpecialtyHeader(name: String, icon: ImageVector, color: Color) {
     ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(8.dp))
-        Text(name, color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(name, color = DarkCharcoalText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.weight(1f))
-        Text("See All", color = color, fontSize = 12.sp, modifier = Modifier.clickable { })
+        Text("See All", color = color, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { })
     }
 }
 
@@ -202,8 +198,8 @@ fun DoctorSectionCard(doctor: User, themeColor: Color, navController: NavControl
             .width(280.dp)
             .clickable { navController.navigate("doctor_details/${doctor.id}") },
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, CardBorderGray)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -219,8 +215,8 @@ fun DoctorSectionCard(doctor: User, themeColor: Color, navController: NavControl
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text(doctor.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(doctor.specialization ?: "Specialist", color = Color.Gray, fontSize = 12.sp)
+                    Text(doctor.name, color = DarkCharcoalText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(doctor.specialization ?: "Specialist", color = SlateGrayText, fontSize = 12.sp)
                 }
             }
             
@@ -232,16 +228,16 @@ fun DoctorSectionCard(doctor: User, themeColor: Color, navController: NavControl
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFFFC107), modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFD97706), modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("4.9 (120+ reviews)", color = Color.Gray, fontSize = 11.sp)
+                    Text("4.9 (120+ reviews)", color = SlateGrayText, fontSize = 11.sp)
                 }
                 
                 if (doctor.distance != null) {
-                    Text("${String.format("%.1f", doctor.distance)} km", color = Color.Gray, fontSize = 11.sp)
+                    Text("${String.format("%.1f", doctor.distance)} km", color = SlateGrayText, fontSize = 11.sp)
                 }
                 
-                Text("₹${doctor.consultationFee.toInt()}", color = colorResource(id = R.color.logo_cyan), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("₹${doctor.consultationFee.toInt()}", color = MedicalTeal, fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -249,11 +245,10 @@ fun DoctorSectionCard(doctor: User, themeColor: Color, navController: NavControl
             Button(
                 onClick = { navController.navigate("doctor_details/${doctor.id}") },
                 modifier = Modifier.fillMaxWidth().height(40.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = themeColor.copy(alpha = 0.2f)),
-                shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(1.dp, themeColor.copy(alpha = 0.5f))
+                colors = ButtonDefaults.buttonColors(containerColor = FriendlyRoyalBlue),
+                shape = RoundedCornerShape(10.dp)
             ) {
-                Text("Book Now", color = Color.White, fontSize = 13.sp)
+                Text("Book Now", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -263,12 +258,12 @@ fun DoctorSectionCard(doctor: User, themeColor: Color, navController: NavControl
 fun StatItem(value: String, label: String, color: Color, modifier: Modifier) {
     Column(
         modifier = modifier
-            .background(Color(0xFF1E293B).copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp))
+            .background(Color.White, RoundedCornerShape(14.dp))
+            .border(BorderStroke(1.dp, CardBorderGray), RoundedCornerShape(14.dp))
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(value, color = color, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = Color.Gray, fontSize = 10.sp)
+        Text(label, color = SlateGrayText, fontSize = 10.sp, fontWeight = FontWeight.Medium)
     }
 }

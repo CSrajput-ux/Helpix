@@ -24,6 +24,12 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val CardBorderGray = Color(0xFFE2E8F0)
+private val MedicalTeal = Color(0xFF0D9488)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddReminderScreen(navController: NavController) {
@@ -73,16 +79,16 @@ fun AddReminderScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add New Reminder") },
+                title = { Text("Add New Reminder", color = DarkCharcoalText, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221), titleContentColor = Color.White, navigationIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = OffWhiteBg)
             )
         },
-        containerColor = Color(0xFF0B1221)
+        containerColor = OffWhiteBg
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -94,28 +100,28 @@ fun AddReminderScreen(navController: NavController) {
             OutlinedTextField(
                 value = medicineName,
                 onValueChange = { medicineName = it },
-                label = { Text("Medicine Name") },
+                label = { Text("Medicine Name", color = SlateGrayText) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color(0xFFFF4081),
-                    focusedBorderColor = Color(0xFFFF4081),
-                    unfocusedBorderColor = Color(0xFF334155)
+                    focusedTextColor = DarkCharcoalText,
+                    unfocusedTextColor = DarkCharcoalText,
+                    cursorColor = MedicalTeal,
+                    focusedBorderColor = MedicalTeal,
+                    unfocusedBorderColor = CardBorderGray
                 )
             )
 
             OutlinedTextField(
                 value = dosage,
                 onValueChange = { dosage = it },
-                label = { Text("Dosage (e.g., 1 tablet, 2 spoons)") },
+                label = { Text("Dosage (e.g., 1 tablet, 2 spoons)", color = SlateGrayText) },
                 modifier = Modifier.fillMaxWidth(),
-                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    cursorColor = Color(0xFFFF4081),
-                    focusedBorderColor = Color(0xFFFF4081),
-                    unfocusedBorderColor = Color(0xFF334155)
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = DarkCharcoalText,
+                    unfocusedTextColor = DarkCharcoalText,
+                    cursorColor = MedicalTeal,
+                    focusedBorderColor = MedicalTeal,
+                    unfocusedBorderColor = CardBorderGray
                 )
             )
 
@@ -124,16 +130,16 @@ fun AddReminderScreen(navController: NavController) {
             OutlinedTextField(
                 value = time,
                 onValueChange = { },
-                label = { Text("Time") },
+                label = { Text("Time", color = SlateGrayText) },
                 readOnly = true,
                 modifier = Modifier.fillMaxWidth().clickable { timePickerDialog.show() },
                 enabled = false,
-                trailingIcon = { Icon(Icons.Default.Schedule, null) },
+                trailingIcon = { Icon(Icons.Default.Schedule, null, tint = DarkCharcoalText) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = Color.White,
-                    disabledBorderColor = Color(0xFF334155),
-                    disabledLabelColor = Color.Gray,
-                    disabledTrailingIconColor = Color.White
+                    disabledTextColor = DarkCharcoalText,
+                    disabledBorderColor = CardBorderGray,
+                    disabledLabelColor = SlateGrayText,
+                    disabledTrailingIconColor = DarkCharcoalText
                 )
             )
 
@@ -141,31 +147,31 @@ fun AddReminderScreen(navController: NavController) {
                 OutlinedTextField(
                     value = startDate,
                     onValueChange = { },
-                    label = { Text("Start Date") },
+                    label = { Text("Start Date", color = SlateGrayText) },
                     readOnly = true,
                     enabled = false,
                     modifier = Modifier.weight(1f).clickable { showDatePicker { startDate = it } },
-                    trailingIcon = { Icon(Icons.Default.DateRange, null) },
+                    trailingIcon = { Icon(Icons.Default.DateRange, null, tint = DarkCharcoalText) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.White,
-                        disabledBorderColor = Color(0xFF334155),
-                        disabledLabelColor = Color.Gray,
-                        disabledTrailingIconColor = Color.White
+                        disabledTextColor = DarkCharcoalText,
+                        disabledBorderColor = CardBorderGray,
+                        disabledLabelColor = SlateGrayText,
+                        disabledTrailingIconColor = DarkCharcoalText
                     )
                 )
-                 OutlinedTextField(
+                OutlinedTextField(
                     value = endDate,
                     onValueChange = { },
-                    label = { Text("End Date") },
+                    label = { Text("End Date", color = SlateGrayText) },
                     readOnly = true,
                     enabled = false,
                     modifier = Modifier.weight(1f).clickable { showDatePicker { endDate = it } },
-                    trailingIcon = { Icon(Icons.Default.DateRange, null) },
+                    trailingIcon = { Icon(Icons.Default.DateRange, null, tint = DarkCharcoalText) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.White,
-                        disabledBorderColor = Color(0xFF334155),
-                        disabledLabelColor = Color.Gray,
-                        disabledTrailingIconColor = Color.White
+                        disabledTextColor = DarkCharcoalText,
+                        disabledBorderColor = CardBorderGray,
+                        disabledLabelColor = SlateGrayText,
+                        disabledTrailingIconColor = DarkCharcoalText
                     )
                 )
             }
@@ -189,10 +195,10 @@ fun AddReminderScreen(navController: NavController) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF4081)),
+                colors = ButtonDefaults.buttonColors(containerColor = MedicalTeal),
                 enabled = medicineName.isNotBlank() && dosage.isNotBlank()
             ) {
-                Text("Save Reminder", fontWeight = FontWeight.Bold)
+                Text("Save Reminder", color = Color.White, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -209,20 +215,20 @@ fun ScheduleDropDown(selected: String, onSelected: (String) -> Unit) {
             value = selected,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Schedule") },
-            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null) },
+            label = { Text("Schedule", color = SlateGrayText) },
+            trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = DarkCharcoalText) },
             modifier = Modifier.fillMaxWidth().menuAnchor(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                cursorColor = Color(0xFFFF4081),
-                focusedBorderColor = Color(0xFFFF4081),
-                unfocusedBorderColor = Color(0xFF334155)
+                focusedTextColor = DarkCharcoalText,
+                unfocusedTextColor = DarkCharcoalText,
+                cursorColor = MedicalTeal,
+                focusedBorderColor = MedicalTeal,
+                unfocusedBorderColor = CardBorderGray
             )
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             options.forEach { option ->
-                DropdownMenuItem(text = { Text(option) }, onClick = { 
+                DropdownMenuItem(text = { Text(option, color = DarkCharcoalText) }, onClick = { 
                     onSelected(option)
                     expanded = false
                 })

@@ -1,6 +1,8 @@
 package com.healthai.app.ui.screens.patient
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,9 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,8 +41,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.R
 import com.healthai.app.domain.model.Appointment
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
 import java.text.SimpleDateFormat
 import java.util.Locale
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val MedicalTeal = Color(0xFF0D9488)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @Composable
 fun MyAppointmentsScreen(navController: NavController, viewModel: MyAppointmentsViewModel = hiltViewModel()) {
@@ -57,31 +63,24 @@ fun MyAppointmentsScreen(navController: NavController, viewModel: MyAppointments
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        colorResource(id = R.color.login_bg_top),
-                        colorResource(id = R.color.login_bg_bottom)
-                    )
-                )
-            )
+            .background(OffWhiteBg)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                 }
-                Text(stringResource(id = R.string.my_appointments), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(stringResource(id = R.string.my_appointments), fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = DarkCharcoalText)
             }
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = colorResource(id = R.color.logo_cyan))
+                    CircularProgressIndicator(color = MedicalTeal)
                 }
             } else {
                 LazyColumn {
@@ -103,25 +102,25 @@ private fun AppointmentCard(appointment: Appointment) {
     val formattedDate = SimpleDateFormat("EEE, MMM d, yyyy 'at' h:mm a", Locale.getDefault()).format(appointment.appointmentDate!!)
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.helpix_bg_top))
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, CardBorderGray)
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(colorResource(id = R.color.logo_cyan).copy(alpha = 0.1f)),
+                    .background(Color(0xFFCCFBF1)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.CalendarToday, contentDescription = null, tint = colorResource(id = R.color.logo_cyan), modifier = Modifier.size(24.dp))
+                Icon(Icons.Default.CalendarToday, contentDescription = null, tint = MedicalTeal, modifier = Modifier.size(24.dp))
             }
             Spacer(modifier = Modifier.size(16.dp))
             Column {
-                // In a real app, you would fetch the doctor's name from the doctorId
-                Text("Doctor ID: ${appointment.doctorId.substring(0, 8)}...", color = Color.White, fontWeight = FontWeight.Bold)
-                Text(formattedDate, color = Color.Gray, fontSize = 12.sp)
-                Text(appointment.status, color = if (appointment.status == "SCHEDULED") colorResource(id = R.color.logo_cyan) else Color.Gray, fontSize = 12.sp)
+                Text("Doctor ID: ${appointment.doctorId.take(8)}...", color = DarkCharcoalText, fontWeight = FontWeight.Bold)
+                Text(formattedDate, color = SlateGrayText, fontSize = 12.sp)
+                Text(appointment.status, color = if (appointment.status == "SCHEDULED") MedicalTeal else SlateGrayText, fontSize = 12.sp, fontWeight = FontWeight.Bold)
             }
         }
     }

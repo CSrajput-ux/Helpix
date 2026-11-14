@@ -20,19 +20,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.healthai.app.R
 import com.healthai.app.domain.model.Appointment
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
 import java.text.SimpleDateFormat
 import java.util.*
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,35 +62,35 @@ fun DoctorScheduleScreen(
             FloatingActionButton(
                 onClick = { showAddSlotDialog = true },
                 containerColor = MedicalEmerald,
-                contentColor = DocDeepSlate,
+                contentColor = Color.White,
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.padding(bottom = 80.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Schedule Slot")
+                Icon(Icons.Default.Add, contentDescription = "Add Schedule Slot", tint = Color.White)
             }
         },
-        containerColor = DocDeepSlate
+        containerColor = OffWhiteBg
     ) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .background(OffWhiteBg)
         ) {
-            DocScheduleGridBackground()
-
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Custom Top Bar
                 Row(
                     modifier = Modifier.padding(20.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     IconButton(
                         onClick = { navController.popBackStack() },
-                        modifier = Modifier.background(DocCardBg, CircleShape)
+                        modifier = Modifier
+                            .border(1.dp, CardBorderGray, CircleShape)
+                            .background(Color.White, CircleShape)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
@@ -96,30 +98,30 @@ fun DoctorScheduleScreen(
                             text = "Clinic Agenda",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = Color.White
+                            color = DarkCharcoalText
                         )
                         Text(
                             text = SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(selectedDate),
-                            color = DocTextGrey,
-                            fontSize = 14.sp
+                            color = SlateGrayText,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
 
-                // Aesthetic Date Selector
                 DocDateSelector(
                     days = daysInMonth,
                     selectedDate = selectedDate,
                     onDateSelected = { selectedDate = it }
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                     Text(
                         text = if (isSameDay(selectedDate, calendar.time)) "Today's Schedule" 
                                else "Appointments for ${SimpleDateFormat("MMM d", Locale.getDefault()).format(selectedDate)}",
-                        color = Color.White,
+                        color = DarkCharcoalText,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 16.dp)
@@ -147,9 +149,9 @@ fun DoctorScheduleScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            Icon(Icons.Default.AccessTime, contentDescription = null, tint = DocTextGrey, modifier = Modifier.size(48.dp))
+                                            Icon(Icons.Default.AccessTime, contentDescription = null, tint = SlateGrayText, modifier = Modifier.size(48.dp))
                                             Spacer(modifier = Modifier.height(12.dp))
-                                            Text("No appointments found", color = DocTextGrey, fontSize = 14.sp)
+                                            Text("No appointments found", color = SlateGrayText, fontSize = 14.sp)
                                         }
                                     }
                                 }
@@ -204,19 +206,19 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = DocCardBg,
-        title = { Text("Add Available Slot", color = Color.White, fontWeight = FontWeight.Bold) },
+        containerColor = Color.White,
+        title = { Text("Add Available Slot", color = DarkCharcoalText, fontWeight = FontWeight.Bold) },
         text = {
             Column {
-                Text("Choose your free hours for today.", color = DocTextGrey, fontSize = 14.sp)
+                Text("Choose your free hours for today.", color = SlateGrayText, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(20.dp))
                 
                 OutlinedCard(
                     onClick = { showStartTimePicker = true },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.outlinedCardColors(containerColor = DocDeepSlate),
-                    border = BorderStroke(1.dp, MedicalEmerald.copy(alpha = 0.5f))
+                    colors = CardDefaults.outlinedCardColors(containerColor = OffWhiteBg),
+                    border = BorderStroke(1.dp, CardBorderGray)
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
@@ -225,8 +227,8 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
                         Icon(Icons.Default.AccessTime, contentDescription = null, tint = MedicalEmerald)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text("Start Time", color = DocTextGrey, fontSize = 10.sp)
-                            Text(formatTime(startState), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("Start Time", color = SlateGrayText, fontSize = 10.sp)
+                            Text(formatTime(startState), color = DarkCharcoalText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -237,8 +239,8 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
                     onClick = { showEndTimePicker = true },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.outlinedCardColors(containerColor = DocDeepSlate),
-                    border = BorderStroke(1.dp, MedicalEmerald.copy(alpha = 0.5f))
+                    colors = CardDefaults.outlinedCardColors(containerColor = OffWhiteBg),
+                    border = BorderStroke(1.dp, CardBorderGray)
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
@@ -247,8 +249,8 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
                         Icon(Icons.Default.AccessTime, contentDescription = null, tint = MedicalEmerald)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text("End Time", color = DocTextGrey, fontSize = 10.sp)
-                            Text(formatTime(endState), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("End Time", color = SlateGrayText, fontSize = 10.sp)
+                            Text(formatTime(endState), color = DarkCharcoalText, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -259,11 +261,11 @@ fun AddSlotDialog(onDismiss: () -> Unit, onConfirm: (String, String) -> Unit) {
                 onClick = { onConfirm(formatTime(startState), formatTime(endState)) },
                 colors = ButtonDefaults.buttonColors(containerColor = MedicalEmerald)
             ) {
-                Text("Add Slot", color = DocDeepSlate, fontWeight = FontWeight.Bold)
+                Text("Add Slot", color = Color.White, fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = DocTextGrey) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = SlateGrayText) }
         }
     )
 
@@ -298,25 +300,11 @@ fun TimePickerDialog(
             TextButton(onClick = onConfirm) { Text("OK", color = MedicalEmerald) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = DocTextGrey) }
+            TextButton(onClick = onDismiss) { Text("Cancel", color = SlateGrayText) }
         },
         text = { content() },
-        containerColor = DocCardBg
+        containerColor = Color.White
     )
-}
-
-@Composable
-fun DocScheduleGridBackground() {
-    val color = Color.White.copy(alpha = 0.03f)
-    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-        val gridSize = 40.dp.toPx()
-        for (x in 0..size.width.toInt() step gridSize.toInt()) {
-            drawLine(color, start = androidx.compose.ui.geometry.Offset(x.toFloat(), 0f), end = androidx.compose.ui.geometry.Offset(x.toFloat(), size.height))
-        }
-        for (y in 0..size.height.toInt() step gridSize.toInt()) {
-            drawLine(color, start = androidx.compose.ui.geometry.Offset(0f, y.toFloat()), end = androidx.compose.ui.geometry.Offset(size.width, y.toFloat()))
-        }
-    }
 }
 
 @Composable
@@ -348,13 +336,13 @@ fun DocDateSelector(
                     .background(
                         when {
                             isSelected -> MedicalEmerald
-                            isToday -> MedicalEmerald.copy(alpha = 0.1f)
-                            else -> DocCardBg
+                            isToday -> MedicalEmerald.copy(alpha = 0.15f)
+                            else -> Color.White
                         }
                     )
                     .border(
                         1.dp, 
-                        if (isSelected) MedicalEmerald else if (isToday) MedicalEmerald.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.05f),
+                        if (isSelected || isToday) MedicalEmerald else CardBorderGray,
                         RoundedCornerShape(20.dp)
                     )
                     .clickable { onDateSelected(date) }
@@ -362,14 +350,14 @@ fun DocDateSelector(
             ) {
                 Text(
                     text = dayName,
-                    color = if (isSelected) DocDeepSlate else DocTextGrey,
+                    color = if (isSelected) Color.White else SlateGrayText,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = dayNumber,
-                    color = if (isSelected) DocDeepSlate else Color.White,
+                    color = if (isSelected) Color.White else DarkCharcoalText,
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold
                 )
@@ -385,8 +373,8 @@ fun AestheticScheduleCard(appointment: Appointment) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = DocCardBg),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, CardBorderGray)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -395,74 +383,37 @@ fun AestheticScheduleCard(appointment: Appointment) {
             Box(
                 modifier = Modifier
                     .size(50.dp)
-                    .background(ProfessionalIndigo.copy(alpha = 0.1f), RoundedCornerShape(12.dp)),
+                    .background(Color(0xFFE0E7FF), RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = formattedTime.split(" ")[0],
-                    color = ProfessionalIndigo,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
+                Icon(Icons.Default.AccessTime, contentDescription = null, tint = ProfessionalIndigo, modifier = Modifier.size(24.dp))
             }
-            
             Spacer(modifier = Modifier.width(16.dp))
-            
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Patient ID: ${appointment.patientId.takeLast(6).uppercase()}",
-                    color = Color.White,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(6.dp)
-                            .background(
-                                when(appointment.status) {
-                                    "COMPLETED" -> Color(0xFF00E676)
-                                    "SCHEDULED" -> ProfessionalIndigo
-                                    else -> Color(0xFFFFAB00)
-                                },
-                                CircleShape
-                            )
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = appointment.status,
-                        color = DocTextGrey,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                Text(text = "Patient: ${appointment.patientId.take(8)}...", color = DarkCharcoalText, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(text = "$formattedTime • ${appointment.reason ?: "Consultation"}", color = SlateGrayText, fontSize = 12.sp)
             }
-            
-            IconButton(
-                onClick = { },
-                modifier = Modifier.background(DocDeepSlate, CircleShape).size(32.dp)
-            ) {
-                Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-            }
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = SlateGrayText)
         }
     }
 }
 
-private fun getDaysOfMonth(): List<Date> {
+fun getDaysOfMonth(): List<Date> {
     val calendar = Calendar.getInstance()
-    // Start from today
+    calendar.set(Calendar.DAY_OF_MONTH, 1)
     val days = mutableListOf<Date>()
-    repeat(30) {
+    val maxDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+    for (i in 1..maxDays) {
         days.add(calendar.time)
         calendar.add(Calendar.DAY_OF_MONTH, 1)
     }
     return days
 }
 
-private fun isSameDay(date1: Date?, date2: Date?): Boolean {
-    if (date1 == null || date2 == null) return false
-    val cal1 = Calendar.getInstance().apply { time = date1 }
-    val cal2 = Calendar.getInstance().apply { time = date2 }
+fun isSameDay(d1: Date?, d2: Date?): Boolean {
+    if (d1 == null || d2 == null) return false
+    val cal1 = Calendar.getInstance().apply { time = d1 }
+    val cal2 = Calendar.getInstance().apply { time = d2 }
     return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
            cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
 }

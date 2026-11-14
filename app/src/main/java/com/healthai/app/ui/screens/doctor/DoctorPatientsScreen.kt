@@ -1,5 +1,6 @@
 package com.healthai.app.ui.screens.doctor
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,12 +24,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.healthai.app.data.remote.api.PatientSummary
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DoctorPatientsScreen(
     navController: NavController,
-    viewModel: DoctorPatientsViewModel = hiltViewModel()   // FIX #12b: Hilt-injected VM
+    viewModel: DoctorPatientsViewModel = hiltViewModel()
 ) {
     val state by viewModel.patientsState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
@@ -36,44 +42,43 @@ fun DoctorPatientsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My Patients", color = Color.White, fontWeight = FontWeight.ExtraBold) },
+                title = { Text("My Patients", color = DarkCharcoalText, fontWeight = FontWeight.ExtraBold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                 },
                 actions = {
                     IconButton(onClick = { viewModel.loadPatients() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = DocTextGrey)
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = SlateGrayText)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DocDeepSlate)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = OffWhiteBg)
             )
         },
-        containerColor = DocDeepSlate
+        containerColor = OffWhiteBg
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Search Bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search by name or email", color = DocTextGrey) },
+                placeholder = { Text("Search by name or email", color = SlateGrayText) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MedicalEmerald) },
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MedicalEmerald,
-                    unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
-                    focusedContainerColor = DocCardBg,
-                    unfocusedContainerColor = DocCardBg,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
+                    unfocusedBorderColor = CardBorderGray,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedTextColor = DarkCharcoalText,
+                    unfocusedTextColor = DarkCharcoalText
                 )
             )
 
@@ -93,11 +98,11 @@ fun DoctorPatientsScreen(
                             Icon(
                                 Icons.Default.ErrorOutline,
                                 contentDescription = null,
-                                tint = Color(0xFFEF4444),
+                                tint = Color(0xFFDC2626),
                                 modifier = Modifier.size(48.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text(s.message, color = DocTextGrey, fontSize = 14.sp)
+                            Text(s.message, color = SlateGrayText, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
                                 onClick = { viewModel.loadPatients() },
@@ -130,14 +135,14 @@ fun DoctorPatientsScreen(
                                         Icon(
                                             Icons.Default.PersonOff,
                                             contentDescription = null,
-                                            tint = DocTextGrey,
+                                            tint = SlateGrayText,
                                             modifier = Modifier.size(48.dp)
                                         )
                                         Spacer(modifier = Modifier.height(12.dp))
                                         Text(
                                             if (searchQuery.isBlank()) "No patients assigned yet"
                                             else "No results for \"$searchQuery\"",
-                                            color = DocTextGrey,
+                                            color = SlateGrayText,
                                             fontSize = 14.sp
                                         )
                                     }
@@ -163,14 +168,14 @@ fun BackendPatientCard(
     patient: PatientSummary,
     onUnfollow: () -> Unit
 ) {
-    val avatarColors = listOf(MedicalEmerald, ProfessionalIndigo, Color(0xFFF59E0B), Color(0xFFEC4899))
+    val avatarColors = listOf(MedicalEmerald, ProfessionalIndigo, Color(0xFFD97706), Color(0xFFDC2626))
     val color = avatarColors[(patient.full_name.hashCode() and 0x7FFFFFFF) % avatarColors.size]
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = DocCardBg),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.05f))
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, CardBorderGray)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -192,19 +197,18 @@ fun BackendPatientCard(
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(patient.full_name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(patient.email, color = DocTextGrey, fontSize = 12.sp)
+                Text(patient.full_name, color = DarkCharcoalText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(patient.email, color = SlateGrayText, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("Linked • ${patient.linked_at.take(10)}", color = color, fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
             IconButton(onClick = onUnfollow) {
-                Icon(Icons.Default.PersonRemove, contentDescription = "Unfollow", tint = Color(0xFFEF4444), modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.PersonRemove, contentDescription = "Unfollow", tint = Color(0xFFDC2626), modifier = Modifier.size(20.dp))
             }
         }
     }
 }
 
-// Legacy support — kept so other code referencing PatientItem still compiles
 data class PatientItem(val name: String, val info: String, val diagnosis: String, val color: Color)
 
 @Composable

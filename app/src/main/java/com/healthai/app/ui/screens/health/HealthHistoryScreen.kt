@@ -1,7 +1,9 @@
 package com.healthai.app.ui.screens.health
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -29,6 +31,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.healthai.app.R
 import com.healthai.app.domain.model.VitalsLog
+import com.healthai.app.ui.screens.dashboard.CardBorderGray
+
+private val OffWhiteBg = Color(0xFFF8FAFC)
+private val MedicalTeal = Color(0xFF0D9488)
+private val DarkCharcoalText = Color(0xFF1E293B)
+private val SlateGrayText = Color(0xFF475569)
 
 @Composable
 fun HealthHistoryScreen(viewModel: HealthHistoryViewModel = hiltViewModel()) {
@@ -43,28 +51,28 @@ fun HealthHistoryScreen(viewModel: HealthHistoryViewModel = hiltViewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0B1221)),
+            .background(OffWhiteBg),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
             Text(
                 stringResource(id = R.string.vitals_history),
-                color = Color.White,
+                color = DarkCharcoalText,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.ExtraBold
             )
             Spacer(modifier = Modifier.height(24.dp))
 
             if (isLoading) {
-                CircularProgressIndicator(color = Color(0xFF00E5FF))
+                CircularProgressIndicator(color = MedicalTeal)
             } else if (vitalsHistory.isNotEmpty()) {
                 LineChart(vitalsHistory)
             } else {
-                Text("No vitals history found.", color = Color.Gray)
+                Text("No vitals history found.", color = SlateGrayText, fontSize = 14.sp)
             }
         }
     }
@@ -80,7 +88,8 @@ fun LineChart(data: List<VitalsLog>) {
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp)
-            .background(Color(0xFF1A293D), shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
+            .background(Color.White, shape = RoundedCornerShape(20.dp))
+            .border(BorderStroke(1.dp, CardBorderGray), shape = RoundedCornerShape(20.dp))
             .padding(16.dp)
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) { 
@@ -99,8 +108,8 @@ fun LineChart(data: List<VitalsLog>) {
 
             drawPath(
                 path = path,
-                brush = Brush.horizontalGradient(listOf(Color(0xFF00E5FF), Color(0xFF00A2FF))),
-                style = Stroke(width = 5f)
+                brush = Brush.horizontalGradient(listOf(MedicalTeal, Color(0xFF2563EB))),
+                style = Stroke(width = 6f)
             )
         }
     }
