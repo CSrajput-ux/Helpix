@@ -67,8 +67,11 @@ object TokenStore {
 // ---------------------------------------------------------------------------
 class AuthInterceptor(private val context: Context) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
-        // Use the in-memory cached token — zero blocking IO on network thread
-        val token = TokenStore.cachedToken
+        var token = TokenStore.cachedToken
+        if (token.isNullOrBlank()) {
+            token = runBlocking { TokenStore.get(context) }
+            TokenStore.cachedToken = token
+        }
         val request = if (!token.isNullOrBlank()) {
             chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $token")

@@ -16,6 +16,8 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import org.json.JSONObject
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
@@ -40,15 +42,16 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = repository.login(email, psw)
+                val response = repository.login(email.trim(), psw)
                 if (response.isSuccessful) {
                     fetchUser()
                     onResult(true, "Login Successful")
                 } else {
-                    onResult(false, "Login Failed: ${response.message()}")
+                    val errMsg = parseErrorMessage(response)
+                    onResult(false, "Login Failed: $errMsg")
                 }
             } catch (e: Exception) {
-                onResult(false, "Error: ${e.localizedMessage}")
+                onResult(false, "Network Error: ${e.localizedMessage ?: "Could not connect to server"}")
             } finally {
                 _isLoading.value = false
             }
@@ -59,17 +62,45 @@ class ProfileViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = repository.signup(req)
+                val trimmedReq = req.copy(email = req.email.trim(), full_name = req.full_name.trim())
+                val response = repository.signup(trimmedReq)
                 if (response.isSuccessful) {
-                    login(req.email, req.password, onResult)
+                    login(trimmedReq.email, trimmedReq.password, onResult)
                 } else {
-                    onResult(false, "Signup Failed: ${response.message()}")
+                    val errMsg = parseErrorMessage(response)
+                    onResult(false, "Signup Failed: $errMsg")
                 }
             } catch (e: Exception) {
-                onResult(false, "Error: ${e.localizedMessage}")
+                onResult(false, "Network Error: ${e.localizedMessage ?: "Could not connect to server"}")
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    private fun parseErrorMessage(response: Response<*>): String {
+        return try {
+            val errBody = response.errorBody()?.string()
+            if (!errBody.isNullOrBlank()) {
+                val json = JSONObject(errBody)
+                if (json.has("detail")) {
+                    val detail = json.get("detail")
+                    if (detail is org.json.JSONArray) {
+                        val first = detail.getJSONObject(0)
+                        first.optString("msg", detail.toString())
+                    } else {
+                        detail.toString()
+                    }
+                } else if (json.has("message")) {
+                    json.getString("message")
+                } else {
+                    errBody
+                }
+            } else {
+                response.message().ifBlank { "HTTP Error ${response.code()}" }
+            }
+        } catch (_: Exception) {
+            response.message().ifBlank { "HTTP Error ${response.code()}" }
         }
     }
 
