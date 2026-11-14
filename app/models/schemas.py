@@ -35,8 +35,8 @@ _DATE_PATTERN = r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$"
 # HH:MM time string  e.g. "08:30"
 _TIME_PATTERN = r"^([01]\d|2[0-3]):[0-5]\d$"
 
-# Human name – letters, spaces, hyphens, apostrophes only
-_NAME_PATTERN = r"^[A-Za-z\s\-']+$"
+# Human name – letters, numbers, spaces, dots, commas, hyphens, apostrophes
+_NAME_PATTERN = r"^[\w\s\-\'.,]+$"
 
 # Password – printable ASCII only (no control characters)
 _PASSWORD_PATTERN = r"^[\x20-\x7E]+$"
@@ -80,14 +80,14 @@ class SignupRequest(BaseModel):
         ...,
         min_length=2, max_length=100,
         pattern=_NAME_PATTERN,
-        description="Full name – letters, spaces, hyphens and apostrophes only",
+        description="Full name – letters, numbers, spaces, dots and hyphens",
     )
     email: EmailStr
     password: str = Field(
         ...,
-        min_length=8, max_length=128,
+        min_length=6, max_length=128,
         pattern=_PASSWORD_PATTERN,
-        description="8–128 printable ASCII characters",
+        description="6–128 printable ASCII characters",
     )
     role: UserRole = UserRole.PATIENT
 
@@ -104,8 +104,15 @@ class SignupRequest(BaseModel):
         None, min_length=5, max_length=250,
         pattern=r"^[\w\s,.\-/#]+$",
     )
-    consultation_fee: float = Field(500.0, ge=0.0)
+    consultation_fee: Optional[float] = Field(500.0, ge=0.0)
     experience_years: Optional[int] = Field(None, ge=0, le=100)
+
+    @field_validator("consultation_fee", mode="before")
+    @classmethod
+    def set_default_consultation_fee(cls, v):
+        if v is None:
+            return 500.0
+        return v
 
     @model_validator(mode="after")
     def doctor_fields_required(self) -> "SignupRequest":
@@ -119,7 +126,7 @@ class SignupRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=8, max_length=128, pattern=_PASSWORD_PATTERN)
+    password: str = Field(..., min_length=6, max_length=128, pattern=_PASSWORD_PATTERN)
 
 
 class GoogleLoginRequest(BaseModel):
@@ -148,13 +155,20 @@ class UserProfileResponse(BaseModel):
     license_number: Optional[str] = Field(None, min_length=5, max_length=50)
     clinic_address: Optional[str] = Field(None, min_length=5, max_length=250)
     allergies: Optional[str] = Field(None, max_length=500)
-    consultation_fee: float = 500.0
+    consultation_fee: Optional[float] = 500.0
     experience_years: Optional[int] = None
     discovery_radius: float = 20.0
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     profile_image_url: Optional[str] = None
     created_at: datetime
+
+    @field_validator("consultation_fee", mode="before")
+    @classmethod
+    def set_default_fee(cls, v):
+        if v is None:
+            return 500.0
+        return v
 
 
 class UserProfileUpdateRequest(BaseModel):

@@ -71,6 +71,10 @@ async def signup(request: Request, body: SignupRequest):
     user_id = str(uuid.uuid4())
     now = datetime.now(timezone.utc)
 
+    fee = getattr(body, "consultation_fee", None)
+    if fee is None:
+        fee = 500.0
+
     user_doc = {
         "user_id": user_id,
         "full_name": body.full_name,
@@ -80,7 +84,7 @@ async def signup(request: Request, body: SignupRequest):
         "specialization": body.specialization,
         "license_number": body.license_number,
         "clinic_address": body.clinic_address,
-        "consultation_fee": getattr(body, "consultation_fee", 500.0),
+        "consultation_fee": float(fee),
         "experience_years": getattr(body, "experience_years", None),
         "discovery_radius": 20.0,
         "latitude": None,
@@ -106,7 +110,7 @@ async def signup(request: Request, body: SignupRequest):
         specialization=body.specialization,
         license_number=body.license_number,
         clinic_address=body.clinic_address,
-        consultation_fee=getattr(body, "consultation_fee", 500.0),
+        consultation_fee=float(fee),
         experience_years=getattr(body, "experience_years", None),
         created_at=now,
     )

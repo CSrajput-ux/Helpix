@@ -164,21 +164,27 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """
-    Return structured 422 Unprocessable Entity without stack traces.
+    Return structured 422 Unprocessable Entity with clear error messages.
     Logs are written server-side for debugging.
     """
-    logger.debug("Validation error on %s %s: %s", request.method, request.url.path, exc.errors())
+    logger.warning("Validation error on %s %s: %s", request.method, request.url.path, exc.errors())
+    errors_list = [
+        {
+            "field": " -> ".join(str(loc) for loc in err["loc"] if loc != "body"),
+            "message": err["msg"],
+        }
+        for err in exc.errors()
+    ]
+    detail_parts = [
+        f"{e['field']}: {e['message']}" if e["field"] else e["message"]
+        for e in errors_list
+    ]
+    readable_detail = "; ".join(detail_parts) if detail_parts else "Request validation failed."
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={
-            "detail": "Request validation failed.",
-            "errors": [
-                {
-                    "field": " → ".join(str(loc) for loc in err["loc"]),
-                    "message": err["msg"],
-                }
-                for err in exc.errors()
-            ],
+            "detail": readable_detail,
+            "errors": errors_list,
         },
     )
 
