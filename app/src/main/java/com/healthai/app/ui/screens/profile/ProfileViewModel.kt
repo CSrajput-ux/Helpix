@@ -48,7 +48,7 @@ class ProfileViewModel @Inject constructor(
                     onResult(true, "Login Successful")
                 } else {
                     val errMsg = parseErrorMessage(response)
-                    onResult(false, "Login Failed: $errMsg")
+                    onResult(false, if (errMsg.contains("credentials", ignoreCase = true) || response.code() == 401) "Incorrect email or password." else "Login Failed: $errMsg")
                 }
             } catch (e: Exception) {
                 onResult(false, "Network Error: ${e.localizedMessage ?: "Could not connect to server"}")
@@ -72,7 +72,17 @@ class ProfileViewModel @Inject constructor(
                     login(trimmedReq.email, trimmedReq.password, onResult)
                 } else {
                     val errMsg = parseErrorMessage(response)
-                    onResult(false, "Signup Failed: $errMsg")
+                    if (response.code() == 400 || response.code() == 409 || errMsg.contains("already", ignoreCase = true) || errMsg.contains("exists", ignoreCase = true)) {
+                        val loginResp = repository.login(trimmedReq.email, trimmedReq.password)
+                        if (loginResp.isSuccessful) {
+                            fetchUser()
+                            onResult(true, "Welcome back! Logged in successfully.")
+                        } else {
+                            onResult(false, "Account already exists with this email. Please click 'Sign In' or check your password.")
+                        }
+                    } else {
+                        onResult(false, "Signup Failed: $errMsg")
+                    }
                 }
             } catch (e: Exception) {
                 onResult(false, "Network Error: ${e.localizedMessage ?: "Could not connect to server"}")
@@ -94,15 +104,12 @@ class ProfileViewModel @Inject constructor(
                         for (i in 0 until detail.length()) {
                             val obj = detail.getJSONObject(i)
                             val locArr = obj.optJSONArray("loc")
-                            val loc = if (locArr != null) {
-                                (0 until locArr.length())
-                                    .map { locArr.getString(it) }
-                                    .filter { it != "body" }
-                                    .joinToString(".")
+                            val fieldName = if (locArr != null && locArr.length() > 0) {
+                                locArr.getString(locArr.length() - 1)
                             } else ""
-                            val msg = obj.optString("msg", "Invalid input")
-                            if (loc.isNotBlank()) {
-                                msgs.add("$loc: $msg")
+                            val msg = obj.optString("msg", "Invalid value")
+                            if (fieldName.isNotBlank() && fieldName != "body") {
+                                msgs.add("$fieldName: $msg")
                             } else {
                                 msgs.add(msg)
                             }
@@ -117,10 +124,20 @@ class ProfileViewModel @Inject constructor(
                     errBody
                 }
             } else {
-                response.message().ifBlank { "HTTP Error ${response.code()}" }
+                when (response.code()) {
+                    400 -> "Account already exists or invalid request."
+                    401 -> "Unauthorized. Incorrect credentials."
+                    422 -> "Invalid details provided. Please check name, email and password."
+                    else -> "HTTP Error ${response.code()}"
+                }
             }
         } catch (_: Exception) {
-            response.message().ifBlank { "HTTP Error ${response.code()}" }
+            when (response.code()) {
+                400 -> "Account already exists or invalid request."
+                401 -> "Unauthorized. Incorrect credentials."
+                422 -> "Invalid details provided. Please check name, email and password."
+                else -> "HTTP Error ${response.code()}"
+            }
         }
     }
 
@@ -201,7 +218,7 @@ class ProfileViewModel @Inject constructor(
         latitude: Double? = null,
         longitude: Double? = null,
         bio: String? = null,
-        onResult: (Boolean, String) -> Unit = { _, _ -> },
+        onResult: ((Boolean, String) -> Unit)? = null
     ) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -226,14 +243,14 @@ class ProfileViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     _user.value = response.body()
                     Log.d("ProfileViewModel", "Profile updated successfully")
-                    onResult(true, "Profile Updated")
+                    onResult?.invoke(true, "Profile updated successfully")
                 } else {
                     Log.e("ProfileViewModel", "Update failed: ${response.code()}")
-                    onResult(false, "Profile update failed (${response.code()})")
+                    onResult?.invoke(false, "Update failed: ${response.message()}")
                 }
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "Error updating profile: ${e.message}")
-                onResult(false, "Could not update profile")
+                onResult?.invoke(false, "Error: ${e.localizedMessage}")
             } finally {
                 _isLoading.value = false
             }
