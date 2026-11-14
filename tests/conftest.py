@@ -2,25 +2,26 @@
 tests/conftest.py
 -----------------
 Pytest configuration and autouse fixtures for HELPix integration tests.
-Automatically initializes an in-memory mock MongoDB connection and indexes before running tests.
+Automatically initializes an in-memory SQLite database for PostgreSQL storage tests.
 """
 
 import pytest_asyncio
-import mongomock_motor
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.pool import StaticPool
+
 import app.core.db as db_module
-from app.core.config import settings
 
 @pytest_asyncio.fixture(autouse=True)
 async def initialize_database():
-    """Ensure in-memory mock MongoDB connection is established before test execution."""
-    client = mongomock_motor.AsyncMongoMockClient()
-    db_module.client = client
-    db_module.db = client[settings.MONGO_DB_NAME]
-    db_module.fs_bucket = None
-
-    await db_module.db["users"].create_index("email", unique=True)
-    await db_module.db["users"].create_index("user_id", unique=True)
-    await db_module.db["vitals"].create_index([("user_id", 1), ("timestamp", -1)])
-    await db_module.db["doctor_links"].create_index([("doctor_id", 1), ("patient_id", 1)], unique=True)
+    """Create an isolated SQLAlchemy SQLite database for each test."""
+    engine = create_async_engine(
+        "sqlite+aiosqlite:///:memory:",
+        poolclass=StaticPool,
+    )
+    await db_module.initialize_database(engine)
+    db_module.engine = engine
+    db_module.db = db_module.PostgresDatabase(engine)
     yield
-    client.close()
+    db_module.db = None
+    db_module.engine = None
+    await engine.dispose()
