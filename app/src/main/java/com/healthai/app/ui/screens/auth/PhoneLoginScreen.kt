@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.ui.navigation.NavRoutes
 
 @Composable
 fun PhoneLoginScreen(navController: NavController) {
@@ -188,7 +189,7 @@ fun PhoneLoginScreen(navController: NavController) {
                             Icon(Icons.Outlined.Lock, contentDescription = null, tint = colorResource(id = R.color.text_grey), modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "We'll send a 6-digit verification code to your phone number",
+                                text = "Phone sign-in is not available yet. Continue with email instead.",
                                 color = Color.LightGray,
                                 fontSize = 12.sp,
                                 lineHeight = 16.sp
@@ -200,7 +201,7 @@ fun PhoneLoginScreen(navController: NavController) {
 
                     // Send OTP Button
                     Button(
-                        onClick = { /* Handle OTP Logic */ },
+                        onClick = { navController.navigate(NavRoutes.EmailLogin) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
@@ -222,7 +223,7 @@ fun PhoneLoginScreen(navController: NavController) {
                             contentAlignment = Alignment.Center
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("Send OTP", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                                Text("Continue with Email", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                             }

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
 
 // Custom Rural Theme Colors
@@ -75,7 +76,7 @@ fun RuralModeScreen(navController: NavController) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.WifiOff, contentDescription = null, tint = RuralGreen, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Offline Mode Active", fontSize = 12.sp, color = RuralGreen)
+                        Text("AI tools require an internet connection", fontSize = 12.sp, color = RuralGreen)
                     }
                 }
 
@@ -97,12 +98,12 @@ fun RuralModeScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Button(
-                            onClick = { },
+                            onClick = { navController.navigate(NavRoutes.Tools) },
                             colors = ButtonDefaults.buttonColors(containerColor = RuralOrange),
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("Start Speaking", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("Open Symptom Checker", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -120,16 +121,28 @@ fun RuralModeScreen(navController: NavController) {
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        DiseaseCard("Fever", "🤒", RuralRed, Modifier.weight(1f))
-                        DiseaseCard("Cold & Flu", "🤧", RuralOrange, Modifier.weight(1f))
+                        DiseaseCard("Fever", "🤒", RuralRed, Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.Tools)
+                        }
+                        DiseaseCard("Cold & Flu", "🤧", RuralOrange, Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.Tools)
+                        }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        DiseaseCard("Stomach Pain", "🤢", RuralGreen, Modifier.weight(1f))
-                        DiseaseCard("Headache", "🤕", Color(0xFF8E24AA), Modifier.weight(1f))
+                        DiseaseCard("Stomach Pain", "🤢", RuralGreen, Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.Tools)
+                        }
+                        DiseaseCard("Headache", "🤕", Color(0xFF8E24AA), Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.Tools)
+                        }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        DiseaseCard("Cough", "😷", Color(0xFF039BE5), Modifier.weight(1f))
-                        DiseaseCard("Injury", "🩹", Color(0xFF795548), Modifier.weight(1f))
+                        DiseaseCard("Cough", "😷", Color(0xFF039BE5), Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.Tools)
+                        }
+                        DiseaseCard("Injury", "🩹", Color(0xFF795548), Modifier.weight(1f)) {
+                            navController.navigate(NavRoutes.Tools)
+                        }
                     }
                 }
 
@@ -176,14 +189,20 @@ fun RuralModeScreen(navController: NavController) {
 // --- COMPONENTS ---
 
 @Composable
-fun DiseaseCard(title: String, emoji: String, color: Color, modifier: Modifier) {
+fun DiseaseCard(
+    title: String,
+    emoji: String,
+    color: Color,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = modifier
             .height(80.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(color.copy(alpha = 0.15f))
             .border(1.dp, color.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
-            .clickable { },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

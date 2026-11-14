@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
 
 // Custom Senior Theme Colors
@@ -76,7 +77,7 @@ fun SeniorModeScreen(navController: NavController) {
 
                 // 1. EMERGENCY SOS BUTTON (The Big Red One)
                 Button(
-                    onClick = { /* Trigger SOS */ },
+                    onClick = { navController.navigate(NavRoutes.Emergency) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp),
@@ -97,16 +98,24 @@ fun SeniorModeScreen(navController: NavController) {
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // 2. Large Action Cards
-                SeniorActionCard("Health Check", "View your daily health report", Icons.Default.MonitorHeart, Color(0xFFD500F9))
+                SeniorActionCard("Health Check", "View your daily health report", Icons.Default.MonitorHeart, Color(0xFFD500F9)) {
+                    navController.navigate(NavRoutes.Health)
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                SeniorActionCard("My Medicines", "View medicine schedule", Icons.Default.Medication, Color(0xFF00B0FF))
+                SeniorActionCard("My Medicines", "View medicine schedule", Icons.Default.Medication, Color(0xFF00B0FF)) {
+                    navController.navigate(NavRoutes.MedicineReminders)
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                SeniorActionCard("Call Doctor", "Contact your physician", Icons.Default.Call, Color(0xFF00E676))
+                SeniorActionCard("Find a Doctor", "Browse doctors and contact details", Icons.Default.Call, Color(0xFF00E676)) {
+                    navController.navigate(NavRoutes.Doctors)
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                SeniorActionCard("Appointments", "See upcoming visits", Icons.Default.CalendarToday, Color(0xFFFF9100))
+                SeniorActionCard("Appointments", "See upcoming visits", Icons.Default.CalendarToday, Color(0xFFFF9100)) {
+                    navController.navigate(NavRoutes.MyAppointments)
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -123,16 +132,16 @@ fun SeniorModeScreen(navController: NavController) {
                         Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Color(0xFF00B0FF), modifier = Modifier.size(40.dp))
                         Spacer(modifier = Modifier.height(8.dp))
                         Text("Voice Assistant", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Tap and speak your needs", fontSize = 14.sp, color = Color.Gray)
+                        Text("Use the symptom checker for health questions", fontSize = 14.sp, color = Color.Gray)
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         Button(
-                            onClick = { },
+                            onClick = { navController.navigate(NavRoutes.Tools) },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00B0FF)),
                             modifier = Modifier.fillMaxWidth().height(50.dp)
                         ) {
-                            Text("Start Voice Command", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text("Open Symptom Checker", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -144,14 +153,20 @@ fun SeniorModeScreen(navController: NavController) {
 }
 
 @Composable
-fun SeniorActionCard(title: String, subtitle: String, icon: ImageVector, color: Color) {
+fun SeniorActionCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    color: Color,
+    onClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(90.dp)
             .border(1.dp, color.copy(alpha = 0.5f), RoundedCornerShape(16.dp))
             .background(Color(0xFF1E1E1E).copy(alpha = 0.8f), RoundedCornerShape(16.dp))
-            .clickable { }
+            .clickable(onClick = onClick)
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

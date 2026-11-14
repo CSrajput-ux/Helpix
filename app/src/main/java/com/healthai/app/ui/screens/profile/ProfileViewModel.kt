@@ -201,6 +201,7 @@ class ProfileViewModel @Inject constructor(
         latitude: Double? = null,
         longitude: Double? = null,
         bio: String? = null,
+        onResult: (Boolean, String) -> Unit = { _, _ -> },
     ) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -225,11 +226,14 @@ class ProfileViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     _user.value = response.body()
                     Log.d("ProfileViewModel", "Profile updated successfully")
+                    onResult(true, "Profile Updated")
                 } else {
                     Log.e("ProfileViewModel", "Update failed: ${response.code()}")
+                    onResult(false, "Profile update failed (${response.code()})")
                 }
             } catch (e: Exception) {
                 Log.e("ProfileViewModel", "Error updating profile: ${e.message}")
+                onResult(false, "Could not update profile")
             } finally {
                 _isLoading.value = false
             }

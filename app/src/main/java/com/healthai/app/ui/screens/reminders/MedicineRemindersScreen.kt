@@ -13,8 +13,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.*
@@ -57,7 +57,7 @@ fun MedicineRemindersScreen(navController: NavController) {
                 title = { Text("Medicine Reminders", color = DarkCharcoalText, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = DarkCharcoalText)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = OffWhiteBg)
@@ -65,7 +65,7 @@ fun MedicineRemindersScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(NavRoutes.AddReminder) },
+                onClick = { navController.navigate(NavRoutes.addReminder()) },
                 containerColor = MedicalTeal,
                 contentColor = Color.White
             ) {

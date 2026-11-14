@@ -3,7 +3,6 @@ package com.healthai.app.ui.screens.results.multidisease
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,8 +22,6 @@ data class DiseaseClusterResult(val name: String, val risk: String, val color: C
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MultiDiseaseResultScreen(navController: NavController) {
-
-    val results = emptyList<DiseaseClusterResult>()
 
     Scaffold(
         topBar = {
@@ -46,40 +43,28 @@ fun MultiDiseaseResultScreen(navController: NavController) {
                 .padding(paddingValues)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            item {
-                // Overall Risk Score Gauge (Placeholder)
-                Text("Overall Risk Score", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Not Calculated", color = Color.Gray, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // AI Explanation
-                Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)), modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("AI Explanation", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Aapke diye gaye data ke anusaar, aapka risk score Medium hai. Yeh koi medical nidaan nahi hai. Yeh sirf ek AI-aaklan hai taaki aap apni sehat par dhyan de sakein.", color = Color.Gray, fontSize = 12.sp)
+            ) {
+                item {
+                    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B)), modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text("No scan results available", color = Color.White, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "This guided scan has not produced diagnostic data. Use the symptom checker or consult a doctor.",
+                                color = Color.Gray,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { navController.navigate(com.healthai.app.ui.navigation.NavRoutes.Tools) }) {
+                        Text("Open symptom checker")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedButton(onClick = { navController.navigate(com.healthai.app.ui.navigation.NavRoutes.Doctors) }) {
+                        Text("Find a Doctor")
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Text("Disease Clusters", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            items(
-                items = results,
-                key = { result -> result.name }
-            ) { result ->
-                ClusterResultCard(result)
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = { navController.navigate("nearby_places") }) {
-                    Text("Find a Doctor")
-                }
-            }
         }
     }
 }

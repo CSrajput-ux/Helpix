@@ -103,7 +103,7 @@ fun DoctorDashboardScreen(
                             subtitle = "8 Patients in waiting room",
                             icon = Icons.AutoMirrored.Filled.PlaylistPlay,
                             accentColor = MedicalEmerald,
-                            onClick = { }
+                            onClick = { navController.navigate(NavRoutes.DoctorBookings) }
                         )
                         DocActionCard(
                             title = "E-Prescriptions",
@@ -227,7 +227,6 @@ fun DoctorTopBarSection(navController: NavController) {
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            DocIconBtn(Icons.Outlined.Notifications) {}
             DocIconBtn(Icons.Filled.Settings) { navController.navigate(NavRoutes.AppSettings) }
         }
     }

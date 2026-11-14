@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,7 +41,7 @@ fun PrescriptionResultScreen(navController: NavController) {
                     title = { Text("Analysis Failed") },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221), titleContentColor = Color.White, navigationIconContentColor = Color.White)
@@ -89,7 +89,7 @@ fun PrescriptionResultScreen(navController: NavController) {
                 title = { Text("Verify Prescription Details") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0B1221), titleContentColor = Color.White, navigationIconContentColor = Color.White)
@@ -144,6 +144,14 @@ fun PrescriptionResultScreen(navController: NavController) {
                         medicine = extractedMedicines[index],
                         onUpdate = { updatedMedicine ->
                             extractedMedicines[index] = updatedMedicine
+                        },
+                        onCreateReminder = { medicine ->
+                            navController.navigate(
+                                NavRoutes.addReminder(
+                                    medicineName = medicine.name,
+                                    dosage = medicine.dosage
+                                )
+                            )
                         }
                     )
                 }
@@ -160,22 +168,22 @@ fun PrescriptionResultScreen(navController: NavController) {
                 }
             }
 
-            Button(
-                onClick = { 
-                    // TODO: Map extractedMedicines to Reminder entities and save to DB
-                    navController.navigate(NavRoutes.MedicineReminders) 
-                },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF))
-            ) {
-                Text("Set Reminders for these Medicines", fontWeight = FontWeight.Bold)
-            }
+            Text(
+                text = "Choose a reminder for each medicine. Set its alert time and schedule yourself; the extracted frequency is not converted automatically.",
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
         }
     }
 }
 
 @Composable
-fun MedicineVerificationCard(medicine: MedicineEntry, onUpdate: (MedicineEntry) -> Unit) {
+fun MedicineVerificationCard(
+    medicine: MedicineEntry,
+    onUpdate: (MedicineEntry) -> Unit,
+    onCreateReminder: (MedicineEntry) -> Unit
+) {
     var medName by remember { mutableStateOf(medicine.name) }
     var dosage by remember { mutableStateOf(medicine.dosage) }
     var frequency by remember { mutableStateOf(medicine.frequency) }
@@ -231,6 +239,17 @@ fun MedicineVerificationCard(medicine: MedicineEntry, onUpdate: (MedicineEntry) 
                 label = { Text("Duration (e.g., 5 Days)") },
                 modifier = Modifier.fillMaxWidth()
             )
+
+            Button(
+                onClick = {
+                    onCreateReminder(medicine.copy(name = medName, dosage = dosage))
+                },
+                enabled = medName.isNotBlank() && dosage.isNotBlank(),
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF))
+            ) {
+                Text("Create reminder", fontWeight = FontWeight.Bold)
+            }
         }
     }
 }

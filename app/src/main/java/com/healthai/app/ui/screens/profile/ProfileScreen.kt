@@ -3,6 +3,7 @@ package com.healthai.app.ui.screens.profile
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.net.Uri
@@ -73,9 +74,15 @@ fun ProfileScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuthIntegratedScreen(navController: NavController, viewModel: ProfileViewModel) {
-    var showAuthSheet by remember { mutableStateOf(false) }
+fun AuthIntegratedScreen(
+    navController: NavController,
+    viewModel: ProfileViewModel,
+    showAuthOnStart: Boolean = false,
+    onAuthSuccess: (() -> Unit)? = null,
+) {
+    var showAuthSheet by remember { mutableStateOf(showAuthOnStart) }
     val sheetState = rememberModalBottomSheetState()
+    val context = LocalContext.current
 
     Scaffold(
         containerColor = DeepSlate,
@@ -168,7 +175,13 @@ fun AuthIntegratedScreen(navController: NavController, viewModel: ProfileViewMod
                     Text("Share HELPiX with friends & family", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(20.dp))
                     Button(
-                        onClick = { /* Share Logic */ },
+                        onClick = {
+                            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, "Check out HELPiX, your AI-powered healthcare companion.")
+                            }
+                            context.startActivity(Intent.createChooser(shareIntent, "Share HELPiX"))
+                        },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
@@ -216,7 +229,10 @@ fun AuthIntegratedScreen(navController: NavController, viewModel: ProfileViewMod
             containerColor = CardBackground,
             dragHandle = { BottomSheetDefaults.DragHandle(color = MedicalTeal.copy(alpha = 0.5f)) }
         ) {
-            AuthForm(viewModel) { showAuthSheet = false }
+            AuthForm(viewModel) {
+                showAuthSheet = false
+                onAuthSuccess?.invoke()
+            }
         }
     }
 }
@@ -437,10 +453,12 @@ fun ProfileContent(
                                         discoveryRadius = if (user.role == "DOCTOR") discoveryRadius else null,
                                         latitude = if (user.role == "DOCTOR") clinicLat else null,
                                         longitude = if (user.role == "DOCTOR") clinicLng else null,
-                                        bio = if (user.role == "DOCTOR") bio else null
+                                        bio = if (user.role == "DOCTOR") bio else null,
+                                        onResult = { success, message ->
+                                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                            if (success) isEditing = false
+                                        }
                                     )
-                                    isEditing = false
-                                    Toast.makeText(context, "Profile Updated", Toast.LENGTH_SHORT).show()
                                 } else {
                                     isEditing = true
                                 }
@@ -477,7 +495,9 @@ fun ProfileContent(
                             .size(100.dp)
                             .clip(CircleShape)
                             .border(2.dp, themeColor, CircleShape)
-                            .clickable { if (isEditing) imagePickerLauncher.launch("image/*") }
+                            .clickable(enabled = isEditing) {
+                                imagePickerLauncher.launch("image/*")
+                            }
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
@@ -505,12 +525,17 @@ fun ProfileContent(
                     
                     if (user.role == "DOCTOR") {
                         Spacer(modifier = Modifier.height(8.dp))
-                        SuggestionChip(
-                            onClick = { },
-                            label = { Text(specialization.ifEmpty { "General Physician" }) },
-                            colors = SuggestionChipDefaults.suggestionChipColors(labelColor = themeColor),
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = themeColor.copy(alpha = 0.1f),
                             border = BorderStroke(1.dp, themeColor.copy(alpha = 0.5f))
-                        )
+                        ) {
+                            Text(
+                                specialization.ifEmpty { "General Physician" },
+                                color = themeColor,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            )
+                        }
                     }
                 }
             }

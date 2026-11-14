@@ -52,10 +52,12 @@ fun VitalsScanScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(32.dp))
             
-            // Placeholder for Camera Heart Rate
-            Button(onClick = { /* TODO: Implement Camera Heart Rate */ }) {
-                Text("Measure Heart Rate with Camera")
-            }
+            Text(
+                "Camera-based measurement is unavailable. Readings entered here are not saved or analyzed.",
+                color = Color.Gray,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -120,14 +122,14 @@ fun VitalsScanScreen(navController: NavController) {
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
-                onClick = { navController.navigate(NavRoutes.Symptoms) },
+                onClick = { navController.navigate(NavRoutes.Tools) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FFFF))
             ) {
-                Text("Next Step", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("Open Symptom Checker", color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.Black)
             }

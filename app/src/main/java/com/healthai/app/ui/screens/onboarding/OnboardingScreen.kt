@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.ui.navigation.NavRoutes
 
 @Composable
 fun OnboardingScreen(navController: NavController) {
@@ -152,7 +153,7 @@ fun OnboardingScreen(navController: NavController) {
                                 colorResource(id = R.color.btn_email_end)
                             )
                         ),
-                        onClick = { navController.navigate("login_screen") }
+                        onClick = { navController.navigate(NavRoutes.EmailLogin) }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))

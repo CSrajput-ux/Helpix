@@ -64,15 +64,17 @@ fun MultiDiseaseScanStartScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            TextButton(onClick = { /* TODO: Implement family profile selection */ }) {
-                Text("Kisi pariwar wale ke liye scan karein", color = Color(0xFF00FFFF))
-            }
+            Text(
+                "Family profiles are not available yet.",
+                color = Color.Gray,
+                fontSize = 12.sp
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                    navController.navigate(NavRoutes.FaceScan)
+                    navController.navigate(NavRoutes.Tools)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,7 +82,7 @@ fun MultiDiseaseScanStartScreen(navController: NavController) {
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00FFFF))
             ) {
-                Text("Start Guided Scan", color = Color.Black, fontWeight = FontWeight.Bold)
+                Text("Open Symptom Checker", color = Color.Black, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.Black)
             }

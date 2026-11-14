@@ -2,6 +2,7 @@ package com.healthai.app.ui.navigation
 
 object NavRoutes {
     const val Onboarding = "onboarding_screen"
+    const val EmailLogin = "email_login_screen"
     const val ForgotPassword = "forgot_password_screen"
     const val PhoneLogin = "phone_login_screen"
     const val Dashboard = "dashboard_screen"
@@ -58,7 +59,10 @@ object NavRoutes {
 
     // Medicine Reminders
     const val MedicineReminders = "medicine_reminders_screen"
-    const val AddReminder = "add_reminder_screen"
+    const val AddReminder = "add_reminder_screen?medicineName={medicineName}&dosage={dosage}"
+
+    fun addReminder(medicineName: String = "", dosage: String = "") =
+        "add_reminder_screen?medicineName=${android.net.Uri.encode(medicineName)}&dosage=${android.net.Uri.encode(dosage)}"
 
     // Health Vault
     const val HealthVault = "health_vault_screen"

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.healthai.app.R
+import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
 
 // Custom Kids Theme Colors
@@ -42,6 +43,7 @@ val CardDark = Color(0xFF2D1B4E)
 @Composable
 fun KidsModeScreen(navController: NavController) {
     val scrollState = rememberScrollState()
+    var selectedMood by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         bottomBar = { HelpixBottomNav(navController = navController) }
@@ -80,9 +82,23 @@ fun KidsModeScreen(navController: NavController) {
                 Text("😊 How Do You Feel? 😊", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFFD740), modifier = Modifier.align(Alignment.CenterHorizontally))
                 Spacer(modifier = Modifier.height(16.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    MoodCard("😊", "Great!", NeonGreen, Modifier.weight(1f))
-                    MoodCard("😐", "Okay", NeonOrange, Modifier.weight(1f))
-                    MoodCard("😢", "Not Good", NeonPink, Modifier.weight(1f))
+                    MoodCard("😊", "Great!", NeonGreen, Modifier.weight(1f), selectedMood == "Great!") {
+                        selectedMood = "Great!"
+                    }
+                    MoodCard("😐", "Okay", NeonOrange, Modifier.weight(1f), selectedMood == "Okay") {
+                        selectedMood = "Okay"
+                    }
+                    MoodCard("😢", "Not Good", NeonPink, Modifier.weight(1f), selectedMood == "Not Good") {
+                        selectedMood = "Not Good"
+                    }
+                }
+                selectedMood?.let {
+                    Text(
+                        "Mood recorded for this visit: $it",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = 8.dp)
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -93,16 +109,28 @@ fun KidsModeScreen(navController: NavController) {
                 
                 // Row 1
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SymptomCard("🤒", "Fever", Color(0xFFFF5252), Modifier.weight(1f))
-                    SymptomCard("🤧", "Cold", Color(0xFFFFB74D), Modifier.weight(1f))
-                    SymptomCard("🤢", "Tummy Ache", Color(0xFF69F0AE), Modifier.weight(1f))
+                    SymptomCard("🤒", "Fever", Color(0xFFFF5252), Modifier.weight(1f)) {
+                        navController.navigate(NavRoutes.Tools)
+                    }
+                    SymptomCard("🤧", "Cold", Color(0xFFFFB74D), Modifier.weight(1f)) {
+                        navController.navigate(NavRoutes.Tools)
+                    }
+                    SymptomCard("🤢", "Tummy Ache", Color(0xFF69F0AE), Modifier.weight(1f)) {
+                        navController.navigate(NavRoutes.Tools)
+                    }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 // Row 2
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SymptomCard("😴", "Tired", Color(0xFFFFD740), Modifier.weight(1f))
-                    SymptomCard("🤕", "Headache", Color(0xFFFFAB91), Modifier.weight(1f))
-                    SymptomCard("😷", "Cough", Color(0xFF448AFF), Modifier.weight(1f))
+                    SymptomCard("😴", "Tired", Color(0xFFFFD740), Modifier.weight(1f)) {
+                        navController.navigate(NavRoutes.Tools)
+                    }
+                    SymptomCard("🤕", "Headache", Color(0xFFFFAB91), Modifier.weight(1f)) {
+                        navController.navigate(NavRoutes.Tools)
+                    }
+                    SymptomCard("😷", "Cough", Color(0xFF448AFF), Modifier.weight(1f)) {
+                        navController.navigate(NavRoutes.Tools)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -188,13 +216,7 @@ fun KidsModeScreen(navController: NavController) {
                         Text("Health Games!", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         Text("Play fun games while learning about health!", fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f))
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = {},
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text("Play Now! 🎉", color = Color(0xFFC51162), fontWeight = FontWeight.Bold)
-                        }
+                        Text("Health games are not available yet.", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
                     }
                 }
 
@@ -207,14 +229,21 @@ fun KidsModeScreen(navController: NavController) {
 // --- COMPONENTS ---
 
 @Composable
-fun MoodCard(emoji: String, label: String, color: Color, modifier: Modifier) {
+fun MoodCard(
+    emoji: String,
+    label: String,
+    color: Color,
+    modifier: Modifier,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = modifier
             .height(100.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(color.copy(alpha = 0.1f))
-            .border(1.dp, color, RoundedCornerShape(16.dp))
-            .clickable { },
+            .border(if (selected) 2.dp else 1.dp, if (selected) Color.White else color, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -226,13 +255,19 @@ fun MoodCard(emoji: String, label: String, color: Color, modifier: Modifier) {
 }
 
 @Composable
-fun SymptomCard(emoji: String, label: String, color: Color, modifier: Modifier) {
+fun SymptomCard(
+    emoji: String,
+    label: String,
+    color: Color,
+    modifier: Modifier,
+    onClick: () -> Unit,
+) {
     Box(
         modifier = modifier
             .height(90.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(color.copy(alpha = 0.15f))
-            .clickable { },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

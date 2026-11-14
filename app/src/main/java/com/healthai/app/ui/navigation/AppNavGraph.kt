@@ -17,8 +17,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.healthai.app.R
+import com.healthai.app.data.remote.api.TokenStore
 import com.healthai.app.ui.DeviceConnectScreen
 import com.healthai.app.ui.WatchScannerScreen
 import com.healthai.app.ui.screens.auth.ForgotPasswordScreen
@@ -49,8 +51,10 @@ import com.healthai.app.ui.screens.prescription.PrescriptionReaderScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionResultScreen
 import com.healthai.app.ui.screens.prescription.PrescriptionScanningScreen
 import com.healthai.app.ui.screens.profile.AboutHelpixScreen
+import com.healthai.app.ui.screens.profile.AuthIntegratedScreen
 import com.healthai.app.ui.screens.profile.HelpCenterScreen
 import com.healthai.app.ui.screens.profile.ProfileScreen
+import com.healthai.app.ui.screens.profile.ProfileViewModel
 import com.healthai.app.ui.screens.profile.VaccinationsScreen
 import com.healthai.app.ui.screens.reminders.AddReminderScreen
 import com.healthai.app.ui.screens.reminders.MedicineRemindersScreen
@@ -73,22 +77,11 @@ import com.healthai.app.ui.screens.vault.HealthVaultScreen
 @Composable
 fun AppNavGraph(navController: NavHostController) {
     var startDestination by remember { mutableStateOf<String?>(null) }
-    var userType by remember { mutableStateOf("PATIENT") }
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            com.google.firebase.firestore.FirebaseFirestore.getInstance().collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    userType = document.getString("userType") ?: "PATIENT"
-                    startDestination = if (userType == "DOCTOR") NavRoutes.DoctorDashboard else NavRoutes.Dashboard
-                }
-                .addOnFailureListener {
-                    startDestination = NavRoutes.Dashboard
-                }
-        } else {
-            startDestination = NavRoutes.Dashboard
-        }
+        val token = TokenStore.get(context)
+        startDestination = if (token.isNullOrBlank()) NavRoutes.Onboarding else NavRoutes.Dashboard
     }
 
     val destination = startDestination
@@ -107,6 +100,20 @@ fun AppNavGraph(navController: NavHostController) {
         startDestination = destination
     ) {
         composable(NavRoutes.Onboarding) { OnboardingScreen(navController = navController) }
+        composable(NavRoutes.EmailLogin) {
+            val viewModel: ProfileViewModel = hiltViewModel()
+            AuthIntegratedScreen(
+                navController = navController,
+                viewModel = viewModel,
+                showAuthOnStart = true,
+                onAuthSuccess = {
+                    navController.navigate(NavRoutes.Dashboard) {
+                        popUpTo(NavRoutes.Onboarding) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
         composable(NavRoutes.ForgotPassword) { ForgotPasswordScreen(navController = navController) }
         composable(NavRoutes.PhoneLogin) { PhoneLoginScreen(navController = navController) }
         composable(NavRoutes.DoctorDashboard) {
@@ -238,7 +245,25 @@ fun AppNavGraph(navController: NavHostController) {
 
         // Medicine Reminders
         composable(NavRoutes.MedicineReminders) { MedicineRemindersScreen(navController = navController) }
-        composable(NavRoutes.AddReminder) { AddReminderScreen(navController = navController) }
+        composable(
+            route = NavRoutes.AddReminder,
+            arguments = listOf(
+                navArgument("medicineName") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("dosage") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { entry ->
+            AddReminderScreen(
+                navController = navController,
+                medicineName = entry.arguments?.getString("medicineName").orEmpty(),
+                dosage = entry.arguments?.getString("dosage").orEmpty()
+            )
+        }
 
         // Health Vault
         composable(NavRoutes.HealthVault) { HealthVaultScreen(navController = navController) }

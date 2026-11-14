@@ -27,10 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.healthai.app.ui.screens.dashboard.CardBorderGray
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav 
+import com.healthai.app.ui.screens.profile.ProfileViewModel
 import com.healthai.app.ui.viewmodel.HealthViewModel
 
 private val OffWhiteBg = Color(0xFFF8FAFC)
@@ -46,17 +45,9 @@ fun HealthScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
-    var userType by remember { mutableStateOf("PATIENT") }
-
-    LaunchedEffect(Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            FirebaseFirestore.getInstance().collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    userType = document.getString("userType") ?: "PATIENT"
-                }
-        }
-    }
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val profile by profileViewModel.user.collectAsState()
+    val userType = profile?.role ?: "PATIENT"
     
     Scaffold(
         bottomBar = {

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.healthai.app.ui.navigation.NavRoutes
 import com.healthai.app.ui.screens.dashboard.HelpixBottomNav
 import kotlin.math.cos
 import kotlin.math.sin
@@ -81,19 +82,8 @@ fun ResultsScreen(navController: NavController) {
                     Text("Multi-Disease AI Analysis", color = BarCyan, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     Text("Complete health diagnostic report", color = TextGray, fontSize = 12.sp)
                 }
-                Button(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E293B)),
-                    shape = RoundedCornerShape(8.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
-                ) {
-                    Icon(Icons.Outlined.Description, null, tint = BarCyan, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("View Report", color = BarCyan, fontSize = 12.sp)
-                }
             }
 
-            // --- AI ANALYSIS CARD ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -103,91 +93,18 @@ fun ResultsScreen(navController: NavController) {
                     .padding(16.dp)
             ) {
                 Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(BarCyan.copy(alpha = 0.1f), RoundedCornerShape(10.dp)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Psychology, null, tint = BarCyan)
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text("AI Analysis Complete", color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                            Text("Powered by advanced machine learning", color = TextGray, fontSize = 12.sp)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StatusBox("--", "Clear", StatusGreen, Icons.Default.CheckCircle, Modifier.weight(1f))
-                        StatusBox("--", "Monitor", StatusYellow, Icons.Default.Warning, Modifier.weight(1f))
-                        StatusBox("--", "Action", StatusRed, Icons.Default.TrendingUp, Modifier.weight(1f))
-                    }
+                    Text("No scan results available", color = TextWhite, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "A report will appear here after a scan has produced diagnostic data.",
+                        color = TextGray,
+                        fontSize = 13.sp
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- DISEASE CARDS GRID (Empty State) ---
-            Box(
-                modifier = Modifier.fillMaxWidth().height(100.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No diagnostic data available", color = TextGray, fontSize = 14.sp)
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- RADAR CHART (Risk Assessment) ---
-            ChartContainer("Risk Assessment Overview") {
-                RadarChartHexagon()
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- BAR CHART (Probability vs Confidence) ---
-            ChartContainer("Probability vs Confidence") {
-                Column {
-                    BarChartGrouped()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    // Legend
-                    Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                        LegendItem(ChartGreen, "Confidence %")
-                        Spacer(modifier = Modifier.width(16.dp))
-                        LegendItem(ChartCyan, "Probability %")
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- RECOMMENDATIONS ---
-            Text("Recommended Actions", color = BarCyan, fontSize = 16.sp, modifier = Modifier.padding(bottom = 12.dp))
-            
-            ActionCard(
-                "Fever detected - High Priority", 
-                "Consult a doctor immediately. Monitor temperature regularly.", 
-                StatusRed
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ActionCard(
-                "Skin condition requires review", 
-                "Schedule a dermatologist appointment. Avoid exposure to irritants.", 
-                StatusYellow
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ActionCard(
-                "Other conditions look normal", 
-                "Continue regular health monitoring and maintain a healthy lifestyle.", 
-                StatusGreen
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // --- DOWNLOAD BUTTON ---
             Button(
-                onClick = {},
+                onClick = { navController.navigate(NavRoutes.MultiDiseaseScanStart) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -195,11 +112,9 @@ fun ResultsScreen(navController: NavController) {
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0F2040)),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Download, null, tint = BarCyan)
+                Icon(Icons.Default.PlayArrow, null, tint = BarCyan)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Download Complete Report", color = BarCyan, fontSize = 16.sp)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Get a detailed PDF", color = TextGray, fontSize = 12.sp)
+                Text("Start a health scan", color = BarCyan, fontSize = 16.sp)
             }
             
             Spacer(modifier = Modifier.height(80.dp))

@@ -10,6 +10,9 @@ fun releaseProperty(name: String): String? =
     providers.gradleProperty(name).orNull ?: localProperties.getProperty(name)
 
 val productionApiUrl    = releaseProperty("productionApiUrl")
+    ?.trim()
+    ?.takeIf { it.isNotEmpty() }
+    ?: "https://helpix-2.onrender.com/"
 val googleMapsApiKey    = releaseProperty("googleMapsApiKey")
 val geminiApiKey        = releaseProperty("geminiApiKey") ?: ""
 val hfApiKey            = releaseProperty("hfApiKey") ?: ""
@@ -60,13 +63,13 @@ android {
 
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "API_BASE_URL", "\"https://helpix-2.onrender.com/\"")
+            buildConfigField("String", "API_BASE_URL", "\"$productionApiUrl\"")
             manifestPlaceholders["cleartextTrafficPermitted"] = "true"
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            buildConfigField("String", "API_BASE_URL", "\"https://helpix-2.onrender.com/\"")
+            buildConfigField("String", "API_BASE_URL", "\"$productionApiUrl\"")
             manifestPlaceholders["cleartextTrafficPermitted"] = "false"
             signingConfig = signingConfigs.getByName("release")
             proguardFiles(

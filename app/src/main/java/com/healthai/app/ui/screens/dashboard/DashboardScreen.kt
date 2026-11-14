@@ -24,9 +24,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.healthai.app.ui.navigation.NavRoutes
+import com.healthai.app.ui.screens.profile.ProfileViewModel
 import com.healthai.app.ui.viewmodel.HealthViewModel
 
 // --- User-Friendly Light Palette Constants ---
@@ -47,15 +46,17 @@ fun DashboardScreen(
     healthViewModel: HealthViewModel = hiltViewModel()
 ) {
     val healthState by healthViewModel.uiState.collectAsState()
-    var userType by remember { mutableStateOf("PATIENT") }
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val profile by profileViewModel.user.collectAsState()
+    val profileLoading by profileViewModel.isLoading.collectAsState()
+    val userType = profile?.role ?: "PATIENT"
 
-    LaunchedEffect(Unit) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid
-        if (uid != null) {
-            FirebaseFirestore.getInstance().collection("users").document(uid).get()
-                .addOnSuccessListener { document ->
-                    userType = document.getString("userType") ?: "PATIENT"
-                }
+    LaunchedEffect(profile?.role, profileLoading) {
+        if (!profileLoading && profile?.role == "DOCTOR") {
+            navController.navigate(NavRoutes.DoctorDashboard) {
+                popUpTo(NavRoutes.Dashboard) { inclusive = true }
+                launchSingleTop = true
+            }
         }
     }
 

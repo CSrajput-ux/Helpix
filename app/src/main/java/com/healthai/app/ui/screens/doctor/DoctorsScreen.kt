@@ -186,8 +186,6 @@ fun SpecialtyHeader(name: String, icon: ImageVector, color: Color) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(8.dp))
         Text(name, color = DarkCharcoalText, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.weight(1f))
-        Text("See All", color = color, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.clickable { })
     }
 }
 
